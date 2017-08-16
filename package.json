@@ -18,8 +18,7 @@
     "tslint": "tslint --type-check --project tsconfig.json -c tslint.json lib/**/*.ts",
     "preversion": "npm run clean && npm run build && npm test",
     "version": "git add -A",
-    "postversion": "git push origin --tags",
-    "prepare": "npm run clean && npm run build && npm test"
+    "postversion": "git push origin --tags"
   },
   "repository": {
     "type": "git",
