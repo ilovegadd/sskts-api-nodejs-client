@@ -1,0 +1,66 @@
+{
+  "name": "sskts-api",
+  "version": "1.0.0",
+  "description": "sskts API Client Library for Node.js",
+  "main": "./lib/index.js",
+  "types": "./types/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check": "npm run tslint && nsp check",
+    "clean": "rimraf lib/**/*.js test/**/*.js types/* npm-debug.log* docs/*",
+    "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",
+    "nyc": "nyc mocha",
+    "snyk": "snyk auth && snyk test --ignore-policy",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tslint": "tslint --type-check --project tsconfig.json -c tslint.json lib/**/*.ts",
+    "preversion": "npm run clean && npm run build && npm test",
+    "version": "git add -A",
+    "postversion": "git push origin --tags",
+    "prepare": "npm run clean && npm run build && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://m-p.backlog.jp/git/SSKTS/api-nodejs-client.git"
+  },
+  "keywords": [
+    "sskts",
+    "sskts-api"
+  ],
+  "author": {
+    "name": "Motionpicture co.,ltd."
+  },
+  "contributors": [
+    {
+      "email": "yamazaki@motionpicture.jp",
+      "name": "Tetsu Yamazaki"
+    }
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "@types/http-status": "^0.2.29",
+    "@types/mocha": "^2.2.41",
+    "@types/request": "^2.0.1",
+    "@types/request-promise-native": "^1.0.6",
+    "http-server": "^0.10.0",
+    "ink-docstrap": "^1.3.0",
+    "jsdoc": "^3.5.4",
+    "mocha": "^3.5.0",
+    "nsp": "^2.7.0",
+    "nyc": "^11.1.0",
+    "rimraf": "^2.6.1",
+    "snyk": "^1.38.2",
+    "tslint": "^5.6.0",
+    "tslint-microsoft-contrib": "^5.0.1",
+    "typescript": "^2.4.2"
+  },
+  "dependencies": {
+    "@motionpicture/sskts-domain": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/domain.git#feature/SSKTS-533",
+    "debug": "^3.0.0",
+    "http-status": "^1.0.1",
+    "request-promise-native": "^1.0.4"
+  }
+}
