@@ -1,5 +1,5 @@
 {
-  "name": "sskts-api",
+  "name": "@motionpicture/sskts-api",
   "version": "1.0.0",
   "description": "sskts API Client Library for Node.js",
   "main": "./lib/index.js",
