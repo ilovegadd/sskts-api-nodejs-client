@@ -27,6 +27,12 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
+    // auth.setCredentials({
+    //     expiry_date: 1503110099,
+    //     access_token: 'eyJraWQiOiJ0U3dFVmJTa0IzZzlVY01YajBpOWpISGRXRk9FamsxQUNKOHZrZ3VhV0lzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJhOTZhNzZhZi04YmZhLTQwMmUtYmEzMC1kYmYxNDk0NmU0M2QiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIHBob25lIG9wZW5pZCBodHRwczpcL1wvc3NrdHMtYXBpLWRldmVsb3BtZW50LmF6dXJld2Vic2l0ZXMubmV0XC9ldmVudHMucmVhZC1vbmx5IHByb2ZpbGUgaHR0cHM6XC9cL3Nza3RzLWFwaS1kZXZlbG9wbWVudC5henVyZXdlYnNpdGVzLm5ldFwvb3JnYW5pemF0aW9ucy5yZWFkLW9ubHkgaHR0cHM6XC9cL3Nza3RzLWFwaS1kZXZlbG9wbWVudC5henVyZXdlYnNpdGVzLm5ldFwvdHJhbnNhY3Rpb25zIGVtYWlsIiwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb21cL2FwLW5vcnRoZWFzdC0xX3pUaGkwajFmZSIsImV4cCI6MTUwMzEwOTk1MywiaWF0IjoxNTAzMTA2MzUzLCJ2ZXJzaW9uIjoyLCJqdGkiOiI0MWRiMGNkNi1jNDU4LTRkMDUtYTExYS1hYzM3N2IzN2NkZGQiLCJjbGllbnRfaWQiOiI2ZmlndW4xMmdjZHRsajllNTNwMnUzb3F2bCIsInVzZXJuYW1lIjoiaWxvdmVnYWRkQGdtYWlsLmNvbSJ9.TD_4abZc80dnOZoFZPea8kvIIoSMVNTRepEUdsZoGtv8889Ux445rz3XI8dp24DRfUQsY2RQWOT-t4A-Ceamh0Qj1vR-IAoQSwGFh0oU64zQeb-TRTvQ2iM4aLwuhpn1CJP9L7-fAPoc7wt97g9mNUQZkH-6-gzDkV32Cptlp5TnvZiHt6okDVjH7SqWHHSEsS3QLFilIEDamtJFdLHztdeV1Un8kt3371MCfHnbHS6-Iy6Z0D4g5un1C6Yj-ylNimfFrjRpJwylHPecoVnDK013vVY1RHwQPL0wDUJKpwt3ZuRkzQ2IQ621Jb6FwQxvhuyGFiGHEQ4_rg1KSlR7uw',
+    //     token_type: 'Bearer'
+    // });
+
     // 上映イベント検索
     const individualScreeningEvents = await sskts.service.event.searchIndividualScreeningEvent({
         auth: auth,
@@ -287,5 +293,5 @@ ${order.customer.name} 様
 main().then(() => {
     debug('main processed.');
 }).catch((err) => {
-    console.error(err.message);
+    console.error(err);
 });

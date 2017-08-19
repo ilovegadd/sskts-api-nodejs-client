@@ -81,18 +81,19 @@ export class DefaultTransporter {
                 }
 
                 if (typeof res.body === 'object' && res.body.errors !== undefined) {
+                    // consider 400
                     err = new RequestError((<any[]>res.body.errors).map((error) => `${error.title}:${error.detail}`).join('\n'));
                     err.code = res.statusCode;
                     err.errors = res.body.errors;
                 }
-            }
-
-            if (res.body !== undefined && res.body.data !== undefined) {
-                // consider 200,201,404
-                return res.body.data;
             } else {
-                // consider 204
-                return;
+                if (res.body !== undefined && res.body.data !== undefined) {
+                    // consider 200,201,404
+                    return res.body.data;
+                } else {
+                    // consider 204
+                    return;
+                }
             }
         }
 
