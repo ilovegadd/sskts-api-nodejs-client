@@ -13,11 +13,11 @@ export declare class PlaceService extends Service {
         /**
          * 検索条件
          */
-        searchConditions?: sskts.service.place.ISearchMovieTheatersConditions): Promise<sskts.service.place.ISearchMovieTheaterResult[]>;
+        params?: sskts.service.place.ISearchMovieTheatersConditions): Promise<sskts.service.place.ISearchMovieTheaterResult[]>;
     /**
      * 劇場情報取得
      */
-    findMovieTheater(args: {
+    findMovieTheater(params: {
         /**
          * 枝番号
          */

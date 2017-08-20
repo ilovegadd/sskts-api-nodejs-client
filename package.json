@@ -1,5 +1,5 @@
 {
-  "name": "@motionpicture/sskts-api",
+  "name": "@motionpicture/sasaki-api-nodejs",
   "version": "1.0.0",
   "description": "sskts API Client Library for Node.js",
   "main": "./lib/index.js",
@@ -25,8 +25,7 @@
     "url": "https://m-p.backlog.jp/git/SSKTS/api-nodejs-client.git"
   },
   "keywords": [
-    "sskts",
-    "sskts-api"
+    "sasaki-api"
   ],
   "author": {
     "name": "Motionpicture co.,ltd."

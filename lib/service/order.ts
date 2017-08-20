@@ -19,15 +19,15 @@ export class OrderService extends Service {
         /**
          * 注文照会キー
          */
-        orderInquiryKey: sskts.factory.orderInquiryKey.IOrderInquiryKey
+        params: sskts.factory.orderInquiryKey.IOrderInquiryKey
     ): Promise<sskts.factory.order.IOrder | null> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/orders/findByOrderInquiryKey',
             method: 'POST',
             expectedStatusCodes: [NOT_FOUND, OK],
-            auth: { bearer: await this.options.auth.getAccessToken() },
-            body: orderInquiryKey
+            body: params
         });
     }
 }

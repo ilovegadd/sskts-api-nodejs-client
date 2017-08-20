@@ -19,7 +19,7 @@ export declare class PlaceOrderTransactionService extends Service {
      * 取引を開始する
      * 開始できない場合(混雑中など)、nullが返されます。
      */
-    start(args: {
+    start(params: {
         /**
          * 取引期限
          * 指定した日時を過ぎると、取引を進行することはできなくなります。
@@ -33,7 +33,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * 取引に座席予約を追加する
      */
-    createSeatReservationAuthorization(args: {
+    createSeatReservationAuthorization(params: {
         /**
          * 取引ID
          */
@@ -50,7 +50,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * 座席予約取消
      */
-    cancelSeatReservationAuthorization(args: {
+    cancelSeatReservationAuthorization(params: {
         /**
          * 取引ID
          */
@@ -63,7 +63,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * クレジットカードのオーソリを取得する
      */
-    createCreditCardAuthorization(args: {
+    createCreditCardAuthorization(params: {
         /**
          * 取引ID
          */
@@ -88,7 +88,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * クレジットカードオーソリ取消
      */
-    cancelCreditCardAuthorization(args: {
+    cancelCreditCardAuthorization(params: {
         /**
          * 取引ID
          */
@@ -101,7 +101,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * 決済方法として、ムビチケを追加する
      */
-    createMvtkAuthorization(args: {
+    createMvtkAuthorization(params: {
         /**
          * 取引ID
          */
@@ -114,7 +114,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * ムビチケ取消
      */
-    cancelMvtkAuthorization(args: {
+    cancelMvtkAuthorization(params: {
         /**
          * 取引ID
          */
@@ -127,7 +127,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * 購入者情報登録
      */
-    setAgentProfile(args: {
+    setAgentProfile(params: {
         /**
          * 取引ID
          */
@@ -140,7 +140,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * 取引確定
      */
-    confirm(args: {
+    confirm(params: {
         /**
          * 取引ID
          */
@@ -149,7 +149,7 @@ export declare class PlaceOrderTransactionService extends Service {
     /**
      * 確定した取引に関して、購入者にメール通知を送信する
      */
-    sendEmailNotification(args: {
+    sendEmailNotification(params: {
         /**
          * 取引ID
          */

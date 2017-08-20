@@ -24,7 +24,7 @@ export class PersonService extends Service {
     /**
      * プロフィール取得
      */
-    public async getProfile(args: {
+    public async getProfile(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -32,9 +32,9 @@ export class PersonService extends Service {
         personId: string;
     }): Promise<sskts.factory.person.IProfile> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
-            uri: `/people/${args.personId}/profile`,
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            uri: `/people/${params.personId}/profile`,
             method: 'GET',
             expectedStatusCodes: [OK]
         });
@@ -43,7 +43,7 @@ export class PersonService extends Service {
     /**
      * プロフィール変更
      */
-    public async updateProfile(args: {
+    public async updateProfile(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -55,10 +55,10 @@ export class PersonService extends Service {
         profile: sskts.factory.person.IProfile
     }): Promise<void> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
-            uri: `/people/${args.personId}/profile`,
-            body: args.profile,
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            uri: `/people/${params.personId}/profile`,
+            body: params.profile,
             method: 'PUT',
             expectedStatusCodes: [NO_CONTENT]
         });
@@ -67,7 +67,7 @@ export class PersonService extends Service {
     /**
      * クレジットカード検索
      */
-    public async findCreditCards(args: {
+    public async findCreditCards(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -75,9 +75,9 @@ export class PersonService extends Service {
         personId: string;
     }): Promise<sskts.GMO.services.card.ISearchCardResult[]> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
-            uri: `/people/${args.personId}/creditCards`,
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            uri: `/people/${params.personId}/creditCards`,
             method: 'GET',
             expectedStatusCodes: [OK]
         });
@@ -86,7 +86,7 @@ export class PersonService extends Service {
     /**
      * クレジットカード追加
      */
-    public async addCreditCard(args: {
+    public async addCreditCard(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -98,10 +98,10 @@ export class PersonService extends Service {
         creditCard: IPresavedCreditCardRaw | IPresavedCreditCardTokenized
     }): Promise<sskts.GMO.services.card.ISearchCardResult> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
-            uri: `/people/${args.personId}/creditCards`,
-            body: args.creditCard,
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            uri: `/people/${params.personId}/creditCards`,
+            body: params.creditCard,
             method: 'POST',
             expectedStatusCodes: [CREATED]
         });

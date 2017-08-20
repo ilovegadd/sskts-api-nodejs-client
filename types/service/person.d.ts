@@ -18,7 +18,7 @@ export declare class PersonService extends Service {
     /**
      * プロフィール取得
      */
-    getProfile(args: {
+    getProfile(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -28,7 +28,7 @@ export declare class PersonService extends Service {
     /**
      * プロフィール変更
      */
-    updateProfile(args: {
+    updateProfile(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -42,7 +42,7 @@ export declare class PersonService extends Service {
     /**
      * クレジットカード検索
      */
-    findCreditCards(args: {
+    findCreditCards(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。
@@ -52,7 +52,7 @@ export declare class PersonService extends Service {
     /**
      * クレジットカード追加
      */
-    addCreditCard(args: {
+    addCreditCard(params: {
         /**
          * 人物ID
          * ログイン中の人物の場合、'me'を指定してください。

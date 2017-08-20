@@ -14,5 +14,5 @@ export declare class OrderService extends Service {
         /**
          * 注文照会キー
          */
-        orderInquiryKey: sskts.factory.orderInquiryKey.IOrderInquiryKey): Promise<sskts.factory.order.IOrder | null>;
+        params: sskts.factory.orderInquiryKey.IOrderInquiryKey): Promise<sskts.factory.order.IOrder | null>;
 }

@@ -18,33 +18,33 @@ export class PlaceService extends Service {
         /**
          * 検索条件
          */
-        searchConditions?: sskts.service.place.ISearchMovieTheatersConditions
+        params?: sskts.service.place.ISearchMovieTheatersConditions
     ): Promise<sskts.service.place.ISearchMovieTheaterResult[]> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/places/movieTheater',
             method: 'GET',
             expectedStatusCodes: [OK],
-            qs: searchConditions,
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            qs: params
         });
     }
 
     /**
      * 劇場情報取得
      */
-    public async findMovieTheater(args: {
+    public async findMovieTheater(params: {
         /**
          * 枝番号
          */
         branchCode: string;
     }): Promise<sskts.factory.place.movieTheater.IPlace | null> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
-            uri: `/places/movieTheater/${args.branchCode}`,
+            uri: `/places/movieTheater/${params.branchCode}`,
             method: 'GET',
-            expectedStatusCodes: [NOT_FOUND, OK],
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            expectedStatusCodes: [NOT_FOUND, OK]
         });
     }
 }

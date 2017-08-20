@@ -18,33 +18,33 @@ export class OrganizationService extends Service {
         /**
          * 検索条件
          */
-        searchConditions?: {}
+        params?: {}
     ): Promise<sskts.service.organization.IMovieTheater[]> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/organizations/movieTheater',
             method: 'GET',
             expectedStatusCodes: [OK],
-            auth: { bearer: await this.options.auth.getAccessToken() },
-            qs: searchConditions
+            qs: params
         });
     }
 
     /**
      * 枝番号で劇場組織検索
      */
-    public async findMovieTheaterByBranchCode(args: {
+    public async findMovieTheaterByBranchCode(params: {
         /**
          * 枝番号
          */
         branchCode: string;
     }): Promise<sskts.service.organization.IMovieTheater | null> {
         return await apiRequest({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
-            uri: `/organizations/movieTheater/${args.branchCode}`,
+            uri: `/organizations/movieTheater/${params.branchCode}`,
             method: 'GET',
-            expectedStatusCodes: [NOT_FOUND, OK],
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            expectedStatusCodes: [NOT_FOUND, OK]
         });
     }
 }

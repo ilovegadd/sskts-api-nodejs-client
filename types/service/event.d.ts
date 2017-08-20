@@ -13,12 +13,12 @@ export declare class EventService extends Service {
         /**
          * 検索条件
          */
-        searchConditions: sskts.service.event.ISearchPerformancesConditions): Promise<sskts.factory.event.individualScreeningEvent.IEvent[]>;
+        params: sskts.service.event.ISearchPerformancesConditions): Promise<sskts.factory.event.individualScreeningEvent.IEvent[]>;
     /**
      * 上映イベント情報取得
      * 存在しなければnullを返します。
      */
-    findIndividualScreeningEvent(args: {
+    findIndividualScreeningEvent(params: {
         /**
          * イベント識別子
          */

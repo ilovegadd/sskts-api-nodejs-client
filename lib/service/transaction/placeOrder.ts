@@ -26,7 +26,7 @@ export class PlaceOrderTransactionService extends Service {
      * 取引を開始する
      * 開始できない場合(混雑中など)、nullが返されます。
      */
-    public async start(args: {
+    public async start(params: {
         /**
          * 取引期限
          * 指定した日時を過ぎると、取引を進行することはできなくなります。
@@ -42,10 +42,10 @@ export class PlaceOrderTransactionService extends Service {
             uri: '/transactions/placeOrder/start',
             method: 'POST',
             expectedStatusCodes: [NOT_FOUND, OK],
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            auth: this.options.auth,
             body: {
-                expires: args.expires.valueOf(),
-                sellerId: args.sellerId
+                expires: params.expires.valueOf(),
+                sellerId: params.sellerId
             }
         });
     }
@@ -53,7 +53,7 @@ export class PlaceOrderTransactionService extends Service {
     /**
      * 取引に座席予約を追加する
      */
-    public async createSeatReservationAuthorization(args: {
+    public async createSeatReservationAuthorization(params: {
         /**
          * 取引ID
          */
@@ -69,13 +69,13 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<sskts.factory.authorization.seatReservation.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/seatReservationAuthorization`,
+            uri: `/transactions/placeOrder/${params.transactionId}/seatReservationAuthorization`,
             method: 'POST',
             expectedStatusCodes: [CREATED],
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            auth: this.options.auth,
             body: {
-                eventIdentifier: args.eventIdentifier,
-                offers: args.offers
+                eventIdentifier: params.eventIdentifier,
+                offers: params.offers
             }
         });
     }
@@ -83,7 +83,7 @@ export class PlaceOrderTransactionService extends Service {
     /**
      * 座席予約取消
      */
-    public async cancelSeatReservationAuthorization(args: {
+    public async cancelSeatReservationAuthorization(params: {
         /**
          * 取引ID
          */
@@ -95,17 +95,17 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<void> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/seatReservationAuthorization/${args.authorizationId}`,
+            uri: `/transactions/placeOrder/${params.transactionId}/seatReservationAuthorization/${params.authorizationId}`,
             method: 'DELETE',
             expectedStatusCodes: [NO_CONTENT],
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            auth: this.options.auth
         });
     }
 
     /**
      * クレジットカードのオーソリを取得する
      */
-    public async createCreditCardAuthorization(args: {
+    public async createCreditCardAuthorization(params: {
         /**
          * 取引ID
          */
@@ -129,15 +129,15 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<sskts.factory.authorization.gmo.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/paymentInfos/creditCard`,
+            uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/creditCard`,
             method: 'POST',
             expectedStatusCodes: [CREATED],
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            auth: this.options.auth,
             body: {
-                orderId: args.orderId,
-                amount: args.amount,
-                method: args.method,
-                creditCard: args.creditCard
+                orderId: params.orderId,
+                amount: params.amount,
+                method: params.method,
+                creditCard: params.creditCard
             }
         });
     }
@@ -145,7 +145,7 @@ export class PlaceOrderTransactionService extends Service {
     /**
      * クレジットカードオーソリ取消
      */
-    public async cancelCreditCardAuthorization(args: {
+    public async cancelCreditCardAuthorization(params: {
         /**
          * 取引ID
          */
@@ -157,17 +157,17 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<void> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/paymentInfos/creditCard/${args.authorizationId}`,
+            uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/creditCard/${params.authorizationId}`,
             method: 'DELETE',
             expectedStatusCodes: [NO_CONTENT],
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            auth: this.options.auth
         });
     }
 
     /**
      * 決済方法として、ムビチケを追加する
      */
-    public async createMvtkAuthorization(args: {
+    public async createMvtkAuthorization(params: {
         /**
          * 取引ID
          */
@@ -179,18 +179,18 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<sskts.factory.authorization.mvtk.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/paymentInfos/mvtk`,
+            uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/mvtk`,
             method: 'POST',
             expectedStatusCodes: [CREATED],
-            auth: { bearer: await this.options.auth.getAccessToken() },
-            body: args.mvtk
+            auth: this.options.auth,
+            body: params.mvtk
         });
     }
 
     /**
      * ムビチケ取消
      */
-    public async cancelMvtkAuthorization(args: {
+    public async cancelMvtkAuthorization(params: {
         /**
          * 取引ID
          */
@@ -202,17 +202,17 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<void> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/paymentInfos/mvtk/${args.authorizationId}`,
+            uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/mvtk/${params.authorizationId}`,
             method: 'DELETE',
             expectedStatusCodes: [NO_CONTENT],
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            auth: this.options.auth
         });
     }
 
     /**
      * 購入者情報登録
      */
-    public async setAgentProfile(args: {
+    public async setAgentProfile(params: {
         /**
          * 取引ID
          */
@@ -224,18 +224,18 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<void> {
         await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/agent/profile`,
+            uri: `/transactions/placeOrder/${params.transactionId}/agent/profile`,
             method: 'PUT',
             expectedStatusCodes: [NO_CONTENT],
-            auth: { bearer: await this.options.auth.getAccessToken() },
-            body: args.profile
+            auth: this.options.auth,
+            body: params.profile
         });
     }
 
     /**
      * 取引確定
      */
-    public async confirm(args: {
+    public async confirm(params: {
         /**
          * 取引ID
          */
@@ -243,17 +243,17 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<sskts.factory.order.IOrder> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/confirm`,
+            uri: `/transactions/placeOrder/${params.transactionId}/confirm`,
             method: 'POST',
             expectedStatusCodes: [CREATED],
-            auth: { bearer: await this.options.auth.getAccessToken() }
+            auth: this.options.auth
         });
     }
 
     /**
      * 確定した取引に関して、購入者にメール通知を送信する
      */
-    public async sendEmailNotification(args: {
+    public async sendEmailNotification(params: {
         /**
          * 取引ID
          */
@@ -265,11 +265,11 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<sskts.factory.order.IOrder> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${args.transactionId}/tasks/sendEmailNotification`,
+            uri: `/transactions/placeOrder/${params.transactionId}/tasks/sendEmailNotification`,
             method: 'POST',
             expectedStatusCodes: [NO_CONTENT],
-            auth: { bearer: await this.options.auth.getAccessToken() },
-            body: args.emailNotification
+            auth: this.options.auth,
+            body: params.emailNotification
         });
     }
 }

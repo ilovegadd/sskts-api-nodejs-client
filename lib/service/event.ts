@@ -18,15 +18,15 @@ export class EventService extends Service {
         /**
          * 検索条件
          */
-        searchConditions: sskts.service.event.ISearchPerformancesConditions
+        params: sskts.service.event.ISearchPerformancesConditions
     ): Promise<sskts.factory.event.individualScreeningEvent.IEvent[]> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: '/events/individualScreeningEvent',
-            qs: searchConditions,
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            auth: this.options.auth,
             method: 'GET',
-            expectedStatusCodes: [OK]
+            expectedStatusCodes: [OK],
+            qs: params
         });
     }
 
@@ -34,7 +34,7 @@ export class EventService extends Service {
      * 上映イベント情報取得
      * 存在しなければnullを返します。
      */
-    public async findIndividualScreeningEvent(args: {
+    public async findIndividualScreeningEvent(params: {
         /**
          * イベント識別子
          */
@@ -42,8 +42,8 @@ export class EventService extends Service {
     }): Promise<sskts.factory.event.individualScreeningEvent.IEvent | null> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/events/individualScreeningEvent/${args.identifier}`,
-            auth: { bearer: await this.options.auth.getAccessToken() },
+            uri: `/events/individualScreeningEvent/${params.identifier}`,
+            auth: this.options.auth,
             method: 'GET',
             expectedStatusCodes: [OK, NOT_FOUND]
         });
