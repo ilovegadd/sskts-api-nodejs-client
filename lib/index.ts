@@ -7,38 +7,43 @@
 if (typeof process.env.SSKTS_OAUTH2_TOKEN_URL !== 'string' || (<string>process.env.SSKTS_OAUTH2_TOKEN_URL).length === 0) {
     throw new Error('NPM warnings. The environment variable "SSKTS_OAUTH2_TOKEN_URL" is required for using @motionpicture/sskts-api');
 }
-if (typeof process.env.SSKTS_API_ENDPOINT !== 'string' || (<string>process.env.SSKTS_API_ENDPOINT).length === 0) {
-    throw new Error('NPM warnings. The environment variable "SSKTS_API_ENDPOINT" is required for using @motionpicture/sskts-api');
-}
 
 import ClientCredentialsClient from './auth/clientCredentialsClient';
-import GoogleTokenClient from './auth/googleTokenClient';
 
-import * as EventService from './service/event';
-import * as OrderService from './service/order';
-import * as OrganizationService from './service/organization';
-import * as PersonService from './service/person';
-import * as PlaceService from './service/place';
-import * as PlaceOrderTransactionService from './service/transaction/placeOrder';
+import { IOptions } from './service';
+import { EventService } from './service/event';
+import { OrderService } from './service/order';
+import { OrganizationService } from './service/organization';
+import { PersonService } from './service/person';
+import { PlaceService } from './service/place';
+import { PlaceOrderTransactionService } from './service/transaction/placeOrder';
 
 export namespace auth {
     /**
      * auth/ClientCredentials
      */
     export class ClientCredentials extends ClientCredentialsClient { }
-    /**
-     * auth/GoogleToken
-     */
-    export class GoogleToken extends GoogleTokenClient { }
 }
 
 export namespace service {
-    export import event = EventService;
-    export import order = OrderService;
-    export import organization = OrganizationService;
-    export import person = PersonService;
-    export import place = PlaceService;
+    export function event(options: IOptions) {
+        return new EventService(options);
+    }
+    export function order(options: IOptions) {
+        return new OrderService(options);
+    }
+    export function organization(options: IOptions) {
+        return new OrganizationService(options);
+    }
+    export function person(options: IOptions) {
+        return new PersonService(options);
+    }
+    export function place(options: IOptions) {
+        return new PlaceService(options);
+    }
     export namespace transaction {
-        export import placeOrder = PlaceOrderTransactionService;
+        export function placeOrder(options: IOptions) {
+            return new PlaceOrderTransactionService(options);
+        }
     }
 }

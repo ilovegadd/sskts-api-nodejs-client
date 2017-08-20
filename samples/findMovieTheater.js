@@ -17,9 +17,13 @@ async function main() {
         ]
     );
 
+    const place = sskts.service.place({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
     // 劇場情報取得
-    const movieTheater = await sskts.service.place.findMovieTheater({
-        auth: auth,
+    const movieTheater = await place.findMovieTheater({
         branchCode: '118'
     });
     debug('movieTheater is', movieTheater);

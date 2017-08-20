@@ -33,18 +33,29 @@ async function main() {
     //     token_type: 'Bearer'
     // });
 
+    const events = sskts.service.event({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const organizations = sskts.service.organization({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const placeOrderTransactions = sskts.service.transaction.placeOrder({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
     // 上映イベント検索
-    const individualScreeningEvents = await sskts.service.event.searchIndividualScreeningEvent({
-        auth: auth,
-        searchConditions: {
-            theater: '118',
-            day: moment().add(1, 'day').format('YYYYMMDD')
-        }
+    const individualScreeningEvents = await events.searchIndividualScreeningEvent({
+        theater: '118',
+        day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
     // イベント情報取得
-    const individualScreeningEvent = await sskts.service.event.findIndividualScreeningEvent({
-        auth: auth,
+    const individualScreeningEvent = await events.findIndividualScreeningEvent({
         identifier: individualScreeningEvents[0].identifier
     });
     if (individualScreeningEvent === null) {
@@ -52,8 +63,7 @@ async function main() {
     }
 
     // 劇場ショップ検索
-    const movieTheaterOrganization = await sskts.service.organization.findMovieTheaterByBranchCode({
-        auth: auth,
+    const movieTheaterOrganization = await organizations.findMovieTheaterByBranchCode({
         branchCode: individualScreeningEvent.coaInfo.theaterCode
     });
     if (movieTheaterOrganization === null) {
@@ -71,8 +81,7 @@ async function main() {
     // 1分後のunix timestampを送信する場合
     // https://ja.wikipedia.org/wiki/UNIX%E6%99%82%E9%96%93
     debug('注文取引を開始します...');
-    const transaction = await sskts.service.transaction.placeOrder.start({
-        auth: auth,
+    const transaction = await placeOrderTransactions.start({
         expires: moment().add(1, 'minutes').toDate(),
         sellerId: movieTheaterOrganization.id
     });
@@ -108,8 +117,7 @@ async function main() {
 
     // 座席仮予約
     debug('座席を仮予約します...');
-    let seatReservationAuthorization = await sskts.service.transaction.placeOrder.createSeatReservationAuthorization({
-        auth: auth,
+    let seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
         eventIdentifier: individualScreeningEvent.identifier,
         offers: [
@@ -143,16 +151,14 @@ async function main() {
 
     // 座席仮予約取消
     debug('座席仮予約を取り消します...');
-    await sskts.service.transaction.placeOrder.cancelSeatReservationAuthorization({
-        auth: auth,
+    await placeOrderTransactions.cancelSeatReservationAuthorization({
         transactionId: transaction.id,
         authorizationId: seatReservationAuthorization.id
     });
 
     // 再度座席仮予約
     debug('座席を仮予約します...');
-    seatReservationAuthorization = await sskts.service.transaction.placeOrder.createSeatReservationAuthorization({
-        auth: auth,
+    seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
         eventIdentifier: individualScreeningEvent.identifier,
         offers: [
@@ -196,8 +202,7 @@ async function main() {
         '01'
     );
     debug('クレジットカードのオーソリをとります...');
-    let creditCardAuthorization = await sskts.service.transaction.placeOrder.createCreditCardAuthorization({
-        auth: auth,
+    let creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,
         amount: amount,
@@ -212,8 +217,7 @@ async function main() {
 
     // クレジットカードオーソリ取消
     debug('クレジットカードのオーソリを取り消します...');
-    await sskts.service.transaction.placeOrder.cancelCreditCardAuthorization({
-        auth: auth,
+    await placeOrderTransactions.cancelCreditCardAuthorization({
         transactionId: transaction.id,
         authorizationId: creditCardAuthorization.id
     });
@@ -228,8 +232,7 @@ async function main() {
         '02'
     );
     debug('クレジットカードのオーソリをとります...');
-    creditCardAuthorization = await sskts.service.transaction.placeOrder.createCreditCardAuthorization({
-        auth: auth,
+    creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,
         amount: amount,
@@ -250,8 +253,7 @@ async function main() {
         telephone: '09012345678',
         email: process.env.SSKTS_DEVELOPER_EMAIL
     };
-    await sskts.service.transaction.placeOrder.setAgentProfile({
-        auth: auth,
+    await placeOrderTransactions.setAgentProfile({
         transactionId: transaction.id,
         profile: profile
     });
@@ -259,8 +261,7 @@ async function main() {
 
     // 取引確定
     debug('注文取引を確定します...');
-    const order = await sskts.service.transaction.placeOrder.confirm({
-        auth: auth,
+    const order = await placeOrderTransactions.confirm({
         transactionId: transaction.id
     });
     debug('注文が作成されました', order);
@@ -277,8 +278,7 @@ ${order.customer.name} 様
 -------------------------------------------------------------------
 `;
     debug('メール通知を実行します...', content);
-    await sskts.service.transaction.placeOrder.sendEmailNotification({
-        auth: auth,
+    await placeOrderTransactions.sendEmailNotification({
         transactionId: transaction.id,
         emailNotification: {
             from: 'noreply@example.com',

@@ -8,24 +8,26 @@ import * as sskts from '@motionpicture/sskts-domain';
 import { NOT_FOUND, OK } from 'http-status';
 import apiRequest from '../apiRequest';
 
-import OAuth2client from '../auth/oAuth2client';
+import { Service } from '../service';
 
-/**
- * 照会キーで注文情報を取得する
- * 存在しなければnullを返します。
- */
-export async function findByOrderInquiryKey(args: {
-    auth: OAuth2client;
+export class OrderService extends Service {
     /**
-     * 注文照会キー
+     * 照会キーで注文情報を取得する
+     * 存在しなければnullを返します。
      */
-    orderInquiryKey: sskts.factory.orderInquiryKey.IOrderInquiryKey;
-}): Promise<sskts.factory.order.IOrder | null> {
-    return await apiRequest({
-        uri: '/orders/findByOrderInquiryKey',
-        method: 'POST',
-        expectedStatusCodes: [NOT_FOUND, OK],
-        auth: { bearer: await args.auth.getAccessToken() },
-        body: args.orderInquiryKey
-    });
+    public async findByOrderInquiryKey(
+        /**
+         * 注文照会キー
+         */
+        orderInquiryKey: sskts.factory.orderInquiryKey.IOrderInquiryKey
+    ): Promise<sskts.factory.order.IOrder | null> {
+        return await apiRequest({
+            baseUrl: this.options.endpoint,
+            uri: '/orders/findByOrderInquiryKey',
+            method: 'POST',
+            expectedStatusCodes: [NOT_FOUND, OK],
+            auth: { bearer: await this.options.auth.getAccessToken() },
+            body: orderInquiryKey
+        });
+    }
 }

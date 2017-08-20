@@ -4,7 +4,6 @@ import ICredentials from './credentials';
  */
 export default class OAuth2client {
     protected static readonly SSKTS_OAUTH2_TOKEN_URL: string;
-    protected static readonly SSKTS_OAUTH2_TOKEN_GOOGLE_URL: string;
     credentials: ICredentials;
     clientId: string;
     clientSecret: string;
@@ -21,7 +20,6 @@ export default class OAuth2client {
      * 必要であれば更新してから取得します。
      */
     getAccessToken(): Promise<string>;
-    signInWithLINE(idToken: string): Promise<ICredentials>;
     /**
      * Refreshes the access token.
      */

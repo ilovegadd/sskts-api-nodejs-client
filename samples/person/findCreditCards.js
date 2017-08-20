@@ -5,7 +5,7 @@
  */
 
 const debug = require('debug')('sskts-api:samples');
-const sskts = require('../lib/index');
+const sskts = require('../../lib/index');
 
 async function main() {
     // Googleから受け取ったid_tokenを使ってサインイン
@@ -20,8 +20,12 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
-    const creditCards = await sskts.service.person.findCreditCards({
-        auth: auth,
+    const people = sskts.service.person({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const creditCards = await people.findCreditCards({
         personId: 'me'
     });
     debug('creditCards are', creditCards);

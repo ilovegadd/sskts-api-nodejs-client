@@ -20,18 +20,19 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
+    const event = sskts.service.event({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
     // 上映イベント検索
-    const individualScreeningEvents = await sskts.service.event.searchIndividualScreeningEvent({
-        auth: auth,
-        searchConditions: {
-            theater: '118',
-            day: moment().format('YYYYMMDD')
-        }
+    const individualScreeningEvents = await event.searchIndividualScreeningEvent({
+        theater: '118',
+        day: moment().format('YYYYMMDD')
     });
 
     // イベント情報取得
-    const individualScreeningEvent = await sskts.service.event.findIndividualScreeningEvent({
-        auth: auth,
+    const individualScreeningEvent = await event.findIndividualScreeningEvent({
         identifier: individualScreeningEvents[0].identifier
     });
     if (individualScreeningEvent === null) {

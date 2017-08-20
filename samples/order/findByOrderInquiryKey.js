@@ -5,7 +5,7 @@
  */
 
 const debug = require('debug')('sskts-api:samples');
-const sskts = require('../lib/index');
+const sskts = require('../../lib/index');
 
 async function main() {
     const auth = new sskts.auth.ClientCredentials(
@@ -19,13 +19,15 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
-    const order = await sskts.service.order.findByOrderInquiryKey({
-        auth: auth,
-        orderInquiryKey: {
-            telephone: '09012345678',
-            orderNumber: 3045,
-            theaterCode: '118'
-        }
+    const orderService = sskts.service.order({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const order = await orderService.findByOrderInquiryKey({
+        telephone: '09012345678',
+        orderNumber: 3045,
+        theaterCode: '118'
     });
     debug('order is', order);
 }

@@ -1,30 +1,25 @@
 import ClientCredentialsClient from './auth/clientCredentialsClient';
-import GoogleTokenClient from './auth/googleTokenClient';
-import * as EventService from './service/event';
-import * as OrderService from './service/order';
-import * as OrganizationService from './service/organization';
-import * as PersonService from './service/person';
-import * as PlaceService from './service/place';
-import * as PlaceOrderTransactionService from './service/transaction/placeOrder';
+import { IOptions } from './service';
+import { EventService } from './service/event';
+import { OrderService } from './service/order';
+import { OrganizationService } from './service/organization';
+import { PersonService } from './service/person';
+import { PlaceService } from './service/place';
+import { PlaceOrderTransactionService } from './service/transaction/placeOrder';
 export declare namespace auth {
     /**
      * auth/ClientCredentials
      */
     class ClientCredentials extends ClientCredentialsClient {
     }
-    /**
-     * auth/GoogleToken
-     */
-    class GoogleToken extends GoogleTokenClient {
-    }
 }
 export declare namespace service {
-    export import event = EventService;
-    export import order = OrderService;
-    export import organization = OrganizationService;
-    export import person = PersonService;
-    export import place = PlaceService;
+    function event(options: IOptions): EventService;
+    function order(options: IOptions): OrderService;
+    function organization(options: IOptions): OrganizationService;
+    function person(options: IOptions): PersonService;
+    function place(options: IOptions): PlaceService;
     namespace transaction {
-        export import placeOrder = PlaceOrderTransactionService;
+        function placeOrder(options: IOptions): PlaceOrderTransactionService;
     }
 }

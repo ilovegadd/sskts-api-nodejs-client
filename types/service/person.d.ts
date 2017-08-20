@@ -4,44 +4,7 @@
  * @namespace service.person
  */
 import * as sskts from '@motionpicture/sskts-domain';
-import OAuth2client from '../auth/oAuth2client';
-/**
- * プロフィール取得
- */
-export declare function getProfile(args: {
-    auth: OAuth2client;
-    /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
-     */
-    personId: string;
-}): Promise<sskts.factory.person.IProfile>;
-/**
- * プロフィール変更
- */
-export declare function updateProfile(args: {
-    auth: OAuth2client;
-    /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
-     */
-    personId: string;
-    /**
-     * プロフィール
-     */
-    profile: sskts.factory.person.IProfile;
-}): Promise<void>;
-/**
- * クレジットカード検索
- */
-export declare function findCreditCards(args: {
-    auth: OAuth2client;
-    /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
-     */
-    personId: string;
-}): Promise<sskts.GMO.services.card.ISearchCardResult[]>;
+import { Service } from '../service';
 export interface IPresavedCreditCardRaw {
     cardNo: string;
     cardPass?: string;
@@ -51,18 +14,53 @@ export interface IPresavedCreditCardRaw {
 export interface IPresavedCreditCardTokenized {
     token: string;
 }
-/**
- * クレジットカード追加
- */
-export declare function addCreditCard(args: {
-    auth: OAuth2client;
+export declare class PersonService extends Service {
     /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
+     * プロフィール取得
      */
-    personId: string;
+    getProfile(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+    }): Promise<sskts.factory.person.IProfile>;
     /**
-     * クレジットカード情報
+     * プロフィール変更
      */
-    creditCard: IPresavedCreditCardRaw | IPresavedCreditCardTokenized;
-}): Promise<sskts.GMO.services.card.ISearchCardResult>;
+    updateProfile(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+        /**
+         * プロフィール
+         */
+        profile: sskts.factory.person.IProfile;
+    }): Promise<void>;
+    /**
+     * クレジットカード検索
+     */
+    findCreditCards(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+    }): Promise<sskts.GMO.services.card.ISearchCardResult[]>;
+    /**
+     * クレジットカード追加
+     */
+    addCreditCard(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+        /**
+         * クレジットカード情報
+         */
+        creditCard: IPresavedCreditCardRaw | IPresavedCreditCardTokenized;
+    }): Promise<sskts.GMO.services.card.ISearchCardResult>;
+}

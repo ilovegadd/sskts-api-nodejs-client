@@ -6,8 +6,6 @@ import * as request from 'request-promise-native';
 
 import { DefaultTransporter } from './transporters';
 
-const API_ENDPOINT = <string>process.env.SSKTS_API_ENDPOINT;
-
 export interface IOptions extends request.OptionsWithUri {
     expectedStatusCodes: number[];
 }
@@ -20,7 +18,6 @@ async function apiRequest(options: IOptions) {
     delete options.expectedStatusCodes;
 
     const defaultOptions = {
-        baseUrl: API_ENDPOINT,
         headers: {},
         qs: {},
         json: true,

@@ -8,69 +8,7 @@ import * as sskts from '@motionpicture/sskts-domain';
 import { CREATED, NO_CONTENT, OK } from 'http-status';
 import apiRequest from '../apiRequest';
 
-import OAuth2client from '../auth/oAuth2client';
-
-/**
- * プロフィール取得
- */
-export async function getProfile(args: {
-    auth: OAuth2client;
-    /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
-     */
-    personId: string;
-}): Promise<sskts.factory.person.IProfile> {
-    return await apiRequest({
-        uri: `/people/${args.personId}/profile`,
-        auth: { bearer: await args.auth.getAccessToken() },
-        method: 'GET',
-        expectedStatusCodes: [OK]
-    });
-}
-
-/**
- * プロフィール変更
- */
-export async function updateProfile(args: {
-    auth: OAuth2client;
-    /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
-     */
-    personId: string;
-    /**
-     * プロフィール
-     */
-    profile: sskts.factory.person.IProfile
-}): Promise<void> {
-    return await apiRequest({
-        uri: `/people/${args.personId}/profile`,
-        body: args.profile,
-        auth: { bearer: await args.auth.getAccessToken() },
-        method: 'PUT',
-        expectedStatusCodes: [NO_CONTENT]
-    });
-}
-
-/**
- * クレジットカード検索
- */
-export async function findCreditCards(args: {
-    auth: OAuth2client;
-    /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
-     */
-    personId: string;
-}): Promise<sskts.GMO.services.card.ISearchCardResult[]> {
-    return await apiRequest({
-        uri: `/people/${args.personId}/creditCards`,
-        auth: { bearer: await args.auth.getAccessToken() },
-        method: 'GET',
-        expectedStatusCodes: [OK]
-    });
-}
+import { Service } from '../service';
 
 export interface IPresavedCreditCardRaw {
     cardNo: string;
@@ -82,26 +20,90 @@ export interface IPresavedCreditCardTokenized {
     token: string;
 }
 
-/**
- * クレジットカード追加
- */
-export async function addCreditCard(args: {
-    auth: OAuth2client;
+export class PersonService extends Service {
     /**
-     * 人物ID
-     * ログイン中の人物の場合、'me'を指定してください。
+     * プロフィール取得
      */
-    personId: string;
+    public async getProfile(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+    }): Promise<sskts.factory.person.IProfile> {
+        return await apiRequest({
+            baseUrl: this.options.endpoint,
+            uri: `/people/${args.personId}/profile`,
+            auth: { bearer: await this.options.auth.getAccessToken() },
+            method: 'GET',
+            expectedStatusCodes: [OK]
+        });
+    }
+
     /**
-     * クレジットカード情報
+     * プロフィール変更
      */
-    creditCard: IPresavedCreditCardRaw | IPresavedCreditCardTokenized
-}): Promise<sskts.GMO.services.card.ISearchCardResult> {
-    return await apiRequest({
-        uri: `/people/${args.personId}/creditCards`,
-        body: args.creditCard,
-        auth: { bearer: await args.auth.getAccessToken() },
-        method: 'POST',
-        expectedStatusCodes: [CREATED]
-    });
+    public async updateProfile(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+        /**
+         * プロフィール
+         */
+        profile: sskts.factory.person.IProfile
+    }): Promise<void> {
+        return await apiRequest({
+            baseUrl: this.options.endpoint,
+            uri: `/people/${args.personId}/profile`,
+            body: args.profile,
+            auth: { bearer: await this.options.auth.getAccessToken() },
+            method: 'PUT',
+            expectedStatusCodes: [NO_CONTENT]
+        });
+    }
+
+    /**
+     * クレジットカード検索
+     */
+    public async findCreditCards(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+    }): Promise<sskts.GMO.services.card.ISearchCardResult[]> {
+        return await apiRequest({
+            baseUrl: this.options.endpoint,
+            uri: `/people/${args.personId}/creditCards`,
+            auth: { bearer: await this.options.auth.getAccessToken() },
+            method: 'GET',
+            expectedStatusCodes: [OK]
+        });
+    }
+
+    /**
+     * クレジットカード追加
+     */
+    public async addCreditCard(args: {
+        /**
+         * 人物ID
+         * ログイン中の人物の場合、'me'を指定してください。
+         */
+        personId: string;
+        /**
+         * クレジットカード情報
+         */
+        creditCard: IPresavedCreditCardRaw | IPresavedCreditCardTokenized
+    }): Promise<sskts.GMO.services.card.ISearchCardResult> {
+        return await apiRequest({
+            baseUrl: this.options.endpoint,
+            uri: `/people/${args.personId}/creditCards`,
+            body: args.creditCard,
+            auth: { bearer: await this.options.auth.getAccessToken() },
+            method: 'POST',
+            expectedStatusCodes: [CREATED]
+        });
+    }
 }

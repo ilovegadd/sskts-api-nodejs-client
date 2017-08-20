@@ -11,6 +11,7 @@ const debug = createDebug('sskts-api:auth:oAuth2client');
  * GooleサインインOAuthクライアント
  */
 export default class GoogleTokenClient extends OAuth2client {
+    public static SSKTS_OAUTH2_TOKEN_GOOGLE_URL: string = '';
     public idToken: string;
 
     constructor(idToken: string, clientId: string, state: string, scopes: string[]) {
@@ -24,7 +25,7 @@ export default class GoogleTokenClient extends OAuth2client {
         debug('requesting an access token...');
 
         return await request.post({
-            url: OAuth2client.SSKTS_OAUTH2_TOKEN_GOOGLE_URL,
+            url: GoogleTokenClient.SSKTS_OAUTH2_TOKEN_GOOGLE_URL,
             form: {
                 id_token: this.idToken,
                 client_id: this.clientId,

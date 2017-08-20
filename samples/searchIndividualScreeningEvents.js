@@ -20,12 +20,14 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
-    const individualScreeningEvents = await sskts.service.event.searchIndividualScreeningEvent({
-        auth: auth,
-        searchConditions: {
-            theater: '118',
-            day: moment().format('YYYYMMDD')
-        }
+    const event = sskts.service.event({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const individualScreeningEvents = await event.searchIndividualScreeningEvent({
+        theater: '118',
+        day: moment().format('YYYYMMDD')
     });
     debug('number of individualScreeningEvents is', individualScreeningEvents.length);
 }

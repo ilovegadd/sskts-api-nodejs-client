@@ -19,9 +19,13 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
+    const organization = sskts.service.organization({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
     // 劇場情報取得
-    const movieTheater = await sskts.service.organization.findMovieTheaterByBranchCode({
-        auth: auth,
+    const movieTheater = await organization.findMovieTheaterByBranchCode({
         branchCode: '118'
     });
     debug('movieTheater is', movieTheater);

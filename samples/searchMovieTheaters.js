@@ -19,8 +19,12 @@ async function main() {
     const credentials = await auth.refreshAccessToken();
     debug('credentials:', credentials);
 
-    const movieTheaters = await sskts.service.organization.searchMovieTheaters({
+    const organization = sskts.service.organization({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
+    });
+
+    const movieTheaters = await organization.searchMovieTheaters({
     });
     debug('movieTheaters are', movieTheaters);
 }
