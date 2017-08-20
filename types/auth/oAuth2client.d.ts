@@ -1,17 +1,27 @@
 /// <reference types="request-promise-native" />
 import * as request from 'request-promise-native';
 import ICredentials from './credentials';
+export interface IOptions {
+    domain: string;
+    clientId?: string;
+    clientSecret?: string;
+    redirectUri?: string;
+    logoutUri?: string;
+    responseType?: string;
+    responseMode?: string;
+    scopes?: string[];
+    state: string;
+    nonce?: string | null;
+    audience?: string;
+    tokenIssuer?: string;
+}
 /**
- * OAuth2client
+ * OAuth2 client
  */
 export default class OAuth2client {
-    protected static readonly SSKTS_OAUTH2_TOKEN_URL: string;
     credentials: ICredentials;
-    clientId: string;
-    clientSecret: string;
-    protected state: string;
-    protected scopes: string[];
-    constructor(clientId?: string, clientSecret?: string, state?: string, scopes?: string[]);
+    options: IOptions;
+    constructor(options: IOptions);
     /**
      * OAuthクライアントに認証情報をセットします。
      */

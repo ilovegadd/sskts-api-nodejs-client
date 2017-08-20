@@ -9,35 +9,45 @@ const COA = ssktsDomain.COA;
 const GMO = ssktsDomain.GMO;
 const debug = require('debug')('sskts-api:samples');
 const moment = require('moment');
-const sskts = require('../../lib/index');
+const sasaki = require('../../lib/index');
 
 // tslint:disable-next-line:max-func-body-length
 async function main() {
-    const auth = new sskts.auth.ClientCredentials(
-        process.env.TEST_CLIENT_ID,
-        process.env.TEST_CLIENT_SECRET,
-        'teststate',
-        [
+    const auth = new sasaki.auth.ClientCredentials({
+        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        clientId: process.env.TEST_CLIENT_ID,
+        clientSecret: process.env.TEST_CLIENT_SECRET,
+        scopes: [
             'https://sskts-api-development.azurewebsites.net/transactions',
             'https://sskts-api-development.azurewebsites.net/events.read-only',
             'https://sskts-api-development.azurewebsites.net/organizations.read-only'
-        ]
-    );
-    const credentials = await auth.refreshAccessToken();
-    debug('credentials:', credentials);
+        ],
+        state: 'teststate'
+    });
+
+    const events = sasaki.service.event({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const organizations = sasaki.service.organization({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+
+    const placeOrderTransactions = sasaki.service.transaction.placeOrder({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
 
     // 上映イベント検索
-    const individualScreeningEvents = await sskts.service.event.searchIndividualScreeningEvent({
-        auth: auth,
-        searchConditions: {
-            theater: '118',
-            day: moment().add(1, 'day').format('YYYYMMDD')
-        }
+    const individualScreeningEvents = await events.searchIndividualScreeningEvent({
+        theater: '118',
+        day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
     // イベント情報取得
-    const individualScreeningEvent = await sskts.service.event.findIndividualScreeningEvent({
-        auth: auth,
+    const individualScreeningEvent = await events.findIndividualScreeningEvent({
         identifier: individualScreeningEvents[0].identifier
     });
     if (individualScreeningEvent === null) {
@@ -45,8 +55,7 @@ async function main() {
     }
 
     // 劇場ショップ検索
-    const movieTheaterOrganization = await sskts.service.organization.findMovieTheaterByBranchCode({
-        auth: auth,
+    const movieTheaterOrganization = await organizations.findMovieTheaterByBranchCode({
         branchCode: individualScreeningEvent.coaInfo.theaterCode
     });
     if (movieTheaterOrganization === null) {
@@ -64,8 +73,7 @@ async function main() {
     // 1分後のunix timestampを送信する場合
     // https://ja.wikipedia.org/wiki/UNIX%E6%99%82%E9%96%93
     debug('starting transaction...');
-    const transaction = await sskts.service.transaction.placeOrder.start({
-        auth: auth,
+    const transaction = await placeOrderTransactions.start({
         expires: moment().add(1, 'minutes').toDate(),
         sellerId: movieTheaterOrganization.id
     });
@@ -104,8 +112,7 @@ async function main() {
     debug('authorizing seat reservation...');
     const totalPrice = salesTicketResult[0].salePrice;
 
-    const seatReservationAuthorization = await sskts.service.transaction.placeOrder.createSeatReservationAuthorization({
-        auth: auth,
+    const seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
         eventIdentifier: individualScreeningEvent.identifier,
         offers: [
@@ -141,8 +148,7 @@ async function main() {
 
     // ムビチケオーソリ追加(着券した体で) 値はほぼ適当です
     debug('adding authorizations mvtk...');
-    let mvtkAuthorization = await sskts.service.transaction.placeOrder.createMvtkAuthorization({
-        auth: auth,
+    let mvtkAuthorization = await placeOrderTransactions.createMvtkAuthorization({
         transactionId: transaction.id,
         mvtk: {
             price: totalPrice,
@@ -173,16 +179,14 @@ async function main() {
     debug('addMvtkAuthorization is', mvtkAuthorization);
 
     // ムビチケ取消
-    await sskts.service.transaction.placeOrder.cancelMvtkAuthorization({
-        auth: auth,
+    await placeOrderTransactions.cancelMvtkAuthorization({
         transactionId: transaction.id,
         authorizationId: mvtkAuthorization.id
     });
 
     // 再度ムビチケ追加
     debug('adding authorizations mvtk...');
-    mvtkAuthorization = await sskts.service.transaction.placeOrder.createMvtkAuthorization({
-        auth: auth,
+    mvtkAuthorization = await placeOrderTransactions.createMvtkAuthorization({
         transactionId: transaction.id,
         mvtk: {
             price: totalPrice,
@@ -220,16 +224,14 @@ async function main() {
         telephone: '09012345678',
         email: process.env.SSKTS_DEVELOPER_EMAIL
     };
-    await sskts.service.transaction.placeOrder.setAgentProfile({
-        auth: auth,
+    await placeOrderTransactions.setAgentProfile({
         transactionId: transaction.id,
         profile: profile
     });
 
     // 取引成立
     debug('confirming transaction...');
-    const order = await sskts.service.transaction.placeOrder.confirm({
-        auth: auth,
+    const order = await placeOrderTransactions.confirm({
         transactionId: transaction.id
     });
     debug('your order is', order);

@@ -7,7 +7,7 @@
 import * as createDebug from 'debug';
 import * as request from 'request-promise-native';
 
-const debug = createDebug('sskts-api:apiRequest');
+const debug = createDebug('sasaki-api:transporters');
 // tslint:disable-next-line
 const pkg = require('../package.json');
 
@@ -32,7 +32,7 @@ export class DefaultTransporter {
     /**
      * Default user agent.
      */
-    public static readonly USER_AGENT: string = `sskts-api-nodejs-client/${pkg.version}`;
+    public static readonly USER_AGENT: string = `sasaki-api-nodejs-client/${pkg.version}`;
 
     public expectedStatusCodes: number[];
 

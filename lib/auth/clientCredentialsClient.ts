@@ -5,7 +5,15 @@ import * as request from 'request-promise-native';
 import ICredentials from './credentials';
 import OAuth2client from './oAuth2client';
 
-const debug = createDebug('sskts-api:auth:oAuth2client');
+const debug = createDebug('sasaki-api:auth:clientCredentialsClient');
+
+export interface IOptions {
+    domain: string;
+    clientId: string;
+    clientSecret: string;
+    scopes: string[];
+    state: string;
+}
 
 /**
  * クライアント認証OAuthクライアント
@@ -13,8 +21,11 @@ const debug = createDebug('sskts-api:auth:oAuth2client');
  * @class ClientCredentialsClient
  */
 export default class ClientCredentialsClient extends OAuth2client {
-    constructor(clientId: string, clientSecret: string, state: string, scopes: string[]) {
-        super(clientId, clientSecret, state, scopes);
+    public options: IOptions;
+
+    constructor(options: IOptions) {
+        super(options);
+        this.options = options;
 
         this.credentials = { refresh_token: 'ignored' };
     }
@@ -26,15 +37,15 @@ export default class ClientCredentialsClient extends OAuth2client {
         debug('requesting an access token...');
 
         return await request.post({
-            uri: OAuth2client.SSKTS_OAUTH2_TOKEN_URL,
+            url: `https://${this.options.domain}/token`,
             form: {
-                scope: this.scopes.join(' '),
-                state: this.state,
+                scope: this.options.scopes.join(' '),
+                state: this.options.state,
                 grant_type: 'client_credentials'
             },
             auth: {
-                user: this.clientId,
-                pass: this.clientSecret
+                user: this.options.clientId,
+                pass: this.options.clientSecret
             },
             json: true,
             simple: false,

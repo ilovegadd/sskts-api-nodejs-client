@@ -1,4 +1,4 @@
-# sskts API Client Library for Node.js
+# Sasaki API Client Library for Node.js
 
 ## Features
 

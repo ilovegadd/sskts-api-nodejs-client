@@ -1,3 +1,8 @@
+/**
+ * sasaki API Node.js Client
+ *
+ * @ignore
+ */
 import ClientCredentialsClient from './auth/clientCredentialsClient';
 import { IOptions } from './service';
 import { EventService } from './service/event';

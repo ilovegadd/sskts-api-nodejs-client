@@ -5,19 +5,22 @@
  */
 
 const debug = require('debug')('sskts-api:samples');
-const sskts = require('../lib/index');
+const sasaki = require('../lib/index');
 
 async function main() {
-    const auth = new sskts.auth.ClientCredentials(
-        process.env.TEST_CLIENT_ID,
-        process.env.TEST_CLIENT_SECRET,
-        'teststate',
-        [
+    const auth = new sasaki.auth.ClientCredentials({
+        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        clientId: process.env.TEST_CLIENT_ID,
+        clientSecret: process.env.TEST_CLIENT_SECRET,
+        scopes: [
             'https://sskts-api-development.azurewebsites.net/places.read-only'
-        ]
-    );
+        ],
+        state: 'teststate'
+    });
+    // const credentials = await auth.refreshAccessToken();
+    // debug('credentials:', credentials);
 
-    const place = sskts.service.place({
+    const place = sasaki.service.place({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });

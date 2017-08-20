@@ -9,26 +9,32 @@ import * as request from 'request-promise-native';
 import { DefaultTransporter } from '../transporters';
 import ICredentials from './credentials';
 
-const debug = createDebug('sskts-api:auth:oAuth2client');
+const debug = createDebug('sasaki-api:auth:oAuth2client');
+
+export interface IOptions {
+    domain: string;
+    clientId?: string;
+    clientSecret?: string;
+    redirectUri?: string;
+    logoutUri?: string;
+    responseType?: string;
+    responseMode?: string;
+    scopes?: string[];
+    state: string;
+    nonce?: string | null;
+    audience?: string;
+    tokenIssuer?: string;
+}
 
 /**
- * OAuth2client
+ * OAuth2 client
  */
 export default class OAuth2client {
-    // protected static readonly SSKTS_OAUTH2_TOKEN_URL: string = `${API_ENDPOINT}/oauth/token`;
-    protected static readonly SSKTS_OAUTH2_TOKEN_URL: string = <string>process.env.SSKTS_OAUTH2_TOKEN_URL;
-
     public credentials: ICredentials;
-    public clientId: string;
-    public clientSecret: string;
-    protected state: string;
-    protected scopes: string[];
+    public options: IOptions;
 
-    constructor(clientId?: string, clientSecret?: string, state?: string, scopes?: string[]) {
-        this.clientId = (clientId !== undefined) ? clientId : '';
-        this.clientSecret = (clientSecret !== undefined) ? clientSecret : '';
-        this.scopes = (scopes !== undefined) ? scopes : [];
-        this.state = (state !== undefined) ? state : '';
+    constructor(options: IOptions) {
+        this.options = options;
         this.credentials = {};
     }
 
@@ -189,11 +195,11 @@ export default class OAuth2client {
         debug('refreshing access token...');
 
         return await request.post({
-            url: OAuth2client.SSKTS_OAUTH2_TOKEN_URL,
+            url: `https://${this.options.domain}/token`,
             body: {
                 refresh_token: refreshToken,
-                client_id: this.clientId,
-                client_secret: this.clientSecret,
+                client_id: this.options.clientId,
+                client_secret: this.options.clientSecret,
                 grant_type: 'refresh_token'
             },
             json: true,

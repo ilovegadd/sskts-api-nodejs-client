@@ -1,12 +1,8 @@
 /**
- * SSKTS API Node.js Client
+ * sasaki API Node.js Client
  *
  * @ignore
  */
-
-if (typeof process.env.SSKTS_OAUTH2_TOKEN_URL !== 'string' || (<string>process.env.SSKTS_OAUTH2_TOKEN_URL).length === 0) {
-    throw new Error('NPM warnings. The environment variable "SSKTS_OAUTH2_TOKEN_URL" is required for using @motionpicture/sskts-api');
-}
 
 import ClientCredentialsClient from './auth/clientCredentialsClient';
 

@@ -1,12 +1,20 @@
 import ICredentials from './credentials';
 import OAuth2client from './oAuth2client';
+export interface IOptions {
+    domain: string;
+    clientId: string;
+    clientSecret: string;
+    scopes: string[];
+    state: string;
+}
 /**
  * クライアント認証OAuthクライアント
  *
  * @class ClientCredentialsClient
  */
 export default class ClientCredentialsClient extends OAuth2client {
-    constructor(clientId: string, clientSecret: string, state: string, scopes: string[]);
+    options: IOptions;
+    constructor(options: IOptions);
     /**
      * クライアント認証でアクセストークンを取得します。
      */

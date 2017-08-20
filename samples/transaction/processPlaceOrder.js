@@ -10,22 +10,23 @@ const GMO = ssktsDomain.GMO;
 const debug = require('debug')('sskts-api:samples');
 const moment = require('moment');
 const util = require('util');
-const sskts = require('../../lib/index');
+const sasaki = require('../../lib/index');
 
 // tslint:disable-next-line:max-func-body-length
 async function main() {
-    const auth = new sskts.auth.ClientCredentials(
-        process.env.TEST_CLIENT_ID,
-        process.env.TEST_CLIENT_SECRET,
-        'teststate',
-        [
+    const auth = new sasaki.auth.ClientCredentials({
+        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        clientId: process.env.TEST_CLIENT_ID,
+        clientSecret: process.env.TEST_CLIENT_SECRET,
+        scopes: [
             'https://sskts-api-development.azurewebsites.net/transactions',
             'https://sskts-api-development.azurewebsites.net/events.read-only',
             'https://sskts-api-development.azurewebsites.net/organizations.read-only'
-        ]
-    );
-    const credentials = await auth.refreshAccessToken();
-    debug('credentials:', credentials);
+        ],
+        state: 'teststate'
+    });
+    // const credentials = await auth.refreshAccessToken();
+    // debug('credentials:', credentials);
 
     // auth.setCredentials({
     //     expiry_date: 1503110099,
@@ -33,17 +34,17 @@ async function main() {
     //     token_type: 'Bearer'
     // });
 
-    const events = sskts.service.event({
+    const events = sasaki.service.event({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
 
-    const organizations = sskts.service.organization({
+    const organizations = sasaki.service.organization({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
 
-    const placeOrderTransactions = sskts.service.transaction.placeOrder({
+    const placeOrderTransactions = sasaki.service.transaction.placeOrder({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
