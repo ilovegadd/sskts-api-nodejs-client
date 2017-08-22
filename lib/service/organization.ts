@@ -10,6 +10,11 @@ import apiRequest from '../apiRequest';
 
 import { Service } from '../service';
 
+/**
+ * organization service
+ *
+ * @class OrganizationService
+ */
 export class OrganizationService extends Service {
     /**
      * 劇場組織検索

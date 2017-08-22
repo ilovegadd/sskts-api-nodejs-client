@@ -4,7 +4,7 @@
  * @ignore
  */
 
-const debug = require('debug')('sskts-api:samples');
+const debug = require('debug')('sasaki-api:samples');
 const moment = require('moment');
 const sasaki = require('../lib/index');
 

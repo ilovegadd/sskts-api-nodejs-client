@@ -17,6 +17,11 @@ export type IMvtk = factory.authorization.mvtk.IResult & {
 export type ICreditCard =
     factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
 
+/**
+ * placeOrder transaction service
+ *
+ * @class PlaceOrderTransactionService
+ */
 export class PlaceOrderTransactionService extends Service {
     /**
      * 取引を開始する
@@ -51,7 +56,7 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async createSeatReservationAuthorization(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
@@ -81,11 +86,11 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async cancelSeatReservationAuthorization(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
-         * 承認ID
+         * authorization ID
          */
         authorizationId: string;
     }): Promise<void> {
@@ -103,7 +108,7 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async createCreditCardAuthorization(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
@@ -143,11 +148,11 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async cancelCreditCardAuthorization(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
-         * 承認ID
+         * authorization ID
          */
         authorizationId: string;
     }): Promise<void> {
@@ -165,7 +170,7 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async createMvtkAuthorization(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
@@ -188,11 +193,11 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async cancelMvtkAuthorization(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
-         * 承認ID
+         * authorization ID
          */
         authorizationId: string;
     }): Promise<void> {
@@ -206,25 +211,25 @@ export class PlaceOrderTransactionService extends Service {
     }
 
     /**
-     * 購入者情報登録
+     * register a customer contact
      */
-    public async setAgentProfile(params: {
+    public async setCustomerContact(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**
-         * 購入者情報
+         * customer contact info
          */
-        profile: factory.transaction.placeOrder.ICustomerContact;
+        contact: factory.transaction.placeOrder.ICustomerContact;
     }): Promise<void> {
         await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${params.transactionId}/agent/profile`,
+            uri: `/transactions/placeOrder/${params.transactionId}/customerContact`,
             method: 'PUT',
             expectedStatusCodes: [NO_CONTENT],
             auth: this.options.auth,
-            body: params.profile
+            body: params.contact
         });
     }
 
@@ -233,7 +238,7 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async confirm(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
     }): Promise<factory.order.IOrder> {
@@ -251,7 +256,7 @@ export class PlaceOrderTransactionService extends Service {
      */
     public async sendEmailNotification(params: {
         /**
-         * 取引ID
+         * transaction ID
          */
         transactionId: string;
         /**

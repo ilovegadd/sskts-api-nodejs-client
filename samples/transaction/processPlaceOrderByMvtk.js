@@ -1,5 +1,5 @@
 /**
- * 注文取引プロセスサンプル
+ * a sample processing placeOrder transaction By mvtk
  *
  * @ignore
  */
@@ -7,11 +7,10 @@
 const ssktsDomain = require('@motionpicture/sskts-domain');
 const COA = ssktsDomain.COA;
 const GMO = ssktsDomain.GMO;
-const debug = require('debug')('sskts-api:samples');
+const debug = require('debug')('sasaki-api:samples');
 const moment = require('moment');
 const sasaki = require('../../lib/index');
 
-// tslint:disable-next-line:max-func-body-length
 async function main() {
     const auth = new sasaki.auth.ClientCredentials({
         domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
@@ -20,7 +19,8 @@ async function main() {
         scopes: [
             'https://sskts-api-development.azurewebsites.net/transactions',
             'https://sskts-api-development.azurewebsites.net/events.read-only',
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
+            'https://sskts-api-development.azurewebsites.net/organizations.read-only',
+            'https://sskts-api-development.azurewebsites.net/orders.read-only'
         ],
         state: 'teststate'
     });
@@ -215,19 +215,18 @@ async function main() {
         }
     });
     debug('addMvtkAuthorization is', mvtkAuthorization);
-
-    // 購入者情報登録
-    debug('setting agent profile...');
-    const profile = {
-        givenName: 'てつ',
-        familyName: 'やまざき',
+    debug('registering a customer contact...');
+    const contact = {
+        givenName: 'John',
+        familyName: 'Smith',
         telephone: '09012345678',
         email: process.env.SSKTS_DEVELOPER_EMAIL
     };
-    await placeOrderTransactions.setAgentProfile({
+    await placeOrderTransactions.setCustomerContact({
         transactionId: transaction.id,
-        profile: profile
+        contact: contact
     });
+    debug('customer contact registered');
 
     // 取引成立
     debug('confirming transaction...');

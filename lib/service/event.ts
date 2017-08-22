@@ -10,6 +10,11 @@ import apiRequest from '../apiRequest';
 
 import { Service } from '../service';
 
+/**
+ * event service
+ *
+ * @class EventService
+ */
 export class EventService extends Service {
     /**
      * 上映イベント検索

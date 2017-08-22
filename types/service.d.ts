@@ -1,6 +1,3 @@
-/**
- * base service class
- */
 import OAuth2client from './auth/oAuth2client';
 export interface IOptions {
     /**
@@ -14,6 +11,11 @@ export interface IOptions {
      */
     auth: OAuth2client;
 }
+/**
+ * base service class
+ *
+ * @class Service
+ */
 export declare class Service {
     options: IOptions;
     constructor(options: IOptions);

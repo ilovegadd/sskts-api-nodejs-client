@@ -5,6 +5,11 @@
  */
 import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
+/**
+ * place service
+ *
+ * @class PlaceService
+ */
 export declare class PlaceService extends Service {
     /**
      * 劇場検索

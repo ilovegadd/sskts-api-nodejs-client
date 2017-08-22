@@ -10,6 +10,11 @@ import apiRequest from '../apiRequest';
 
 import { Service } from '../service';
 
+/**
+ * order service
+ *
+ * @class OrderService
+ */
 export class OrderService extends Service {
     /**
      * 照会キーで注文情報を取得する

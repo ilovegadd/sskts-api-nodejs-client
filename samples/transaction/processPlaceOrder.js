@@ -1,5 +1,5 @@
 /**
- * 注文取引プロセスサンプル
+ * a sample processing placeOrder transaction
  *
  * @ignore
  */
@@ -7,12 +7,17 @@
 const ssktsDomain = require('@motionpicture/sskts-domain');
 const COA = ssktsDomain.COA;
 const GMO = ssktsDomain.GMO;
-const debug = require('debug')('sskts-api:samples');
+const debug = require('debug')('sasaki-api:samples');
 const moment = require('moment');
 const util = require('util');
+const readline = require('readline');
 const sasaki = require('../../lib/index');
 
-// tslint:disable-next-line:max-func-body-length
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
 async function main() {
     const auth = new sasaki.auth.ClientCredentials({
         domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
@@ -21,7 +26,8 @@ async function main() {
         scopes: [
             'https://sskts-api-development.azurewebsites.net/transactions',
             'https://sskts-api-development.azurewebsites.net/events.read-only',
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
+            'https://sskts-api-development.azurewebsites.net/organizations.read-only',
+            'https://sskts-api-development.azurewebsites.net/orders.read-only'
         ],
         state: 'teststate'
     });
@@ -49,26 +55,26 @@ async function main() {
         auth: auth
     });
 
-    // 上映イベント検索
+    // search screening events
     const individualScreeningEvents = await events.searchIndividualScreeningEvent({
         theater: '118',
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
-    // イベント情報取得
+    // retrieve an event detail
     const individualScreeningEvent = await events.findIndividualScreeningEvent({
         identifier: individualScreeningEvents[0].identifier
     });
     if (individualScreeningEvent === null) {
-        throw new Error('指定された上映イベントが見つかりません');
+        throw new Error('specified screening event not found');
     }
 
-    // 劇場ショップ検索
+    // search movie theater organizations
     const movieTheaterOrganization = await organizations.findMovieTheaterByBranchCode({
         branchCode: individualScreeningEvent.coaInfo.theaterCode
     });
     if (movieTheaterOrganization === null) {
-        throw new Error('劇場ショップがオープンしていません');
+        throw new Error('movie theater shop not open');
     }
 
     const theaterCode = individualScreeningEvent.coaInfo.theaterCode;
@@ -78,16 +84,15 @@ async function main() {
     const timeBegin = individualScreeningEvent.coaInfo.timeBegin;
     const screenCode = individualScreeningEvent.coaInfo.screenCode;
 
-    // 取引開始
-    // 1分後のunix timestampを送信する場合
-    // https://ja.wikipedia.org/wiki/UNIX%E6%99%82%E9%96%93
-    debug('注文取引を開始します...');
+    // start a transaction
+    // for example expires in one minute
+    debug('starting a transaction...');
     const transaction = await placeOrderTransactions.start({
         expires: moment().add(1, 'minutes').toDate(),
         sellerId: movieTheaterOrganization.id
     });
 
-    // 販売可能チケット検索
+    // search sales tickets from COA
     const salesTicketResult = await COA.services.reserve.salesTicket({
         theaterCode: theaterCode,
         dateJouei: dateJouei,
@@ -96,9 +101,9 @@ async function main() {
         timeBegin: timeBegin,
         flgMember: COA.services.reserve.FlgMember.NonMember
     });
-    debug('販売可能チケットは', salesTicketResult);
+    debug('salesTicketResult:', salesTicketResult);
 
-    // COA空席確認
+    // search available seats from COA
     const getStateReserveSeatResult = await COA.services.reserve.stateReserveSeat({
         theaterCode: theaterCode,
         dateJouei: dateJouei,
@@ -107,17 +112,16 @@ async function main() {
         timeBegin: timeBegin,
         screenCode: screenCode
     });
-    debug('空席情報は', getStateReserveSeatResult);
+    debug('getStateReserveSeatResult:', getStateReserveSeatResult);
     const sectionCode = getStateReserveSeatResult.listSeat[0].seatSection;
     const freeSeatCodes = getStateReserveSeatResult.listSeat[0].listFreeSeat.map((freeSeat) => {
         return freeSeat.seatNum;
     });
     if (getStateReserveSeatResult.cntReserveFree === 0) {
-        throw new Error('空席がありません');
+        throw new Error('no available seats');
     }
 
-    // 座席仮予約
-    debug('座席を仮予約します...');
+    debug('creating a seat reservation authorization...');
     let seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
         eventIdentifier: individualScreeningEvent.identifier,
@@ -148,17 +152,15 @@ async function main() {
             }
         ]
     });
-    debug('座席を仮予約しました', seatReservationAuthorization);
+    debug('seatReservationAuthorization:', seatReservationAuthorization);
 
-    // 座席仮予約取消
-    debug('座席仮予約を取り消します...');
+    debug('canceling a seat reservation authorization...');
     await placeOrderTransactions.cancelSeatReservationAuthorization({
         transactionId: transaction.id,
         authorizationId: seatReservationAuthorization.id
     });
 
-    // 再度座席仮予約
-    debug('座席を仮予約します...');
+    debug('recreating a seat reservation authorization...');
     seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
         eventIdentifier: individualScreeningEvent.identifier,
@@ -189,11 +191,10 @@ async function main() {
             }
         ]
     });
-    debug('座席を仮予約しました', seatReservationAuthorization);
+    debug('seatReservationAuthorization:', seatReservationAuthorization);
 
     const amount = seatReservationAuthorization.price;
 
-    // クレジットカードオーソリ取得
     let orderId = util.format(
         '%s%s%s%s',
         moment().format('YYYYMMDD'),
@@ -202,7 +203,7 @@ async function main() {
         `00000000${seatReservationAuthorization.result.tmpReserveNum}`.slice(-8),
         '01'
     );
-    debug('クレジットカードのオーソリをとります...');
+    debug('creating a credit card authorization...');
     let creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,
@@ -214,16 +215,14 @@ async function main() {
             securityCode: '123'
         }
     });
-    debug('クレジットカードのオーソリがとれました', creditCardAuthorization);
+    debug('creditCardAuthorization:', creditCardAuthorization);
 
-    // クレジットカードオーソリ取消
-    debug('クレジットカードのオーソリを取り消します...');
+    debug('canceling a credit card authorization...');
     await placeOrderTransactions.cancelCreditCardAuthorization({
         transactionId: transaction.id,
         authorizationId: creditCardAuthorization.id
     });
 
-    // 再度クレジットカードオーソリ
     orderId = util.format(
         '%s%s%s%s',
         moment().format('YYYYMMDD'),
@@ -232,7 +231,7 @@ async function main() {
         `00000000${seatReservationAuthorization.result.tmpReserveNum}`.slice(-8),
         '02'
     );
-    debug('クレジットカードのオーソリをとります...');
+    debug('recreating a credit card authorization...');
     creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,
@@ -244,55 +243,84 @@ async function main() {
             securityCode: '123'
         }
     });
-    debug('クレジットカードのオーソリがとれました', creditCardAuthorization);
+    debug('creditCardAuthorization:', creditCardAuthorization);
 
-    // 購入者情報登録
-    debug('購入者情報を登録します...');
-    const profile = {
-        givenName: 'てつ',
-        familyName: 'やまざき',
+    debug('registering a customer contact...');
+    const contact = {
+        givenName: 'John',
+        familyName: 'Smith',
         telephone: '09012345678',
         email: process.env.SSKTS_DEVELOPER_EMAIL
     };
-    await placeOrderTransactions.setAgentProfile({
+    await placeOrderTransactions.setCustomerContact({
         transactionId: transaction.id,
-        profile: profile
+        contact: contact
     });
-    debug('購入者情報を登録しました');
+    debug('customer contact registered');
 
-    // 取引確定
-    debug('注文取引を確定します...');
+    debug('confirming a transaction...');
     const order = await placeOrderTransactions.confirm({
         transactionId: transaction.id
     });
-    debug('注文が作成されました', order);
+    debug('confirmed. order:', order);
 
-    // メール追加
+    // send an email
     const content = `
 ${order.customer.name} 様
 -------------------------------------------------------------------
 この度はご購入いただき誠にありがとうございます。
 -------------------------------------------------------------------
 ◆購入番号 ：${order.orderInquiryKey.orderNumber}
-                    ◆電話番号 ${order.orderInquiryKey.telephone}
-                    ◆合計金額 ：${order.price}円
+◆電話番号 ${order.orderInquiryKey.telephone}
+◆合計金額 ：${order.price}円
 -------------------------------------------------------------------
 `;
-    debug('メール通知を実行します...', content);
+    debug('sending an email notification...', content);
     await placeOrderTransactions.sendEmailNotification({
         transactionId: transaction.id,
         emailNotification: {
             from: 'noreply@example.com',
-            to: profile.email,
-            subject: '購入完了',
+            to: contact.email,
+            subject: 'order created',
             content: content
         }
     });
-    debug('メール通知が実行されました');
+    debug('an email sent');
+
+    // try to make inquiry in a few seconds
+    debug('making inquiry...');
+    return new Promise((resolve, reject) => {
+        rl.question('input theater code: ', (theaterCode) => {
+            rl.question('input order number: ', (orderNumber) => {
+                rl.question('input telephone: ', async (telephone) => {
+                    try {
+                        const orders = sasaki.service.order({
+                            endpoint: process.env.SSKTS_API_ENDPOINT,
+                            auth: auth
+                        });
+
+                        const key = {
+                            theaterCode: theaterCode,
+                            orderNumber: parseInt(orderNumber, 10),
+                            telephone: telephone
+                        }
+
+                        const orderByInquiry = await orders.findByOrderInquiryKey(key);
+                        debug('orderByInquiry:', orderByInquiry);
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            });
+        });
+    });
 }
 
 main().then(() => {
+    rl.close();
     debug('main processed.');
 }).catch((err) => {
+    rl.close();
     console.error(err);
 });

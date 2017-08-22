@@ -181,7 +181,7 @@ export default class OAuth2client {
      * @return {Request}           The request object created
      */
     // tslint:disable-next-line:prefer-function-over-method
-    public makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
+    public async makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
         const transporter = new DefaultTransporter(expectedStatusCodes);
 
         return transporter.request(options);

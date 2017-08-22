@@ -5,6 +5,11 @@
  */
 import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
+/**
+ * event service
+ *
+ * @class EventService
+ */
 export declare class EventService extends Service {
     /**
      * 上映イベント検索
