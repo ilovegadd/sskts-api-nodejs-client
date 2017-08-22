@@ -4,7 +4,7 @@
  * @namespace service.place
  */
 
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { NOT_FOUND, OK } from 'http-status';
 import apiRequest from '../apiRequest';
 
@@ -18,8 +18,8 @@ export class PlaceService extends Service {
         /**
          * 検索条件
          */
-        params?: sskts.service.place.ISearchMovieTheatersConditions
-    ): Promise<sskts.service.place.ISearchMovieTheaterResult[]> {
+        params?: {}
+    ): Promise<factory.place.movieTheater.IPlaceWithoutScreeningRoom[]> {
         return await apiRequest({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
@@ -38,7 +38,7 @@ export class PlaceService extends Service {
          * 枝番号
          */
         branchCode: string;
-    }): Promise<sskts.factory.place.movieTheater.IPlace | null> {
+    }): Promise<factory.place.movieTheater.IPlace | null> {
         return await apiRequest({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,

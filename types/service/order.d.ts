@@ -3,7 +3,7 @@
  *
  * @namespace service.order
  */
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
 export declare class OrderService extends Service {
     /**
@@ -14,5 +14,5 @@ export declare class OrderService extends Service {
         /**
          * 注文照会キー
          */
-        params: sskts.factory.orderInquiryKey.IOrderInquiryKey): Promise<sskts.factory.order.IOrder | null>;
+        params: factory.order.IOrderInquiryKey): Promise<factory.order.IOrder | null>;
 }

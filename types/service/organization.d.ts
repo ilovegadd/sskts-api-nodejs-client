@@ -3,7 +3,7 @@
  *
  * @namespace service.organization
  */
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
 export declare class OrganizationService extends Service {
     /**
@@ -13,7 +13,7 @@ export declare class OrganizationService extends Service {
         /**
          * 検索条件
          */
-        params?: {}): Promise<sskts.service.organization.IMovieTheater[]>;
+        params?: {}): Promise<factory.organization.movieTheater.IPublicFields[]>;
     /**
      * 枝番号で劇場組織検索
      */
@@ -22,5 +22,5 @@ export declare class OrganizationService extends Service {
          * 枝番号
          */
         branchCode: string;
-    }): Promise<sskts.service.organization.IMovieTheater | null>;
+    }): Promise<factory.organization.movieTheater.IPublicFields | null>;
 }

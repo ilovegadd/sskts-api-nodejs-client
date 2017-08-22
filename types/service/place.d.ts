@@ -3,7 +3,7 @@
  *
  * @namespace service.place
  */
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
 export declare class PlaceService extends Service {
     /**
@@ -13,7 +13,7 @@ export declare class PlaceService extends Service {
         /**
          * 検索条件
          */
-        params?: sskts.service.place.ISearchMovieTheatersConditions): Promise<sskts.service.place.ISearchMovieTheaterResult[]>;
+        params?: {}): Promise<factory.place.movieTheater.IPlaceWithoutScreeningRoom[]>;
     /**
      * 劇場情報取得
      */
@@ -22,5 +22,5 @@ export declare class PlaceService extends Service {
          * 枝番号
          */
         branchCode: string;
-    }): Promise<sskts.factory.place.movieTheater.IPlace | null>;
+    }): Promise<factory.place.movieTheater.IPlace | null>;
 }

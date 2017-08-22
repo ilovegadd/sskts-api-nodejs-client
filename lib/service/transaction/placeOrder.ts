@@ -4,22 +4,18 @@
  * @namespace service.transaction.placeOrder
  */
 
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { CREATED, NO_CONTENT, NOT_FOUND, OK } from 'http-status';
 import apiRequest from '../../apiRequest';
 
 import { Service } from '../../service';
 
-export type IMvtk = sskts.factory.authorization.mvtk.IResult & {
+export type IMvtk = factory.authorization.mvtk.IResult & {
     price: number;
 };
-export interface IEmailNotification {
-    // tslint:disable-next-line:no-reserved-keywords
-    from: string;
-    to: string;
-    subject: string;
-    content: string;
-}
+
+export type ICreditCard =
+    factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
 
 export class PlaceOrderTransactionService extends Service {
     /**
@@ -36,7 +32,7 @@ export class PlaceOrderTransactionService extends Service {
          * 販売者ID
          */
         sellerId: string;
-    }): Promise<sskts.factory.transaction.ITransaction> {
+    }): Promise<factory.transaction.placeOrder.ITransaction> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: '/transactions/placeOrder/start',
@@ -65,8 +61,8 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * 座席販売情報
          */
-        offers: sskts.service.transaction.placeOrder.ISeatReservationOffer[];
-    }): Promise<sskts.factory.authorization.seatReservation.IAuthorization> {
+        offers: factory.offer.ISeatReservationOffer[];
+    }): Promise<factory.authorization.seatReservation.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/seatReservationAuthorization`,
@@ -121,12 +117,12 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * 支払い方法
          */
-        method: sskts.GMO.utils.util.Method;
+        method: string;
         /**
          * クレジットカード情報
          */
-        creditCard: sskts.service.transaction.placeOrder.ICreditCard4authorization;
-    }): Promise<sskts.factory.authorization.gmo.IAuthorization> {
+        creditCard: ICreditCard;
+    }): Promise<factory.authorization.gmo.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/creditCard`,
@@ -176,7 +172,7 @@ export class PlaceOrderTransactionService extends Service {
          * ムビチケ情報
          */
         mvtk: IMvtk;
-    }): Promise<sskts.factory.authorization.mvtk.IAuthorization> {
+    }): Promise<factory.authorization.mvtk.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/mvtk`,
@@ -220,7 +216,7 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * 購入者情報
          */
-        profile: sskts.factory.person.IProfile;
+        profile: factory.transaction.placeOrder.ICustomerContact;
     }): Promise<void> {
         await apiRequest({
             baseUrl: this.options.endpoint,
@@ -240,7 +236,7 @@ export class PlaceOrderTransactionService extends Service {
          * 取引ID
          */
         transactionId: string;
-    }): Promise<sskts.factory.order.IOrder> {
+    }): Promise<factory.order.IOrder> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/confirm`,
@@ -261,8 +257,8 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * Eメール通知
          */
-        emailNotification: IEmailNotification
-    }): Promise<sskts.factory.order.IOrder> {
+        emailNotification: factory.notification.email.INotification
+    }): Promise<factory.order.IOrder> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/tasks/sendEmailNotification`,

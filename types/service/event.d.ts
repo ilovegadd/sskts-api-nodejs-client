@@ -3,7 +3,7 @@
  *
  * @namespace service.event
  */
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
 export declare class EventService extends Service {
     /**
@@ -13,7 +13,7 @@ export declare class EventService extends Service {
         /**
          * 検索条件
          */
-        params: sskts.service.event.ISearchPerformancesConditions): Promise<sskts.factory.event.individualScreeningEvent.IEvent[]>;
+        params: factory.event.individualScreeningEvent.ISearchConditions): Promise<factory.event.individualScreeningEvent.IEvent[]>;
     /**
      * 上映イベント情報取得
      * 存在しなければnullを返します。
@@ -23,5 +23,5 @@ export declare class EventService extends Service {
          * イベント識別子
          */
         identifier: string;
-    }): Promise<sskts.factory.event.individualScreeningEvent.IEvent | null>;
+    }): Promise<factory.event.individualScreeningEvent.IEvent | null>;
 }

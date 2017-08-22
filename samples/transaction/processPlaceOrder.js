@@ -125,7 +125,7 @@ async function main() {
             {
                 seatSection: sectionCode,
                 seatNumber: freeSeatCodes[0],
-                ticket: {
+                ticketInfo: {
                     ticketCode: salesTicketResult[0].ticketCode,
                     ticketName: salesTicketResult[0].ticketName,
                     ticketNameEng: salesTicketResult[0].ticketNameEng,
@@ -166,7 +166,7 @@ async function main() {
             {
                 seatSection: sectionCode,
                 seatNumber: freeSeatCodes[0],
-                ticket: {
+                ticketInfo: {
                     ticketCode: salesTicketResult[1].ticketCode,
                     ticketName: salesTicketResult[1].ticketName,
                     ticketNameEng: salesTicketResult[1].ticketNameEng,

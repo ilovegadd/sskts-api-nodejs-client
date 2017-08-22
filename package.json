@@ -38,6 +38,7 @@
   ],
   "license": "UNLICENSED",
   "devDependencies": {
+    "@motionpicture/sskts-domain": "^22.0.0",
     "@types/debug": "0.0.30",
     "@types/http-status": "^0.2.29",
     "@types/mocha": "^2.2.41",
@@ -56,7 +57,7 @@
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "@motionpicture/sskts-domain": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/domain.git#feature/SSKTS-533",
+    "@motionpicture/sskts-factory": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/factory.git#feature/SSKTS-566",
     "debug": "^3.0.0",
     "http-status": "^1.0.1",
     "request-promise-native": "^1.0.4"

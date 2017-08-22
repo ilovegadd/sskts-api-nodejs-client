@@ -3,17 +3,12 @@
  *
  * @namespace service.transaction.placeOrder
  */
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../../service';
-export declare type IMvtk = sskts.factory.authorization.mvtk.IResult & {
+export declare type IMvtk = factory.authorization.mvtk.IResult & {
     price: number;
 };
-export interface IEmailNotification {
-    from: string;
-    to: string;
-    subject: string;
-    content: string;
-}
+export declare type ICreditCard = factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
 export declare class PlaceOrderTransactionService extends Service {
     /**
      * 取引を開始する
@@ -29,7 +24,7 @@ export declare class PlaceOrderTransactionService extends Service {
          * 販売者ID
          */
         sellerId: string;
-    }): Promise<sskts.factory.transaction.ITransaction>;
+    }): Promise<factory.transaction.placeOrder.ITransaction>;
     /**
      * 取引に座席予約を追加する
      */
@@ -45,8 +40,8 @@ export declare class PlaceOrderTransactionService extends Service {
         /**
          * 座席販売情報
          */
-        offers: sskts.service.transaction.placeOrder.ISeatReservationOffer[];
-    }): Promise<sskts.factory.authorization.seatReservation.IAuthorization>;
+        offers: factory.offer.ISeatReservationOffer[];
+    }): Promise<factory.authorization.seatReservation.IAuthorization>;
     /**
      * 座席予約取消
      */
@@ -79,12 +74,12 @@ export declare class PlaceOrderTransactionService extends Service {
         /**
          * 支払い方法
          */
-        method: sskts.GMO.utils.util.Method;
+        method: string;
         /**
          * クレジットカード情報
          */
-        creditCard: sskts.service.transaction.placeOrder.ICreditCard4authorization;
-    }): Promise<sskts.factory.authorization.gmo.IAuthorization>;
+        creditCard: ICreditCard;
+    }): Promise<factory.authorization.gmo.IAuthorization>;
     /**
      * クレジットカードオーソリ取消
      */
@@ -110,7 +105,7 @@ export declare class PlaceOrderTransactionService extends Service {
          * ムビチケ情報
          */
         mvtk: IMvtk;
-    }): Promise<sskts.factory.authorization.mvtk.IAuthorization>;
+    }): Promise<factory.authorization.mvtk.IAuthorization>;
     /**
      * ムビチケ取消
      */
@@ -135,7 +130,7 @@ export declare class PlaceOrderTransactionService extends Service {
         /**
          * 購入者情報
          */
-        profile: sskts.factory.person.IProfile;
+        profile: factory.transaction.placeOrder.ICustomerContact;
     }): Promise<void>;
     /**
      * 取引確定
@@ -145,7 +140,7 @@ export declare class PlaceOrderTransactionService extends Service {
          * 取引ID
          */
         transactionId: string;
-    }): Promise<sskts.factory.order.IOrder>;
+    }): Promise<factory.order.IOrder>;
     /**
      * 確定した取引に関して、購入者にメール通知を送信する
      */
@@ -157,6 +152,6 @@ export declare class PlaceOrderTransactionService extends Service {
         /**
          * Eメール通知
          */
-        emailNotification: IEmailNotification;
-    }): Promise<sskts.factory.order.IOrder>;
+        emailNotification: factory.notification.email.INotification;
+    }): Promise<factory.order.IOrder>;
 }

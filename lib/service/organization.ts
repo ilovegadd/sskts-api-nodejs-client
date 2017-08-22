@@ -4,7 +4,7 @@
  * @namespace service.organization
  */
 
-import * as sskts from '@motionpicture/sskts-domain';
+import * as factory from '@motionpicture/sskts-factory';
 import { NOT_FOUND, OK } from 'http-status';
 import apiRequest from '../apiRequest';
 
@@ -19,7 +19,7 @@ export class OrganizationService extends Service {
          * 検索条件
          */
         params?: {}
-    ): Promise<sskts.service.organization.IMovieTheater[]> {
+    ): Promise<factory.organization.movieTheater.IPublicFields[]> {
         return await apiRequest({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
@@ -38,7 +38,7 @@ export class OrganizationService extends Service {
          * 枝番号
          */
         branchCode: string;
-    }): Promise<sskts.service.organization.IMovieTheater | null> {
+    }): Promise<factory.organization.movieTheater.IPublicFields | null> {
         return await apiRequest({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
