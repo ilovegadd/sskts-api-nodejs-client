@@ -4,9 +4,8 @@
  * @ignore
  */
 
-const ssktsDomain = require('@motionpicture/sskts-domain');
-const COA = ssktsDomain.COA;
-const GMO = ssktsDomain.GMO;
+const COA = require('@motionpicture/coa-service');
+const GMO = require('@motionpicture/gmo-service');
 const debug = require('debug')('sasaki-api:samples');
 const moment = require('moment');
 const util = require('util');

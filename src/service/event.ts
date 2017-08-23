@@ -1,9 +1,3 @@
-/**
- * イベントサービス
- *
- * @namespace service.event
- */
-
 import * as factory from '@motionpicture/sskts-factory';
 import { NOT_FOUND, OK } from 'http-status';
 import apiRequest from '../apiRequest';
@@ -12,7 +6,6 @@ import { Service } from '../service';
 
 /**
  * event service
- *
  * @class EventService
  */
 export class EventService extends Service {
@@ -24,7 +17,7 @@ export class EventService extends Service {
          * 検索条件
          */
         params: factory.event.individualScreeningEvent.ISearchConditions
-    ): Promise<factory.event.individualScreeningEvent.IEvent[]> {
+    ): Promise<factory.event.individualScreeningEvent.IEventWithOffer[]> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: '/events/individualScreeningEvent',
@@ -44,7 +37,7 @@ export class EventService extends Service {
          * イベント識別子
          */
         identifier: string;
-    }): Promise<factory.event.individualScreeningEvent.IEvent | null> {
+    }): Promise<factory.event.individualScreeningEvent.IEventWithOffer | null> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
             uri: `/events/individualScreeningEvent/${params.identifier}`,

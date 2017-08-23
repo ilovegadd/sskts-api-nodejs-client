@@ -4,7 +4,6 @@
         "allowUnusedLabels": false,
         "charset": "utf8",
         "declaration": true,
-        "declarationDir": "./types",
         "diagnostics": false,
         "disableSizeLimit": false,
         "emitDecoratorMetadata": true,
@@ -26,6 +25,7 @@
         "noResolve": false,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "outDir": "./lib",
         "preserveConstEnums": false,
         "pretty": false,
         "removeComments": false,
@@ -37,9 +37,11 @@
         "target": "es6",
         "watch": false
     },
+    "include": [
+        "src"
+    ],
     "exclude": [
         "node_modules",
-        "samples",
-        "types"
+        "samples"
     ]
 }
