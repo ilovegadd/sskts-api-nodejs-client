@@ -10,10 +10,6 @@ import apiRequest from '../../apiRequest';
 
 import { Service } from '../../service';
 
-export type IMvtk = factory.authorization.mvtk.IResult & {
-    price: number;
-};
-
 export type ICreditCard =
     factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
 
@@ -45,7 +41,8 @@ export class PlaceOrderTransactionService extends Service {
             expectedStatusCodes: [NOT_FOUND, OK],
             auth: this.options.auth,
             body: {
-                expires: params.expires.valueOf(),
+                // tslint:disable-next-line:no-magic-numbers
+                expires: (params.expires.getTime() / 1000).toFixed(0), // unix timestamp
                 sellerId: params.sellerId
             }
         });
@@ -176,7 +173,7 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * ムビチケ情報
          */
-        mvtk: IMvtk;
+        mvtk: factory.authorization.mvtk.IResult;
     }): Promise<factory.authorization.mvtk.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,

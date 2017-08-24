@@ -5,9 +5,6 @@
  */
 import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../../service';
-export declare type IMvtk = factory.authorization.mvtk.IResult & {
-    price: number;
-};
 export declare type ICreditCard = factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
 /**
  * placeOrder transaction service
@@ -109,7 +106,7 @@ export declare class PlaceOrderTransactionService extends Service {
         /**
          * ムビチケ情報
          */
-        mvtk: IMvtk;
+        mvtk: factory.authorization.mvtk.IResult;
     }): Promise<factory.authorization.mvtk.IAuthorization>;
     /**
      * ムビチケ取消

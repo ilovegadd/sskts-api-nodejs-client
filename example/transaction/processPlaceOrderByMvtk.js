@@ -4,9 +4,8 @@
  * @ignore
  */
 
-const ssktsDomain = require('@motionpicture/sskts-domain');
-const COA = ssktsDomain.COA;
-const GMO = ssktsDomain.GMO;
+const COA = require('@motionpicture/coa-service');
+const GMO = require('@motionpicture/gmo-service');
 const debug = require('debug')('sasaki-api:samples');
 const moment = require('moment');
 const sasaki = require('../../lib/index');
@@ -39,18 +38,23 @@ async function main() {
         auth: auth
     });
 
-    // 上映イベント検索
+    // search screening events
     const individualScreeningEvents = await events.searchIndividualScreeningEvent({
         theater: '118',
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
-    // イベント情報取得
+    const availableEvent = individualScreeningEvents.find((event) => event.offer.availability > 0);
+    if (availableEvent === undefined) {
+        throw new Error('no available events');
+    }
+
+    // retrieve an event detail
     const individualScreeningEvent = await events.findIndividualScreeningEvent({
-        identifier: individualScreeningEvents[0].identifier
+        identifier: availableEvent.identifier
     });
     if (individualScreeningEvent === null) {
-        throw new Error('指定された上映イベントが見つかりません');
+        throw new Error('specified screening event not found');
     }
 
     // 劇場ショップ検索
@@ -69,11 +73,9 @@ async function main() {
     const screenCode = individualScreeningEvent.coaInfo.screenCode;
 
     // 取引開始
-    // 1分後のunix timestampを送信する場合
-    // https://ja.wikipedia.org/wiki/UNIX%E6%99%82%E9%96%93
     debug('starting transaction...');
     const transaction = await placeOrderTransactions.start({
-        expires: moment().add(1, 'minutes').toDate(),
+        expires: moment().add(10, 'minutes').toDate(),
         sellerId: movieTheaterOrganization.id
     });
 
@@ -123,20 +125,20 @@ async function main() {
                     ticketName: salesTicketResult[0].ticketName,
                     ticketNameEng: salesTicketResult[0].ticketNameEng,
                     ticketNameKana: salesTicketResult[0].ticketNameKana,
-                    stdPrice: salesTicketResult[0].stdPrice,
-                    addPrice: salesTicketResult[0].addPrice,
+                    stdPrice: 0,
+                    addPrice: 0,
                     disPrice: 0,
-                    salePrice: salesTicketResult[0].salePrice,
-                    mvtkAppPrice: 0,
+                    salePrice: 0,
+                    mvtkAppPrice: 1200,
                     ticketCount: 1,
                     seatNum: freeSeatCodes[0],
                     addGlasses: 0,
                     kbnEisyahousiki: '00',
-                    mvtkNum: '',
+                    mvtkNum: '4450899842',
                     mvtkKbnDenshiken: '00',
                     mvtkKbnMaeuriken: '00',
                     mvtkKbnKensyu: '00',
-                    mvtkSalesPrice: 0
+                    mvtkSalesPrice: 1400
                 }
             }
         ]
@@ -144,36 +146,37 @@ async function main() {
     debug('seatReservationAuthorization is', seatReservationAuthorization);
 
     // 本当はここでムビチケ着券処理
+    const mvtkResult = {
+        price: 1400,
+        kgygishCd: 'SSK000',
+        yykDvcTyp: '00',
+        trkshFlg: '0',
+        kgygishSstmZskyykNo: '118124',
+        kgygishUsrZskyykNo: '124',
+        jeiDt: '2017/03/02 10:00:00',
+        kijYmd: '2017/03/02',
+        stCd: theaterCode.slice(-2),
+        screnCd: screenCode,
+        knyknrNoInfo: [
+            {
+                knyknrNo: '4450899842',
+                pinCd: '7648',
+                knshInfo: [
+                    { knshTyp: '01', miNum: 1 }
+                ]
+            }
+        ],
+        zskInfo: seatReservationAuthorization.result.listTmpReserve.map((tmpReserve) => {
+            return { zskCd: tmpReserve.seatNum };
+        }),
+        skhnCd: `${titleCode}${titleBranchNum}`
+    };
 
     // ムビチケオーソリ追加(着券した体で) 値はほぼ適当です
     debug('adding authorizations mvtk...');
     let mvtkAuthorization = await placeOrderTransactions.createMvtkAuthorization({
         transactionId: transaction.id,
-        mvtk: {
-            price: totalPrice,
-            kgygishCd: 'SSK000',
-            yykDvcTyp: '00',
-            trkshFlg: '0',
-            kgygishSstmZskyykNo: '118124',
-            kgygishUsrZskyykNo: '124',
-            jeiDt: '2017/03/0210: 00: 00',
-            kijYmd: '2017/03/02',
-            stCd: '15',
-            screnCd: '1',
-            knyknrNoInfo: [
-                {
-                    knyknrNo: '4450899842',
-                    pinCd: '7648',
-                    knshInfo: [
-                        { knshTyp: '01', miNum: '2' }
-                    ]
-                }
-            ],
-            zskInfo: seatReservationAuthorization.result.listTmpReserve.map((tmpReserve) => {
-                return { zskCd: tmpReserve.seatNum };
-            }),
-            skhnCd: '1622700'
-        }
+        mvtk: mvtkResult
     });
     debug('addMvtkAuthorization is', mvtkAuthorization);
 
@@ -184,34 +187,10 @@ async function main() {
     });
 
     // 再度ムビチケ追加
-    debug('adding authorizations mvtk...');
+    debug('adding authorizations mvtk...', theaterCode.slice(-2));
     mvtkAuthorization = await placeOrderTransactions.createMvtkAuthorization({
         transactionId: transaction.id,
-        mvtk: {
-            price: totalPrice,
-            kgygishCd: 'SSK000',
-            yykDvcTyp: '00',
-            trkshFlg: '0',
-            kgygishSstmZskyykNo: '118124',
-            kgygishUsrZskyykNo: '124',
-            jeiDt: '2017/03/0210: 00: 00',
-            kijYmd: '2017/03/02',
-            stCd: '15',
-            screnCd: '1',
-            knyknrNoInfo: [
-                {
-                    knyknrNo: '4450899842',
-                    pinCd: '7648',
-                    knshInfo: [
-                        { knshTyp: '01', miNum: '2' }
-                    ]
-                }
-            ],
-            zskInfo: seatReservationAuthorization.result.listTmpReserve.map((tmpReserve) => {
-                return { zskCd: tmpReserve.seatNum };
-            }),
-            skhnCd: '1622700'
-        }
+        mvtk: mvtkResult
     });
     debug('addMvtkAuthorization is', mvtkAuthorization);
     debug('registering a customer contact...');

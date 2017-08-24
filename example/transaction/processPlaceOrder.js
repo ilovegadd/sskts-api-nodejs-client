@@ -84,10 +84,9 @@ async function main() {
     const screenCode = individualScreeningEvent.coaInfo.screenCode;
 
     // start a transaction
-    // for example expires in one minute
     debug('starting a transaction...');
     const transaction = await placeOrderTransactions.start({
-        expires: moment().add(1, 'minutes').toDate(),
+        expires: moment().add(10, 'minutes').toDate(),
         sellerId: movieTheaterOrganization.id
     });
 
@@ -270,7 +269,7 @@ Thank you for the order below.
 -------------------
 orderNumber: ${order.orderInquiryKey.orderNumber}
 telephone: ${order.orderInquiryKey.telephone}
-amount: ${order.price}yen
+amount: ${order.price} yen
 -------------------
 `;
     debug('sending an email notification...', content);
