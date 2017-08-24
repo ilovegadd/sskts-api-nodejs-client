@@ -19,8 +19,7 @@ async function main() {
         scopes: [
             'https://sskts-api-development.azurewebsites.net/transactions',
             'https://sskts-api-development.azurewebsites.net/events.read-only',
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only',
-            'https://sskts-api-development.azurewebsites.net/orders.read-only'
+            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
         ],
         state: 'teststate'
     });

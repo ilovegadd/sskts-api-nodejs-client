@@ -9,13 +9,9 @@ const GMO = require('@motionpicture/gmo-service');
 const debug = require('debug')('sasaki-api:samples');
 const moment = require('moment');
 const util = require('util');
-const readline = require('readline');
-const sasaki = require('../../lib/index');
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+const sasaki = require('../../lib/index');
+const makeInquiry = require('../makeInquiryOfOrder');
 
 async function main() {
     const auth = new sasaki.auth.ClientCredentials({
@@ -25,8 +21,7 @@ async function main() {
         scopes: [
             'https://sskts-api-development.azurewebsites.net/transactions',
             'https://sskts-api-development.azurewebsites.net/events.read-only',
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only',
-            'https://sskts-api-development.azurewebsites.net/orders.read-only'
+            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
         ],
         state: 'teststate'
     });
@@ -60,9 +55,14 @@ async function main() {
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
+    const availableEvent = individualScreeningEvents.find((event) => event.offer.availability > 0);
+    if (availableEvent === undefined) {
+        throw new Error('no available events');
+    }
+
     // retrieve an event detail
     const individualScreeningEvent = await events.findIndividualScreeningEvent({
-        identifier: individualScreeningEvents[0].identifier
+        identifier: availableEvent.identifier
     });
     if (individualScreeningEvent === null) {
         throw new Error('specified screening event not found');
@@ -264,15 +264,14 @@ async function main() {
     debug('confirmed. order:', order);
 
     // send an email
-    const content = `
-${order.customer.name} 様
--------------------------------------------------------------------
-この度はご購入いただき誠にありがとうございます。
--------------------------------------------------------------------
-◆購入番号 ：${order.orderInquiryKey.orderNumber}
-◆電話番号 ${order.orderInquiryKey.telephone}
-◆合計金額 ：${order.price}円
--------------------------------------------------------------------
+    const content = `Dear ${order.customer.name}
+-------------------
+Thank you for the order below.
+-------------------
+orderNumber: ${order.orderInquiryKey.orderNumber}
+telephone: ${order.orderInquiryKey.telephone}
+amount: ${order.price}yen
+-------------------
 `;
     debug('sending an email notification...', content);
     await placeOrderTransactions.sendEmailNotification({
@@ -285,41 +284,14 @@ ${order.customer.name} 様
         }
     });
     debug('an email sent');
-
-    // try to make inquiry in a few seconds
-    debug('making inquiry...');
-    return new Promise((resolve, reject) => {
-        rl.question('input theater code: ', (theaterCode) => {
-            rl.question('input order number: ', (orderNumber) => {
-                rl.question('input telephone: ', async (telephone) => {
-                    try {
-                        const orders = sasaki.service.order({
-                            endpoint: process.env.SSKTS_API_ENDPOINT,
-                            auth: auth
-                        });
-
-                        const key = {
-                            theaterCode: theaterCode,
-                            orderNumber: parseInt(orderNumber, 10),
-                            telephone: telephone
-                        }
-
-                        const orderByInquiry = await orders.findByOrderInquiryKey(key);
-                        debug('orderByInquiry:', orderByInquiry);
-                        resolve();
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
-            });
-        });
-    });
 }
 
-main().then(() => {
-    rl.close();
+exports.main = main;
+
+main().then(async () => {
+    await makeInquiry.main();
+
     debug('main processed.');
 }).catch((err) => {
-    rl.close();
     console.error(err);
 });
