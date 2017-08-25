@@ -57,12 +57,12 @@ async function main() {
         throw new Error('specified screening event not found');
     }
 
-    // 劇場ショップ検索
+    // search movie theater organizations
     const movieTheaterOrganization = await organizations.findMovieTheaterByBranchCode({
         branchCode: individualScreeningEvent.coaInfo.theaterCode
     });
     if (movieTheaterOrganization === null) {
-        throw new Error('劇場ショップがオープンしていません');
+        throw new Error('movie theater shop not open');
     }
 
     const theaterCode = individualScreeningEvent.coaInfo.theaterCode;
@@ -72,8 +72,8 @@ async function main() {
     const timeBegin = individualScreeningEvent.coaInfo.timeBegin;
     const screenCode = individualScreeningEvent.coaInfo.screenCode;
 
-    // 取引開始
-    debug('starting transaction...');
+    // start a transaction
+    debug('starting a transaction...');
     const transaction = await placeOrderTransactions.start({
         expires: moment().add(10, 'minutes').toDate(),
         sellerId: movieTheaterOrganization.id

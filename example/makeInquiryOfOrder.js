@@ -28,7 +28,7 @@ async function main() {
     debug('making inquiry...');
     return new Promise((resolve, reject) => {
         rl.question('input theater code: ', (theaterCode) => {
-            rl.question('input order number: ', (orderNumber) => {
+            rl.question('input confirmation number: ', (confirmationNumber) => {
                 rl.question('input telephone: ', async (telephone) => {
                     try {
                         const orders = sasaki.service.order({
@@ -38,7 +38,7 @@ async function main() {
 
                         const key = {
                             theaterCode: theaterCode,
-                            orderNumber: parseInt(orderNumber, 10),
+                            confirmationNumber: parseInt(confirmationNumber, 10),
                             telephone: telephone
                         }
 

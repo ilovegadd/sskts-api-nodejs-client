@@ -177,7 +177,7 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<factory.authorization.mvtk.IAuthorization> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/mvtk`,
+            uri: `/transactions/placeOrder/${params.transactionId}/discountInfos/mvtk`,
             method: 'POST',
             expectedStatusCodes: [CREATED],
             auth: this.options.auth,
@@ -200,7 +200,7 @@ export class PlaceOrderTransactionService extends Service {
     }): Promise<void> {
         return await apiRequest({
             baseUrl: this.options.endpoint,
-            uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/mvtk/${params.authorizationId}`,
+            uri: `/transactions/placeOrder/${params.transactionId}/discountInfos/mvtk/${params.authorizationId}`,
             method: 'DELETE',
             expectedStatusCodes: [NO_CONTENT],
             auth: this.options.auth

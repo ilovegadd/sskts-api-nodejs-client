@@ -267,7 +267,7 @@ async function main() {
 -------------------
 Thank you for the order below.
 -------------------
-orderNumber: ${order.orderInquiryKey.orderNumber}
+confirmationNumber: ${order.orderInquiryKey.confirmationNumber}
 telephone: ${order.orderInquiryKey.telephone}
 amount: ${order.price} yen
 -------------------
