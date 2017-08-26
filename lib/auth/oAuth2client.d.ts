@@ -1,6 +1,12 @@
 /// <reference types="request-promise-native" />
 import * as request from 'request-promise-native';
 import ICredentials from './credentials';
+export interface IGenerateAuthUrlOpts {
+    response_type?: string;
+    client_id?: string;
+    redirect_uri?: string;
+    scope?: string[] | string;
+}
 export interface IOptions {
     domain: string;
     clientId?: string;
@@ -23,6 +29,17 @@ export default class OAuth2client {
     options: IOptions;
     constructor(options: IOptions);
     /**
+     * Generates URL for consent page landing.
+     * @param {object=} opt_opts Options.
+     * @return {string} URL to consent page.
+     */
+    generateAuthUrl(optOpts: IGenerateAuthUrlOpts): string;
+    /**
+     * Gets the access token for the given code.
+     * @param {string} code The authorization code.
+     */
+    getToken(code: string): Promise<ICredentials>;
+    /**
      * OAuthクライアントに認証情報をセットします。
      */
     setCredentials(credentials: ICredentials): void;
@@ -32,6 +49,15 @@ export default class OAuth2client {
      * 必要であれば更新してから取得します。
      */
     getAccessToken(): Promise<string>;
+    /**
+     * Revokes the access given to token.
+     * @param {string} token The existing token to be revoked.
+     * @param {function=} callback Optional callback fn.
+     */
+    /**
+     * Revokes access token and clears the credentials object
+     * @param  {Function=} callback callback
+     */
     /**
      * Provides a request implementation with OAuth 2.0 flow.
      * If credentials have a refresh_token, in cases of HTTP
@@ -49,6 +75,33 @@ export default class OAuth2client {
      * @return {Request}           The request object created
      */
     makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]): Promise<any>;
+    /**
+     * Verify id token is token by checking the certs and audience
+     * @param {string} idToken ID Token.
+     * @param {(string|Array.<string>)} audience The audience to verify against the ID Token
+     * @param {function=} callback Callback supplying GoogleLogin if successful
+     */
+    /**
+     * Gets federated sign-on certificates to use for verifying identity tokens.
+     * Returns certs as array structure, where keys are key ids, and values
+     * are PEM encoded certificates.
+     * @param {function=} callback Callback supplying the certificates
+     */
+    /**
+     * Verify the id token is signed with the correct certificate
+     * and is from the correct audience.
+     * @param {string} jwt The jwt to verify (The ID Token in this case).
+     * @param {array} certs The array of certs to test the jwt against.
+     * @param {(string|Array.<string>)} requiredAudience The audience to test the jwt against.
+     * @param {array} issuers The allowed issuers of the jwt (Optional).
+     * @param {string} maxExpiry The max expiry the certificate can be (Optional).
+     * @return {LoginTicket} Returns a LoginTicket on verification.
+     */
+    /**
+     * This is a utils method to decode a base64 string
+     * @param {string} b64String The string to base64 decode
+     * @return {string} The decoded string
+     */
     /**
      * Refreshes the access token.
      */

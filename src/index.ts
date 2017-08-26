@@ -5,6 +5,7 @@
  */
 
 import ClientCredentialsClient from './auth/clientCredentialsClient';
+import OAuth2client from './auth/oAuth2client';
 
 import { IOptions } from './service';
 import { EventService } from './service/event';
@@ -22,6 +23,10 @@ export namespace auth {
      * OAuth2 client using grant type 'client_credentials'
      */
     export class ClientCredentials extends ClientCredentialsClient { }
+    /**
+     * OAuth2 client using grant type 'authorization_code'
+     */
+    export class OAuth2 extends OAuth2client { }
 }
 
 /**
