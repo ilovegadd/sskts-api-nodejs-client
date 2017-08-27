@@ -1,6 +1,5 @@
 /// <reference types="node" />
-/// <reference types="request-promise-native" />
-import * as request from 'request-promise-native';
+import { AuthClient } from './authClient';
 import ICredentials from './credentials';
 export interface IGenerateAuthUrlOpts {
     scopes: string[];
@@ -24,19 +23,19 @@ export interface IOptions {
 /**
  * OAuth2 client
  */
-export default class OAuth2client {
+export default class OAuth2client extends AuthClient {
     /**
      * The base URL for auth endpoints.
      */
-    private static readonly OAUTH2_AUTH_BASE_URI;
+    protected static readonly OAUTH2_AUTH_BASE_URI: string;
     /**
      * The base endpoint for token retrieval.
      */
-    private static readonly OAUTH2_TOKEN_URI;
+    protected static readonly OAUTH2_TOKEN_URI: string;
     /**
      * The base endpoint to revoke tokens.
      */
-    private static readonly OAUTH2_LOGOUT_URI;
+    protected static readonly OAUTH2_LOGOUT_URI: string;
     /**
      * certificates.
      */
@@ -80,7 +79,15 @@ export default class OAuth2client {
      * @param {request.OptionsWithUri} options Request options.
      * @return {Promise<any>}
      */
-    request(options: request.OptionsWithUri, expectedStatusCodes: number[]): Promise<any>;
+    fetch(url: string, options: RequestInit, expectedStatusCodes: number[]): Promise<any>;
+    /**
+     * Provides a request implementation with OAuth 2.0 flow.
+     * If credentials have a refresh_token, in cases of HTTP
+     * 401 and 403 responses, it automatically asks for a new
+     * access token and replays the unsuccessful request.
+     * @param {request.OptionsWithUri} options Request options.
+     * @return {Promise<any>}
+     */
     /**
      * Makes a request without paying attention to refreshing or anything
      * Assumes that all credentials are set correctly.
@@ -88,7 +95,14 @@ export default class OAuth2client {
      * @param  {Function} callback callback function
      * @return {Request}           The request object created
      */
-    makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]): Promise<any>;
+    /**
+     * Makes a request without paying attention to refreshing or anything
+     * Assumes that all credentials are set correctly.
+     * @param  {object}   opts     Options for request
+     * @param  {Function} callback callback function
+     * @return {Request}           The request object created
+     */
+    protected makeFetch(url: string, options: RequestInit, expectedStatusCodes: number[]): Promise<any>;
     /**
      * Verify id token is token by checking the certs and audience
      * @param {string} idToken ID Token.

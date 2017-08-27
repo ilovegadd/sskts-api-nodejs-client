@@ -5,7 +5,8 @@
  */
 
 import * as createDebug from 'debug';
-import * as request from 'request-promise-native';
+import * as httpStatus from 'http-status';
+import * as fetch from 'isomorphic-fetch';
 
 const debug = createDebug('sasaki-api:transporters');
 // tslint:disable-next-line
@@ -43,7 +44,7 @@ export class DefaultTransporter {
     /**
      * Configures request options before making a request.
      */
-    public static CONFIGURE(options: request.OptionsWithUri): request.OptionsWithUri {
+    public static CONFIGURE(options: RequestInit): RequestInit {
         // set transporter user agent
         options.headers = (options.headers !== undefined) ? options.headers : {};
         if (!options.headers['User-Agent']) {
@@ -58,41 +59,45 @@ export class DefaultTransporter {
     /**
      * Makes a request with given options and invokes callback.
      */
-    public async request(options: request.OptionsWithUri) {
-        const requestOptions = DefaultTransporter.CONFIGURE(options);
+    public async fetch(url: string, options: RequestInit) {
+        const fetchOptions = DefaultTransporter.CONFIGURE(options);
 
-        return await request(requestOptions)
-            .then((res) => this.wrapCallback(res));
+        debug('fetching...', fetchOptions);
+
+        return await fetch(url, fetchOptions).then(async (response) => this.wrapCallback(response));
     }
 
     /**
      * Wraps the response callback.
      */
-    private wrapCallback(res: request.FullResponse): any {
+    private async wrapCallback(response: Response): Promise<any> {
         let err: RequestError = new RequestError('An unexpected error occurred');
 
-        debug('request processed', res.statusCode, res.body);
-        if (res.statusCode !== undefined) {
-            if (this.expectedStatusCodes.indexOf(res.statusCode) < 0) {
-                if (typeof res.body === 'string') {
-                    // Consider all 4xx and 5xx responses errors.
-                    err = new RequestError(res.body);
-                    err.code = res.statusCode;
-                }
-
-                if (typeof res.body === 'object' && res.body.errors !== undefined) {
-                    // consider 400
-                    err = new RequestError((<any[]>res.body.errors).map((error) => `${error.title}:${error.detail}`).join('\n'));
-                    err.code = res.statusCode;
-                    err.errors = res.body.errors;
-                }
+        debug('request processed', response.status);
+        if (this.expectedStatusCodes.indexOf(response.status) < 0) {
+            if (response.status >= httpStatus.UNAUTHORIZED) {
+                // Consider all 4xx and 5xx responses errors.
+                const text = await response.text();
+                err = new RequestError(text);
+                err.code = response.status;
+                err.errors = [];
             } else {
-                if (res.body !== undefined && res.body.data !== undefined) {
+                const body = await response.json();
+                if (typeof body === 'object' && body.errors !== undefined) {
+                    err = new RequestError((<any[]>body.errors).map((error) => `${error.detail}`).join('\n'));
+                    err.code = response.status;
+                    err.errors = body.errors;
+                }
+            }
+        } else {
+            if (response.status === httpStatus.NO_CONTENT) {
+                // consider 204
+                return;
+            } else {
+                const body = await response.json();
+                if (body !== undefined && body.data !== undefined) {
                     // consider 200,201,404
-                    return res.body.data;
-                } else {
-                    // consider 204
-                    return;
+                    return body.data;
                 }
             }
         }
@@ -100,3 +105,79 @@ export class DefaultTransporter {
         throw err;
     }
 }
+
+/**
+ * TransporterWithRequestPromise
+ */
+// export class TransporterWithRequestPromise {
+//     /**
+//      * Default user agent.
+//      */
+//     public static readonly USER_AGENT: string = `sasaki-api-nodejs-client/${pkg.version}`;
+
+//     public expectedStatusCodes: number[];
+
+//     constructor(expectedStatusCodes: number[]) {
+//         this.expectedStatusCodes = expectedStatusCodes;
+//     }
+
+//     /**
+//      * Configures request options before making a request.
+//      */
+//     public static CONFIGURE(options: request.OptionsWithUri): request.OptionsWithUri {
+//         // set transporter user agent
+//         options.headers = (options.headers !== undefined) ? options.headers : {};
+//         if (!options.headers['User-Agent']) {
+//             options.headers['User-Agent'] = DefaultTransporter.USER_AGENT;
+//         } else if (options.headers['User-Agent'].indexOf(DefaultTransporter.USER_AGENT) === -1) {
+//             options.headers['User-Agent'] = `${options.headers['User-Agent']} ${DefaultTransporter.USER_AGENT}`;
+//         }
+
+//         return options;
+//     }
+
+//     /**
+//      * Makes a request with given options and invokes callback.
+//      */
+//     public async request(options: request.OptionsWithUri) {
+//         const requestOptions = DefaultTransporter.CONFIGURE(options);
+
+//         return await request(requestOptions)
+//             .then((res) => this.wrapCallback(res));
+//     }
+
+//     /**
+//      * Wraps the response callback.
+//      */
+//     private wrapCallback(res: request.FullResponse): any {
+//         let err: RequestError = new RequestError('An unexpected error occurred');
+
+//         debug('request processed', res.statusCode, res.body);
+//         if (res.statusCode !== undefined) {
+//             if (this.expectedStatusCodes.indexOf(res.statusCode) < 0) {
+//                 if (typeof res.body === 'string') {
+//                     // Consider all 4xx and 5xx responses errors.
+//                     err = new RequestError(res.body);
+//                     err.code = res.statusCode;
+//                 }
+
+//                 if (typeof res.body === 'object' && res.body.errors !== undefined) {
+//                     // consider 400
+//                     err = new RequestError((<any[]>res.body.errors).map((error) => `${error.title}:${error.detail}`).join('\n'));
+//                     err.code = res.statusCode;
+//                     err.errors = res.body.errors;
+//                 }
+//             } else {
+//                 if (res.body !== undefined && res.body.data !== undefined) {
+//                     // consider 200,201,404
+//                     return res.body.data;
+//                 } else {
+//                     // consider 204
+//                     return;
+//                 }
+//             }
+//         }
+
+//         throw err;
+//     }
+// }

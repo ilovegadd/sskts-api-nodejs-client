@@ -1,10 +1,7 @@
-/**
- * APIリクエストモジュール
- */
 import OAuth2client from './auth/oAuth2client';
-export interface IParams {
-    uri: string;
+export interface IOptions {
     baseUrl: string;
+    uri: string;
     form?: any;
     auth?: OAuth2client;
     qs?: any;
@@ -15,3 +12,8 @@ export interface IParams {
     body?: any;
     expectedStatusCodes: number[];
 }
+/**
+ * Create and send request to API
+ */
+declare function apiFetch(options: IOptions): Promise<any>;
+export default apiFetch;

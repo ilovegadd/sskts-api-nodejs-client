@@ -6,7 +6,7 @@
 
 import * as factory from '@motionpicture/sskts-factory';
 import { NOT_FOUND, OK } from 'http-status';
-import apiRequest from '../apiRequest';
+import apiFetch from '../apiFetch';
 
 import { Service } from '../service';
 
@@ -25,13 +25,13 @@ export class PlaceService extends Service {
          */
         params?: {}
     ): Promise<factory.place.movieTheater.IPlaceWithoutScreeningRoom[]> {
-        return await apiRequest({
+        return apiFetch({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/places/movieTheater',
             method: 'GET',
-            expectedStatusCodes: [OK],
-            qs: params
+            qs: params,
+            expectedStatusCodes: [OK]
         });
     }
 
@@ -44,11 +44,12 @@ export class PlaceService extends Service {
          */
         branchCode: string;
     }): Promise<factory.place.movieTheater.IPlace | null> {
-        return await apiRequest({
+        return apiFetch({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: `/places/movieTheater/${params.branchCode}`,
             method: 'GET',
+            qs: {},
             expectedStatusCodes: [NOT_FOUND, OK]
         });
     }

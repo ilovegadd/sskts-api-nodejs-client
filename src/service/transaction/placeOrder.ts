@@ -6,7 +6,7 @@
 
 import * as factory from '@motionpicture/sskts-factory';
 import { CREATED, NO_CONTENT, NOT_FOUND, OK } from 'http-status';
-import apiRequest from '../../apiRequest';
+import apiFetch from '../../apiFetch';
 
 import { Service } from '../../service';
 
@@ -34,17 +34,17 @@ export class PlaceOrderTransactionService extends Service {
          */
         sellerId: string;
     }): Promise<factory.transaction.placeOrder.ITransaction> {
-        return await apiRequest({
+        return apiFetch({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/transactions/placeOrder/start',
             method: 'POST',
-            expectedStatusCodes: [NOT_FOUND, OK],
-            auth: this.options.auth,
             body: {
                 // tslint:disable-next-line:no-magic-numbers
                 expires: (params.expires.getTime() / 1000).toFixed(0), // unix timestamp
                 sellerId: params.sellerId
-            }
+            },
+            expectedStatusCodes: [NOT_FOUND, OK]
         });
     }
 
@@ -65,7 +65,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         offers: factory.offer.ISeatReservationOffer[];
     }): Promise<factory.authorization.seatReservation.IAuthorization> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/seatReservationAuthorization`,
             method: 'POST',
@@ -91,7 +91,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         authorizationId: string;
     }): Promise<void> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/seatReservationAuthorization/${params.authorizationId}`,
             method: 'DELETE',
@@ -125,7 +125,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         creditCard: ICreditCard;
     }): Promise<factory.authorization.gmo.IAuthorization> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/creditCard`,
             method: 'POST',
@@ -153,7 +153,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         authorizationId: string;
     }): Promise<void> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/creditCard/${params.authorizationId}`,
             method: 'DELETE',
@@ -175,7 +175,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         mvtk: factory.authorization.mvtk.IResult;
     }): Promise<factory.authorization.mvtk.IAuthorization> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/discountInfos/mvtk`,
             method: 'POST',
@@ -198,7 +198,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         authorizationId: string;
     }): Promise<void> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/discountInfos/mvtk/${params.authorizationId}`,
             method: 'DELETE',
@@ -220,7 +220,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         contact: factory.transaction.placeOrder.ICustomerContact;
     }): Promise<void> {
-        await apiRequest({
+        await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/customerContact`,
             method: 'PUT',
@@ -239,7 +239,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         transactionId: string;
     }): Promise<factory.order.IOrder> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/confirm`,
             method: 'POST',
@@ -261,7 +261,7 @@ export class PlaceOrderTransactionService extends Service {
          */
         emailNotification: factory.notification.email.INotification
     }): Promise<factory.order.IOrder> {
-        return await apiRequest({
+        return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/tasks/sendEmailNotification`,
             method: 'POST',

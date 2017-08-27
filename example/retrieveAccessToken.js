@@ -19,8 +19,8 @@ async function main() {
 
     const auth = new sasaki.auth.OAuth2({
         domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
-        clientId: '2fi3iadm5se2j88g3837mdj9cj',
-        clientSecret: '4tmmi5ul8vn1b8n8l7lh8ub2i4d8ig59pp3qkdqou0pjvu6pi17',
+        clientId: process.env.TEST_CLIENT_ID_OAUTH2,
+        clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
         redirectUri: 'https://localhost/signIn',
         logoutUri: 'https://localhost/signOut'
     });

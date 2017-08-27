@@ -1,6 +1,6 @@
 import * as factory from '@motionpicture/sskts-factory';
 import { NOT_FOUND, OK } from 'http-status';
-import apiRequest from '../apiRequest';
+import apiFetch from '../apiFetch';
 
 import { Service } from '../service';
 
@@ -18,13 +18,13 @@ export class EventService extends Service {
          */
         params: factory.event.individualScreeningEvent.ISearchConditions
     ): Promise<factory.event.individualScreeningEvent.IEventWithOffer[]> {
-        return await apiRequest({
+        return apiFetch({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/events/individualScreeningEvent',
-            auth: this.options.auth,
             method: 'GET',
-            expectedStatusCodes: [OK],
-            qs: params
+            qs: params,
+            expectedStatusCodes: [OK]
         });
     }
 
@@ -38,12 +38,12 @@ export class EventService extends Service {
          */
         identifier: string;
     }): Promise<factory.event.individualScreeningEvent.IEventWithOffer | null> {
-        return await apiRequest({
+        return apiFetch({
+            auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: `/events/individualScreeningEvent/${params.identifier}`,
-            auth: this.options.auth,
             method: 'GET',
-            expectedStatusCodes: [OK, NOT_FOUND]
+            expectedStatusCodes: [NOT_FOUND, OK]
         });
     }
 }

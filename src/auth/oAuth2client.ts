@@ -5,10 +5,11 @@
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
 import * as httpStatus from 'http-status';
+import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
-import * as request from 'request-promise-native';
 
 import { DefaultTransporter } from '../transporters';
+import { AuthClient } from './authClient';
 import ICredentials from './credentials';
 
 const debug = createDebug('sasaki-api:auth:oAuth2client');
@@ -37,31 +38,32 @@ export interface IOptions {
 /**
  * OAuth2 client
  */
-export default class OAuth2client {
+export default class OAuth2client extends AuthClient {
     /**
      * The base URL for auth endpoints.
      */
-    private static readonly OAUTH2_AUTH_BASE_URI: string = '/authorize';
+    protected static readonly OAUTH2_AUTH_BASE_URI: string = '/authorize';
 
     /**
      * The base endpoint for token retrieval.
      */
-    private static readonly OAUTH2_TOKEN_URI: string = '/token';
+    protected static readonly OAUTH2_TOKEN_URI: string = '/token';
 
     /**
      * The base endpoint to revoke tokens.
      */
-    private static readonly OAUTH2_LOGOUT_URI: string = '/logout';
+    protected static readonly OAUTH2_LOGOUT_URI: string = '/logout';
 
     /**
      * certificates.
      */
-    // private static readonly OAUTH2_FEDERATED_SIGNON_CERTS_URL = 'https://www.example.com/oauth2/v1/certs';
+    // protected static readonly OAUTH2_FEDERATED_SIGNON_CERTS_URL = 'https://www.example.com/oauth2/v1/certs';
 
     public credentials: ICredentials;
     public options: IOptions;
 
     constructor(options: IOptions) {
+        super();
         this.options = options;
         this.credentials = {};
     }
@@ -118,49 +120,49 @@ export default class OAuth2client {
      * @param {string} code The authorization code.
      */
     public async getToken(code: string, codeVerifier?: string): Promise<ICredentials> {
-        return await request.post({
-            url: `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            form: {
-                code: code,
-                client_id: this.options.clientId,
-                redirect_uri: this.options.redirectUri,
-                grant_type: 'authorization_code',
-                code_verifier: codeVerifier
-            },
-            auth: {
-                user: this.options.clientId,
-                pass: this.options.clientSecret
-            },
-            json: true,
-            simple: false,
-            resolveWithFullResponse: true,
-            useQuerystring: true
-        }).then((response) => {
-            debug(response.statusCode, response.body);
-            if (response.statusCode !== httpStatus.OK) {
-                if (typeof response.body === 'string') {
-                    throw new Error(response.body);
+        const form = {
+            code: code,
+            client_id: this.options.clientId,
+            redirect_uri: this.options.redirectUri,
+            grant_type: 'authorization_code',
+            code_verifier: codeVerifier
+        };
+        const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
+        const options: RequestInit = {
+            credentials: 'include',
+            body: querystring.stringify(form),
+            method: 'POST',
+            headers: {
+                Authorization: `Basic ${secret}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        };
+
+        debug('fetching...', options);
+
+        return await fetch(
+            `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
+            options
+        ).then(async (response) => {
+            debug('response:', response.status);
+            if (response.status !== httpStatus.OK) {
+                if (response.status === httpStatus.BAD_REQUEST) {
+                    const body = await response.json();
+                    throw new Error(body.error);
+                } else {
+                    const body = await response.text();
+                    throw new Error(body);
+                }
+            } else {
+                const tokens = await response.json();
+                if (tokens && tokens.expires_in) {
+                    // tslint:disable-next-line:no-magic-numbers
+                    tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
+                    delete tokens.expires_in;
                 }
 
-                if (typeof response.body === 'object' && response.body.errors !== undefined) {
-                    const message = (<any[]>response.body.errors).map((error) => {
-                        return `[${error.title}]${error.detail}`;
-                    }).join(', ');
-
-                    throw new Error(message);
-                }
-
-                throw new Error('An unexpected error occurred');
+                return tokens;
             }
-
-            const tokens = response.body;
-            if (tokens && tokens.expires_in) {
-                // tslint:disable-next-line:no-magic-numbers
-                tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
-                delete tokens.expires_in;
-            }
-
-            return tokens;
         });
     }
 
@@ -271,7 +273,7 @@ export default class OAuth2client {
      * @param {request.OptionsWithUri} options Request options.
      * @return {Promise<any>}
      */
-    public async request(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
+    public async fetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
         // Callbacks will close over this to ensure that we only retry once
         // let retry = true;
 
@@ -299,10 +301,26 @@ export default class OAuth2client {
         //     };
 
         const accessToken = await this.getAccessToken();
-        options.auth = { bearer: accessToken };
+        options.headers = (options.headers === undefined || options.headers === null) ? {} : options.headers;
+        options.headers.Authorization = `Bearer ${accessToken}`;
 
-        return this.makeRequest(options, expectedStatusCodes);
+        return this.makeFetch(url, options, expectedStatusCodes);
     }
+
+    /**
+     * Provides a request implementation with OAuth 2.0 flow.
+     * If credentials have a refresh_token, in cases of HTTP
+     * 401 and 403 responses, it automatically asks for a new
+     * access token and replays the unsuccessful request.
+     * @param {request.OptionsWithUri} options Request options.
+     * @return {Promise<any>}
+     */
+    // public async request(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
+    //     const accessToken = await this.getAccessToken();
+    //     options.auth = { bearer: accessToken };
+
+    //     return this.makeRequest(options, expectedStatusCodes);
+    // }
 
     /**
      * Makes a request without paying attention to refreshing or anything
@@ -312,10 +330,24 @@ export default class OAuth2client {
      * @return {Request}           The request object created
      */
     // tslint:disable-next-line:prefer-function-over-method
-    public async makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
+    // public async makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
+    //     const transporter = new DefaultTransporter(expectedStatusCodes);
+
+    //     return transporter.request(options);
+    // }
+
+    /**
+     * Makes a request without paying attention to refreshing or anything
+     * Assumes that all credentials are set correctly.
+     * @param  {object}   opts     Options for request
+     * @param  {Function} callback callback function
+     * @return {Request}           The request object created
+     */
+    // tslint:disable-next-line:prefer-function-over-method
+    protected async makeFetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
         const transporter = new DefaultTransporter(expectedStatusCodes);
 
-        return transporter.request(options);
+        return await transporter.fetch(url, options);
     }
 
     /**
@@ -530,49 +562,49 @@ export default class OAuth2client {
      */
     protected async refreshToken(refreshToken: string): Promise<ICredentials> {
         // request for new token
-        debug('refreshing access token...');
+        debug('refreshing access token...', this.credentials, refreshToken);
 
-        return await request.post({
-            url: `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            form: {
-                client_id: this.options.clientId,
-                refresh_token: refreshToken,
-                grant_type: 'refresh_token'
-            },
-            auth: {
-                user: this.options.clientId,
-                pass: this.options.clientSecret
-            },
-            json: true,
-            simple: false,
-            resolveWithFullResponse: true,
-            useQuerystring: true
-        }).then((response) => {
-            debug(response.statusCode, response.body);
-            if (response.statusCode !== httpStatus.OK) {
-                if (typeof response.body === 'string') {
-                    throw new Error(response.body);
+        const form = {
+            client_id: this.options.clientId,
+            refresh_token: refreshToken,
+            grant_type: 'refresh_token'
+        };
+        const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
+        const options: RequestInit = {
+            credentials: 'include',
+            body: querystring.stringify(form),
+            method: 'POST',
+            headers: {
+                Authorization: `Basic ${secret}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        };
+
+        debug('fetching...', options);
+
+        return await fetch(
+            `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
+            options
+        ).then(async (response) => {
+            debug('response:', response.status);
+            if (response.status !== httpStatus.OK) {
+                if (response.status === httpStatus.BAD_REQUEST) {
+                    const body = await response.json();
+                    throw new Error(body.error);
+                } else {
+                    const body = await response.text();
+                    throw new Error(body);
+                }
+            } else {
+                const tokens = await response.json();
+                if (tokens && tokens.expires_in) {
+                    // tslint:disable-next-line:no-magic-numbers
+                    tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
+                    delete tokens.expires_in;
                 }
 
-                if (typeof response.body === 'object' && response.body.errors !== undefined) {
-                    const message = (<any[]>response.body.errors).map((error) => {
-                        return `[${error.title}]${error.detail}`;
-                    }).join(', ');
-
-                    throw new Error(message);
-                }
-
-                throw new Error('An unexpected error occurred');
+                return tokens;
             }
-
-            const tokens = response.body;
-            if (tokens && tokens.expires_in) {
-                // tslint:disable-next-line:no-magic-numbers
-                tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
-                delete tokens.expires_in;
-            }
-
-            return tokens;
         });
     }
 }

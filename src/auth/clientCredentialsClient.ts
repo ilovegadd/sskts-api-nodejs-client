@@ -1,6 +1,7 @@
 import * as createDebug from 'debug';
 import * as httpStatus from 'http-status';
-import * as request from 'request-promise-native';
+import * as fetch from 'isomorphic-fetch';
+import * as querystring from 'querystring';
 
 import ICredentials from './credentials';
 import OAuth2client from './oAuth2client';
@@ -33,48 +34,51 @@ export default class ClientCredentialsClient extends OAuth2client {
     /**
      * クライアント認証でアクセストークンを取得します。
      */
-    public async getToken() {
+    public async getToken(): Promise<ICredentials> {
         debug('requesting an access token...');
+        const form = {
+            scope: this.options.scopes.join(' '),
+            state: this.options.state,
+            grant_type: 'client_credentials'
+        };
+        const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
+        const options: RequestInit = {
+            credentials: 'include',
+            body: querystring.stringify(form),
+            method: 'POST',
+            headers: {
+                Authorization: `Basic ${secret}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        };
 
-        return await request.post({
-            url: `https://${this.options.domain}/token`,
-            form: {
-                scope: this.options.scopes.join(' '),
-                state: this.options.state,
-                grant_type: 'client_credentials'
-            },
-            auth: {
-                user: this.options.clientId,
-                pass: this.options.clientSecret
-            },
-            json: true,
-            simple: false,
-            resolveWithFullResponse: true,
-            useQuerystring: true
-        }).then((response) => {
-            if (response.statusCode !== httpStatus.OK) {
-                if (typeof response.body === 'string') {
-                    throw new Error(response.body);
+        debug('fetching...', options);
+
+        return await fetch(
+            `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
+            options
+        ).then(async (response) => {
+            debug('response:', response.status);
+            if (response.status !== httpStatus.OK) {
+                if (response.status === httpStatus.BAD_REQUEST) {
+                    const body = await response.json();
+                    throw new Error(body.error);
+                } else {
+                    const body = await response.text();
+                    throw new Error(body);
+                }
+            } else {
+                const tokens = await response.json();
+                if (tokens && tokens.expires_in) {
+                    // tslint:disable-next-line:no-magic-numbers
+                    tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
+                    delete tokens.expires_in;
                 }
 
-                debug(response.body);
-                if (typeof response.body === 'object' && response.body.error !== undefined) {
-                    throw new Error(response.body.error);
-                }
+                tokens.refresh_token = 'ignored';
 
-                throw new Error('An unexpected error occurred');
+                return tokens;
             }
-
-            const tokens = response.body;
-            if (tokens && tokens.expires_in) {
-                // tslint:disable-next-line:no-magic-numbers
-                tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
-                delete tokens.expires_in;
-            }
-
-            tokens.refresh_token = 'ignored';
-
-            return <ICredentials>tokens;
         });
     }
 

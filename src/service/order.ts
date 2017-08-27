@@ -6,7 +6,7 @@
 
 import * as factory from '@motionpicture/sskts-factory';
 import { NOT_FOUND, OK } from 'http-status';
-import apiRequest from '../apiRequest';
+import apiFetch from '../apiFetch';
 
 import { Service } from '../service';
 
@@ -26,13 +26,13 @@ export class OrderService extends Service {
          */
         params: factory.order.IOrderInquiryKey
     ): Promise<factory.order.IOrder | null> {
-        return await apiRequest({
+        return apiFetch({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: '/orders/findByOrderInquiryKey',
             method: 'POST',
-            expectedStatusCodes: [NOT_FOUND, OK],
-            body: params
+            body: params,
+            expectedStatusCodes: [NOT_FOUND, OK]
         });
     }
 }

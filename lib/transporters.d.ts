@@ -1,5 +1,3 @@
-/// <reference types="request-promise-native" />
-import * as request from 'request-promise-native';
 export interface ITransporter {
     request(options: any, callback?: IBodyResponseCallback): any;
 }
@@ -24,13 +22,13 @@ export declare class DefaultTransporter {
     /**
      * Configures request options before making a request.
      */
-    static CONFIGURE(options: request.OptionsWithUri): request.OptionsWithUri;
+    static CONFIGURE(options: RequestInit): RequestInit;
     /**
      * Makes a request with given options and invokes callback.
      */
-    request(options: request.OptionsWithUri): Promise<any>;
+    fetch(url: string, options: RequestInit): Promise<any>;
     /**
      * Wraps the response callback.
      */
-    private wrapCallback(res);
+    private wrapCallback(response);
 }
