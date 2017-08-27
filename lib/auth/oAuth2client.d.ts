@@ -1,11 +1,11 @@
+/// <reference types="node" />
 /// <reference types="request-promise-native" />
 import * as request from 'request-promise-native';
 import ICredentials from './credentials';
 export interface IGenerateAuthUrlOpts {
-    response_type?: string;
-    client_id?: string;
-    redirect_uri?: string;
-    scope?: string[] | string;
+    scopes: string[];
+    state: string;
+    codeVerifier?: string;
 }
 export interface IOptions {
     domain: string;
@@ -25,20 +25,39 @@ export interface IOptions {
  * OAuth2 client
  */
 export default class OAuth2client {
+    /**
+     * The base URL for auth endpoints.
+     */
+    private static readonly OAUTH2_AUTH_BASE_URI;
+    /**
+     * The base endpoint for token retrieval.
+     */
+    private static readonly OAUTH2_TOKEN_URI;
+    /**
+     * The base endpoint to revoke tokens.
+     */
+    private static readonly OAUTH2_LOGOUT_URI;
+    /**
+     * certificates.
+     */
     credentials: ICredentials;
     options: IOptions;
     constructor(options: IOptions);
+    static BASE64URLENCODE(str: Buffer): string;
+    static SHA256(buffer: any): Buffer;
     /**
      * Generates URL for consent page landing.
-     * @param {object=} opt_opts Options.
-     * @return {string} URL to consent page.
      */
     generateAuthUrl(optOpts: IGenerateAuthUrlOpts): string;
+    /**
+     * Generates URL for logout.
+     */
+    generateLogoutUrl(): string;
     /**
      * Gets the access token for the given code.
      * @param {string} code The authorization code.
      */
-    getToken(code: string): Promise<ICredentials>;
+    getToken(code: string, codeVerifier?: string): Promise<ICredentials>;
     /**
      * OAuthクライアントに認証情報をセットします。
      */
@@ -52,11 +71,6 @@ export default class OAuth2client {
     /**
      * Revokes the access given to token.
      * @param {string} token The existing token to be revoked.
-     * @param {function=} callback Optional callback fn.
-     */
-    /**
-     * Revokes access token and clears the credentials object
-     * @param  {Function=} callback callback
      */
     /**
      * Provides a request implementation with OAuth 2.0 flow.

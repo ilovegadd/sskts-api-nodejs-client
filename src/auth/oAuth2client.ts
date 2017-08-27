@@ -2,6 +2,7 @@
  * OAuthクライアント
  */
 
+import * as crypto from 'crypto';
 import * as createDebug from 'debug';
 import * as httpStatus from 'http-status';
 import * as querystring from 'querystring';
@@ -13,10 +14,9 @@ import ICredentials from './credentials';
 const debug = createDebug('sasaki-api:auth:oAuth2client');
 
 export interface IGenerateAuthUrlOpts {
-    response_type?: string;
-    client_id?: string;
-    redirect_uri?: string;
-    scope?: string[] | string;
+    scopes: string[];
+    state: string;
+    codeVerifier?: string;
 }
 
 export interface IOptions {
@@ -38,6 +38,26 @@ export interface IOptions {
  * OAuth2 client
  */
 export default class OAuth2client {
+    /**
+     * The base URL for auth endpoints.
+     */
+    private static readonly OAUTH2_AUTH_BASE_URI: string = '/authorize';
+
+    /**
+     * The base endpoint for token retrieval.
+     */
+    private static readonly OAUTH2_TOKEN_URI: string = '/token';
+
+    /**
+     * The base endpoint to revoke tokens.
+     */
+    private static readonly OAUTH2_LOGOUT_URI: string = '/logout';
+
+    /**
+     * certificates.
+     */
+    // private static readonly OAUTH2_FEDERATED_SIGNON_CERTS_URL = 'https://www.example.com/oauth2/v1/certs';
+
     public credentials: ICredentials;
     public options: IOptions;
 
@@ -46,40 +66,66 @@ export default class OAuth2client {
         this.credentials = {};
     }
 
+    public static BASE64URLENCODE(str: Buffer) {
+        return str.toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=/g, '');
+    }
+
+    public static SHA256(buffer: any) {
+        return crypto.createHash('sha256').update(buffer).digest();
+    }
+
     /**
      * Generates URL for consent page landing.
-     * @param {object=} opt_opts Options.
-     * @return {string} URL to consent page.
      */
     public generateAuthUrl(optOpts: IGenerateAuthUrlOpts) {
-        const opts = optOpts;
-        opts.response_type = 'code';
-        opts.client_id = this.options.clientId;
-        opts.redirect_uri = this.options.redirectUri;
+        const options: any = {
+            response_type: 'code',
+            client_id: this.options.clientId,
+            redirect_uri: this.options.redirectUri,
+            scope: optOpts.scopes.join(' '),
+            state: optOpts.state
+        };
 
-        // Allow scopes to be passed either as array or a string
-        if (opts.scope instanceof Array) {
-            opts.scope = opts.scope.join(' ');
+        if (optOpts.codeVerifier !== undefined) {
+            options.code_challenge_method = 'S256';
+            options.code_challenge = OAuth2client.BASE64URLENCODE(OAuth2client.SHA256(optOpts.codeVerifier));
         }
 
-        const rootUrl = `https://${this.options.domain}/authorize`;
+        const rootUrl = `https://${this.options.domain}/${OAuth2client.OAUTH2_AUTH_BASE_URI}`;
 
-        return `${rootUrl}?${querystring.stringify(opts)}`;
+        return `${rootUrl}?${querystring.stringify(options)}`;
+    }
+
+    /**
+     * Generates URL for logout.
+     */
+    public generateLogoutUrl() {
+        const options: any = {
+            client_id: this.options.clientId,
+            logout_uri: this.options.logoutUri
+        };
+
+        const rootUrl = `https://${this.options.domain}${OAuth2client.OAUTH2_LOGOUT_URI}`;
+
+        return `${rootUrl}?${querystring.stringify(options)}`;
     }
 
     /**
      * Gets the access token for the given code.
      * @param {string} code The authorization code.
      */
-    public async getToken(code: string): Promise<ICredentials> {
+    public async getToken(code: string, codeVerifier?: string): Promise<ICredentials> {
         return await request.post({
-            url: `https://${this.options.domain}/token`,
+            url: `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             form: {
                 code: code,
-                // client_id: this.options.clientId,
-                // client_secret: this.options.clientSecret,
+                client_id: this.options.clientId,
                 redirect_uri: this.options.redirectUri,
-                grant_type: 'authorization_code'
+                grant_type: 'authorization_code',
+                code_verifier: codeVerifier
             },
             auth: {
                 user: this.options.clientId,
@@ -146,7 +192,6 @@ export default class OAuth2client {
      */
     public async getAccessToken(): Promise<string> {
         // tslint:disable-next-line:max-line-length
-        // return 'eyJraWQiOiJ0U3dFVmJTa0IzZzlVY01YajBpOWpISGRXRk9FamsxQUNKOHZrZ3VhV0lzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJhOTZhNzZhZi04YmZhLTQwMmUtYmEzMC1kYmYxNDk0NmU0M2QiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIHBob25lIG9wZW5pZCBwcm9maWxlIGh0dHBzOlwvXC9zc2t0cy1hcGktZGV2ZWxvcG1lbnQuYXp1cmV3ZWJzaXRlcy5uZXRcL3BsYWNlcy5yZWFkLW9ubHkgZW1haWwiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtbm9ydGhlYXN0LTEuYW1hem9uYXdzLmNvbVwvYXAtbm9ydGhlYXN0LTFfelRoaTBqMWZlIiwiZXhwIjoxNTAyODQ2MzMwLCJpYXQiOjE1MDI4NDI3MzAsInZlcnNpb24iOjIsImp0aSI6ImJlMTgyMWQ1LTZkZDktNDQ5Ny04NjczLWQ2Y2E1N2RiZDFlMSIsImNsaWVudF9pZCI6IjZmaWd1bjEyZ2NkdGxqOWU1M3AydTNvcXZsIiwidXNlcm5hbWUiOiJpbG92ZWdhZGRAZ21haWwuY29tIn0.PmlJaBrrgt8s7LM9y38LeY7PBHLqGYXESfAG3MpvXQWyH6lmFuiOxDGgpRrbue9Zuk_Hw0mfBuIh7-cIhVVZaUSlGIL7J7Pk-vlWi2OT8pJDwyJWJNk6sQ8LH3pTD93H4jxo6V9FArk7ovX0ytE4bO4WlDa5FOCtamh0ryRrgw9q8bI3KP-qvfSVoqQK1RqvnGDTH91Apnrhur_-mT0PYcNgCiWCg6wWb-LZSReyHtuHnmN16MRSx43KPu4pl2F8TPvQVW13MVfhfNFRSYWcKAV1JVDVPjqjiLE4FyDJj93DAaZzYvwDTA6TJcRZ18teRPL4kLB_OamdFT6RD1XbcA';
         const expiryDate = this.credentials.expiry_date;
 
         // if no expiry time, assume it's not expired
@@ -158,12 +203,10 @@ export default class OAuth2client {
 
         const shouldRefresh = (this.credentials.access_token === undefined) || isTokenExpired;
         if (shouldRefresh && this.credentials.refresh_token !== undefined) {
-            const tokens = await this.refreshAccessToken();
-
-            return <string>tokens.access_token;
-        } else {
-            return <string>this.credentials.access_token;
+            await this.refreshAccessToken();
         }
+
+        return <string>this.credentials.access_token;
     }
 
     // public async signInWithLINE(idToken: string): Promise<ICredentials> {
@@ -216,30 +259,8 @@ export default class OAuth2client {
     /**
      * Revokes the access given to token.
      * @param {string} token The existing token to be revoked.
-     * @param {function=} callback Optional callback fn.
      */
-    // public revokeToken(token: string, callback?: BodyResponseCallback) {
-    //     this.transporter.request(
-    //         {
-    //             uri: OAuth2Client.GOOGLE_OAUTH2_REVOKE_URL_ + '?' +
-    //             querystring.stringify({ token: token }),
-    //             json: true
-    //         },
-    //         callback);
-    // }
-
-    /**
-     * Revokes access token and clears the credentials object
-     * @param  {Function=} callback callback
-     */
-    // public revokeCredentials(callback: BodyResponseCallback) {
-    //     const token = this.credentials.access_token;
-    //     this.credentials = {};
-    //     if (token) {
-    //         this.revokeToken(token, callback);
-    //     } else {
-    //         callback(new RequestError('No access token to revoke.'), null, null);
-    //     }
+    // public revokeToken(token: string) {
     // }
 
     /**
@@ -512,8 +533,9 @@ export default class OAuth2client {
         debug('refreshing access token...');
 
         return await request.post({
-            url: `https://${this.options.domain}/token`,
+            url: `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             form: {
+                client_id: this.options.clientId,
                 refresh_token: refreshToken,
                 grant_type: 'refresh_token'
             },
