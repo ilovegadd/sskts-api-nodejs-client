@@ -11,7 +11,14 @@ import apiFetch from '../../apiFetch';
 import { Service } from '../../service';
 
 export type ICreditCard =
-    factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
+    factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw |
+    factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized |
+    factory.paymentMethod.paymentCard.creditCard.IUnauthorizedCardOfMember;
+
+export interface IAuthorization {
+    id: string;
+    price: number;
+}
 
 /**
  * placeOrder transaction service
@@ -124,7 +131,7 @@ export class PlaceOrderTransactionService extends Service {
          * クレジットカード情報
          */
         creditCard: ICreditCard;
-    }): Promise<factory.authorization.gmo.IAuthorization> {
+    }): Promise<IAuthorization> {
         return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/paymentInfos/creditCard`,
@@ -174,7 +181,7 @@ export class PlaceOrderTransactionService extends Service {
          * ムビチケ情報
          */
         mvtk: factory.authorization.mvtk.IResult;
-    }): Promise<factory.authorization.mvtk.IAuthorization> {
+    }): Promise<IAuthorization> {
         return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/discountInfos/mvtk`,

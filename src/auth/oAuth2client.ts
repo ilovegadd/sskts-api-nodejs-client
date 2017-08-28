@@ -96,7 +96,7 @@ export default class OAuth2client extends AuthClient {
             options.code_challenge = OAuth2client.BASE64URLENCODE(OAuth2client.SHA256(optOpts.codeVerifier));
         }
 
-        const rootUrl = `https://${this.options.domain}/${OAuth2client.OAUTH2_AUTH_BASE_URI}`;
+        const rootUrl = `https://${this.options.domain}${OAuth2client.OAUTH2_AUTH_BASE_URI}`;
 
         return `${rootUrl}?${querystring.stringify(options)}`;
     }

@@ -203,48 +203,20 @@ async function main() {
     });
     debug('seatReservationAuthorization:', seatReservationAuthorization);
 
-    debug('canceling a seat reservation authorization...');
-    await placeOrderTransactions.cancelSeatReservationAuthorization({
-        transactionId: transaction.id,
-        authorizationId: seatReservationAuthorization.id
+    // create a credit card
+    debug('creating a credit card...');
+    const creditCard = await people.addCreditCard({
+        personId: 'me',
+        creditCard: {
+            cardNo: '4111111111111111',
+            expire: '2412',
+            holderName: 'JOHN SMITH'
+        }
     });
-
-    debug('recreating a seat reservation authorization...');
-    seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
-        transactionId: transaction.id,
-        eventIdentifier: individualScreeningEvent.identifier,
-        offers: [
-            {
-                seatSection: sectionCode,
-                seatNumber: freeSeatCodes[0],
-                ticketInfo: {
-                    ticketCode: salesTicketResult[1].ticketCode,
-                    ticketName: salesTicketResult[1].ticketName,
-                    ticketNameEng: salesTicketResult[1].ticketNameEng,
-                    ticketNameKana: salesTicketResult[1].ticketNameKana,
-                    stdPrice: salesTicketResult[1].stdPrice,
-                    addPrice: salesTicketResult[1].addPrice,
-                    disPrice: 0,
-                    salePrice: salesTicketResult[1].salePrice,
-                    mvtkAppPrice: 0,
-                    ticketCount: 1,
-                    seatNum: freeSeatCodes[0],
-                    addGlasses: 0,
-                    kbnEisyahousiki: '00',
-                    mvtkNum: '',
-                    mvtkKbnDenshiken: '00',
-                    mvtkKbnMaeuriken: '00',
-                    mvtkKbnKensyu: '00',
-                    mvtkSalesPrice: 0
-                }
-            }
-        ]
-    });
-    debug('seatReservationAuthorization:', seatReservationAuthorization);
+    debug('a credit card created', creditCard);
 
     const amount = seatReservationAuthorization.price;
-
-    let orderId = util.format(
+    const orderId = util.format(
         '%s%s%s%s',
         moment().format('YYYYMMDD'),
         theaterCode,
@@ -253,43 +225,14 @@ async function main() {
         '01'
     );
     debug('creating a credit card authorization...');
-    let creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
+    const creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,
         amount: amount,
         method: GMO.utils.util.Method.Lump,
         creditCard: {
-            cardNo: '4111111111111111',
-            expire: '2012',
-            securityCode: '123'
-        }
-    });
-    debug('creditCardAuthorization:', creditCardAuthorization);
-
-    debug('canceling a credit card authorization...');
-    await placeOrderTransactions.cancelCreditCardAuthorization({
-        transactionId: transaction.id,
-        authorizationId: creditCardAuthorization.id
-    });
-
-    orderId = util.format(
-        '%s%s%s%s',
-        moment().format('YYYYMMDD'),
-        theaterCode,
-        // tslint:disable-next-line:no-magic-numbers
-        `00000000${seatReservationAuthorization.result.tmpReserveNum}`.slice(-8),
-        '02'
-    );
-    debug('recreating a credit card authorization...');
-    creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
-        transactionId: transaction.id,
-        orderId: orderId,
-        amount: amount,
-        method: GMO.utils.util.Method.Lump,
-        creditCard: {
-            cardNo: '4111111111111111',
-            expire: '2012',
-            securityCode: '123'
+            memberId: 'me',
+            cardSeq: creditCard.cardSeq
         }
     });
     debug('creditCardAuthorization:', creditCardAuthorization);
