@@ -74,6 +74,40 @@ export class DefaultTransporter {
         let err: RequestError = new RequestError('An unexpected error occurred');
 
         debug('request processed', response.status);
+
+        // if (err || !body) {
+        //     return callback && callback(err, body, res);
+        // }
+        // // Only and only application/json responses should
+        // // be decoded back to JSON, but there are cases API back-ends
+        // // responds without proper content-type.
+        // try {
+        //     body = JSON.parse(body);
+        // } catch (err) {
+        //     /* no op */
+        // }
+
+        // if (body && body.error && res.statusCode !== 200) {
+        //     if (typeof body.error === 'string') {
+        //         err = new RequestError(body.error);
+        //         (err as RequestError).code = res.statusCode;
+        //     } else if (Array.isArray(body.error.errors)) {
+        //         err = new RequestError(
+        //             body.error.errors.map((err2: Error) => err2.message).join('\n'));
+        //         (err as RequestError).code = body.error.code;
+        //         (err as RequestError).errors = body.error.errors;
+        //     } else {
+        //         err = new RequestError(body.error.message);
+        //         (err as RequestError).code = body.error.code || res.statusCode;
+        //     }
+        //     body = null;
+        // } else if (res.statusCode >= 400) {
+        //     // Consider all 4xx and 5xx responses errors.
+        //     err = new RequestError(body);
+        //     (err as RequestError).code = res.statusCode;
+        //     body = null;
+        // }
+
         if (this.expectedStatusCodes.indexOf(response.status) < 0) {
             // if (response.status >= httpStatus.UNAUTHORIZED) {
             //     const text = await response.text();
@@ -84,10 +118,10 @@ export class DefaultTransporter {
 
             // Consider all 4xx and 5xx responses errors.
             const body = await response.json();
-            if (typeof body === 'object' && body.errors !== undefined) {
-                err = new RequestError((<any[]>body.errors).map((error) => `${error.detail}`).join('\n'));
+            if (typeof body === 'object' && body.error !== undefined) {
+                err = new RequestError(body.error.message);
                 err.code = response.status;
-                err.errors = body.errors;
+                err.errors = body.error.errors;
             }
         } else {
             if (response.status === httpStatus.NO_CONTENT) {

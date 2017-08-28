@@ -46,5 +46,5 @@ async function main() {
 main().then(() => {
     debug('main processed.');
 }).catch((err) => {
-    console.error(err.message);
+    console.error(err);
 });

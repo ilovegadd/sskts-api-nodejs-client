@@ -72,5 +72,5 @@ async function main() {
 main().then(() => {
     console.log('main processed.');
 }).catch((err) => {
-    console.error(err.message);
+    console.error(err);
 });

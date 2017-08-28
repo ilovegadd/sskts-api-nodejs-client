@@ -27,7 +27,7 @@ async function main() {
 
     // 劇場情報取得
     const movieTheater = await place.findMovieTheater({
-        branchCode: '118'
+        branchCode: 'xxx'
     });
     debug('movieTheater is', movieTheater);
 }
@@ -35,5 +35,5 @@ async function main() {
 main().then(() => {
     debug('main processed.');
 }).catch((err) => {
-    console.error(err.message);
+    console.error(err);
 });
