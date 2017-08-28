@@ -1,6 +1,7 @@
 import * as factory from '@motionpicture/sskts-factory';
 import { Service } from '../service';
 export declare type ICreditCard = factory.paymentMethod.paymentCard.creditCard.IUncheckedCardRaw | factory.paymentMethod.paymentCard.creditCard.IUncheckedCardTokenized;
+export declare type IScreenEventReservation = factory.reservation.event.IEventReservation<factory.event.individualScreeningEvent.IEvent>;
 /**
  * person service
  *
@@ -65,5 +66,5 @@ export declare class PersonService extends Service {
          * basically specify 'me' to retrieve contacts of login user
          */
         personId: string;
-    }): Promise<factory.ownershipInfo.IOwnershipInfo<factory.reservation.event.IEventReservation>[]>;
+    }): Promise<factory.ownershipInfo.IOwnershipInfo<IScreenEventReservation>[]>;
 }
