@@ -15,7 +15,7 @@ export interface IOptions {
     responseType?: string;
     responseMode?: string;
     scopes?: string[];
-    state: string;
+    state?: string;
     nonce?: string | null;
     audience?: string;
     tokenIssuer?: string;

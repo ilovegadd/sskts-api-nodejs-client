@@ -15,12 +15,11 @@ export declare class EventService extends Service {
         params: factory.event.individualScreeningEvent.ISearchConditions): Promise<factory.event.individualScreeningEvent.IEventWithOffer[]>;
     /**
      * 上映イベント情報取得
-     * 存在しなければnullを返します。
      */
     findIndividualScreeningEvent(params: {
         /**
          * イベント識別子
          */
         identifier: string;
-    }): Promise<factory.event.individualScreeningEvent.IEventWithOffer | null>;
+    }): Promise<factory.event.individualScreeningEvent.IEventWithOffer>;
 }

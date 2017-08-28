@@ -75,19 +75,19 @@ export class DefaultTransporter {
 
         debug('request processed', response.status);
         if (this.expectedStatusCodes.indexOf(response.status) < 0) {
-            if (response.status >= httpStatus.UNAUTHORIZED) {
-                // Consider all 4xx and 5xx responses errors.
-                const text = await response.text();
-                err = new RequestError(text);
+            // if (response.status >= httpStatus.UNAUTHORIZED) {
+            //     const text = await response.text();
+            //     err = new RequestError(text);
+            //     err.code = response.status;
+            //     err.errors = [];
+            // }
+
+            // Consider all 4xx and 5xx responses errors.
+            const body = await response.json();
+            if (typeof body === 'object' && body.errors !== undefined) {
+                err = new RequestError((<any[]>body.errors).map((error) => `${error.detail}`).join('\n'));
                 err.code = response.status;
-                err.errors = [];
-            } else {
-                const body = await response.json();
-                if (typeof body === 'object' && body.errors !== undefined) {
-                    err = new RequestError((<any[]>body.errors).map((error) => `${error.detail}`).join('\n'));
-                    err.code = response.status;
-                    err.errors = body.errors;
-                }
+                err.errors = body.errors;
             }
         } else {
             if (response.status === httpStatus.NO_CONTENT) {

@@ -27,5 +27,5 @@ export declare class OrganizationService extends Service {
          * 枝番号
          */
         branchCode: string;
-    }): Promise<factory.organization.movieTheater.IPublicFields | null>;
+    }): Promise<factory.organization.movieTheater.IPublicFields>;
 }

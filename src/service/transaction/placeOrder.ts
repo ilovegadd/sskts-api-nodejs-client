@@ -5,7 +5,7 @@
  */
 
 import * as factory from '@motionpicture/sskts-factory';
-import { CREATED, NO_CONTENT, NOT_FOUND, OK } from 'http-status';
+import { CREATED, NO_CONTENT, OK } from 'http-status';
 import apiFetch from '../../apiFetch';
 
 import { Service } from '../../service';
@@ -51,7 +51,7 @@ export class PlaceOrderTransactionService extends Service {
                 expires: (params.expires.getTime() / 1000).toFixed(0), // unix timestamp
                 sellerId: params.sellerId
             },
-            expectedStatusCodes: [NOT_FOUND, OK]
+            expectedStatusCodes: [OK]
         });
     }
 

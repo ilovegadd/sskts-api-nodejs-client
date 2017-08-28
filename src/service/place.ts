@@ -5,7 +5,7 @@
  */
 
 import * as factory from '@motionpicture/sskts-factory';
-import { NOT_FOUND, OK } from 'http-status';
+import { OK } from 'http-status';
 import apiFetch from '../apiFetch';
 
 import { Service } from '../service';
@@ -43,14 +43,14 @@ export class PlaceService extends Service {
          * 枝番号
          */
         branchCode: string;
-    }): Promise<factory.place.movieTheater.IPlace | null> {
+    }): Promise<factory.place.movieTheater.IPlace> {
         return apiFetch({
             auth: this.options.auth,
             baseUrl: this.options.endpoint,
             uri: `/places/movieTheater/${params.branchCode}`,
             method: 'GET',
             qs: {},
-            expectedStatusCodes: [NOT_FOUND, OK]
+            expectedStatusCodes: [OK]
         });
     }
 }

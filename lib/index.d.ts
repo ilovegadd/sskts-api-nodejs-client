@@ -3,6 +3,7 @@
  *
  * @ignore
  */
+import * as factory from '@motionpicture/sskts-factory';
 import ClientCredentialsClient from './auth/clientCredentialsClient';
 import OAuth2client from './auth/oAuth2client';
 import { IOptions } from './service';
@@ -12,6 +13,13 @@ import { OrganizationService } from './service/organization';
 import { PersonService } from './service/person';
 import { PlaceService } from './service/place';
 import { PlaceOrderTransactionService } from './service/transaction/placeOrder';
+/**
+ * factory
+ * All object interfaces are here.
+ * 全てのオブジェクトのインターフェースはここに含まれます。
+ * @export
+ */
+export import factory = factory;
 /**
  * each OAuth2 clients
  */
