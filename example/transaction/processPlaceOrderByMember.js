@@ -276,6 +276,22 @@ amount: ${order.price} yen
         }
     });
     debug('an email sent');
+
+    await new Promise((resolve) => {
+        setTimeout(
+            async () => {
+                // retrieve ownershipInfos
+                debug('retrieving ownershipInfos...');
+                const ownershipInfos = await people.searchReservationOwnerships({
+                    personId: 'me'
+                });
+                debug('ownershipInfos:', ownershipInfos);
+
+                resolve();
+            },
+            3000
+        );
+    });
 }
 
 exports.main = main;
