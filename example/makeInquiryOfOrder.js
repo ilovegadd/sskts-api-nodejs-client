@@ -15,7 +15,7 @@ async function main() {
     });
 
     const auth = new sasaki.auth.ClientCredentials({
-        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
         scopes: [

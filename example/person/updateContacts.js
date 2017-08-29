@@ -21,7 +21,7 @@ async function main() {
     ];
 
     const auth = new sasaki.auth.OAuth2({
-        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
         redirectUri: 'https://localhost/signIn',
@@ -76,19 +76,22 @@ async function main() {
     debug('contacts:', contacts);
 
     await new Promise((resolve, reject) => {
-        rl.question('enter phone number:\n', async (phoneNumber) => {
-            try {
-                await people.updateContacts({
-                    personId: 'me',
-                    contacts: {
-                        givenName: 'John',
-                        familyName: 'Smith',
-                        telephone: phoneNumber
-                    }
-                });
-            } catch (error) {
-                reject(error);
-            }
+        rl.question('enter email:\n', async (email) => {
+            rl.question('enter phone number:\n', async (phoneNumber) => {
+                try {
+                    await people.updateContacts({
+                        personId: 'me',
+                        contacts: {
+                            givenName: 'John',
+                            familyName: 'Smith',
+                            telephone: phoneNumber,
+                            email: email
+                        }
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            });
         });
     });
 

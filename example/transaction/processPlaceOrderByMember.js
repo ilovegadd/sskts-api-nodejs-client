@@ -27,7 +27,7 @@ async function main() {
     ];
 
     const auth = new sasaki.auth.OAuth2({
-        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
         redirectUri: 'https://localhost/signIn',
@@ -244,7 +244,7 @@ async function main() {
             givenName: contacts.givenName,
             familyName: contacts.familyName,
             telephone: contacts.telephone,
-            email: process.env.SSKTS_DEVELOPER_EMAIL
+            email: contacts.email
         }
     });
     debug('customer contact registered');
@@ -270,7 +270,7 @@ amount: ${order.price} yen
         transactionId: transaction.id,
         emailNotification: {
             from: 'noreply@example.com',
-            to: process.env.SSKTS_DEVELOPER_EMAIL,
+            to: contacts.email,
             subject: 'order created',
             content: content
         }

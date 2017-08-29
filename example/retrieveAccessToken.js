@@ -18,7 +18,7 @@ async function main() {
     ];
 
     const auth = new sasaki.auth.OAuth2({
-        domain: 'sskts-development.auth.ap-northeast-1.amazoncognito.com',
+        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
         redirectUri: 'https://localhost/signIn',
