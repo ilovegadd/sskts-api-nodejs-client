@@ -158,6 +158,6 @@ export declare class PlaceOrderTransactionService extends Service {
         /**
          * Eメール通知
          */
-        emailNotification: factory.notification.email.INotification;
+        emailNotification: factory.notification.email.IData;
     }): Promise<factory.order.IOrder>;
 }

@@ -266,7 +266,7 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * Eメール通知
          */
-        emailNotification: factory.notification.email.INotification
+        emailNotification: factory.notification.email.IData
     }): Promise<factory.order.IOrder> {
         return await apiFetch({
             baseUrl: this.options.endpoint,
