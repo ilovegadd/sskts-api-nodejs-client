@@ -61,7 +61,7 @@
     "nyc": "^11.1.0",
     "open": "0.0.5",
     "rimraf": "^2.6.1",
-    "snyk": "^1.40.1",
+    "snyk": "^1.40.2",
     "tslint": "^5.7.0",
     "tslint-microsoft-contrib": "^5.0.1",
     "typescript": "^2.5.1"
