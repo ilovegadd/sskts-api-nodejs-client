@@ -6,6 +6,10 @@ doc/
 **/*.log
 coverage/
 .nyc_output/
+**/*.js
+**/*.js.map
+!example/**/*.js
+!lib/**/*.js
 
 !.gitignore
 !.gitkeep

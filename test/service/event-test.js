@@ -22,17 +22,17 @@ describe('event service', () => {
     let events;
     before(() => {
         nock.cleanAll();
-    });
-    beforeEach(() => {
-        nock.cleanAll();
-        nock.disableNetConnect();
         const auth = new testClient_1.default({ domain: '' });
-        events = sasaki.service.event({
+        events = new sasaki.service.Event({
             auth: auth,
             endpoint: API_ENDPOINT
         });
     });
-    it('上映イベント検索', () => __awaiter(this, void 0, void 0, function* () {
+    beforeEach(() => {
+        nock.cleanAll();
+        nock.disableNetConnect();
+    });
+    it('上映イベント検索の結果が期待通り', () => __awaiter(this, void 0, void 0, function* () {
         const scope = nock(API_ENDPOINT, {})
             .get(/^\/events\/individualScreeningEvent\?(.+)/)
             .reply(http_status_1.OK, { data: [] });
@@ -43,15 +43,16 @@ describe('event service', () => {
         assert(Array.isArray(result));
         scope.done();
     }));
-    it('identifierで上映イベント取得', () => __awaiter(this, void 0, void 0, function* () {
-        const identifier = '123';
+    it('identifierで上映イベント取得の結果が期待通り', () => __awaiter(this, void 0, void 0, function* () {
+        const identifier = 'xxx';
+        const data = {};
         const scope = nock(API_ENDPOINT, {})
             .get(`/events/individualScreeningEvent/${identifier}`)
-            .reply(http_status_1.OK, { data: { identifier: identifier } });
+            .reply(http_status_1.OK, { data: data });
         const result = yield events.findIndividualScreeningEvent({
-            identifier: '123'
+            identifier: identifier
         });
-        assert.equal(result.identifier, identifier);
+        assert.deepEqual(result, data);
         scope.done();
     }));
     after(() => {

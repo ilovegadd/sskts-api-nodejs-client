@@ -39,6 +39,16 @@ export declare namespace auth {
  * each API services
  */
 export declare namespace service {
+    class Event extends EventService {
+    }
+    class Order extends OrderService {
+    }
+    class Organization extends OrganizationService {
+    }
+    class Person extends PersonService {
+    }
+    class Place extends PlaceService {
+    }
     /**
      * event service
      * @param {IOptions} options service configurations
@@ -65,6 +75,8 @@ export declare namespace service {
      */
     function place(options: IOptions): PlaceService;
     namespace transaction {
+        class PlaceOrder extends PlaceOrderTransactionService {
+        }
         /**
          * placeOrder transaction service
          * @param {IOptions} options service configurations

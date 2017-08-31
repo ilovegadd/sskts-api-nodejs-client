@@ -1,3 +1,5 @@
+// tslint:disable:max-classes-per-file
+
 /**
  * sasaki API Node.js Client
  *
@@ -43,6 +45,12 @@ export namespace auth {
  * each API services
  */
 export namespace service {
+    export class Event extends EventService { }
+    export class Order extends OrderService { }
+    export class Organization extends OrganizationService { }
+    export class Person extends PersonService { }
+    export class Place extends PlaceService { }
+
     /**
      * event service
      * @param {IOptions} options service configurations
@@ -78,7 +86,10 @@ export namespace service {
     export function place(options: IOptions) {
         return new PlaceService(options);
     }
+
     export namespace transaction {
+        export class PlaceOrder extends PlaceOrderTransactionService { }
+
         /**
          * placeOrder transaction service
          * @param {IOptions} options service configurations

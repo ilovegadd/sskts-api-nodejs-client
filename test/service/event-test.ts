@@ -8,30 +8,29 @@ import * as nock from 'nock';
 import * as assert from 'power-assert';
 
 import * as sasaki from '../../lib/index';
-import { EventService } from '../../lib/service/event';
 import TestAuthClient from '../auth/testClient';
 
 const API_ENDPOINT = 'https://sskts-api-development-preview.azurewebsites.net';
 
 describe('event service', () => {
-    let events: EventService;
+    let events: sasaki.service.Event;
 
     before(() => {
         nock.cleanAll();
-    });
-
-    beforeEach(() => {
-        nock.cleanAll();
-        nock.disableNetConnect();
 
         const auth = new TestAuthClient({ domain: '' });
-        events = sasaki.service.event({
+        events = new sasaki.service.Event({
             auth: auth,
             endpoint: API_ENDPOINT
         });
     });
 
-    it('上映イベント検索', async () => {
+    beforeEach(() => {
+        nock.cleanAll();
+        nock.disableNetConnect();
+    });
+
+    it('上映イベント検索の結果が期待通り', async () => {
         const scope = nock(API_ENDPOINT, {
         })
             .get(/^\/events\/individualScreeningEvent\?(.+)/)
@@ -46,18 +45,19 @@ describe('event service', () => {
         scope.done();
     });
 
-    it('identifierで上映イベント取得', async () => {
-        const identifier = '123';
+    it('identifierで上映イベント取得の結果が期待通り', async () => {
+        const identifier = 'xxx';
+        const data = {};
         const scope = nock(API_ENDPOINT, {
         })
             .get(`/events/individualScreeningEvent/${identifier}`)
             // .times(2)
-            .reply(OK, { data: { identifier: identifier } });
+            .reply(OK, { data: data });
 
         const result = await events.findIndividualScreeningEvent({
-            identifier: '123'
+            identifier: identifier
         });
-        assert.equal(result.identifier, identifier);
+        assert.deepEqual(result, data);
 
         scope.done();
     });
