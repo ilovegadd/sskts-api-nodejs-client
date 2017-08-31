@@ -49,8 +49,6 @@ describe('person service', () => {
             telephone: 'xxx',
             email: 'xxx'
         };
-        const data = {
-        };
         const scope = nock(API_ENDPOINT, {})
             .put(`/people/${personId}/contacts`, contacts)
             .reply(NO_CONTENT);

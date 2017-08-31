@@ -31,7 +31,7 @@ describe('organization service', () => {
     });
 
     it('劇場組織検索の結果が期待通り', async () => {
-        const data = [];
+        const data: any[] = [];
         const scope = nock(API_ENDPOINT, {})
             .get(/\/organizations\/movieTheater[^?(.+)]*/)
             .reply(OK, { data: data });

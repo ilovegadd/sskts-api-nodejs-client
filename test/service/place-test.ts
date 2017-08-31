@@ -31,7 +31,7 @@ describe('place service', () => {
     });
 
     it('劇場検索の結果が期待通り', async () => {
-        const data = [];
+        const data: any[] = [];
         const scope = nock(API_ENDPOINT, {})
             .get(/\/places\/movieTheater[^?(.+)]*/)
             .reply(OK, { data: data });
