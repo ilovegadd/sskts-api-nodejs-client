@@ -27,12 +27,14 @@ export interface IOptions {
 async function apiFetch(options: IOptions) {
     const defaultOptions = {
         headers: {},
-        method: 'GET',
-        qs: {}
+        method: 'GET'
     };
     options = { ...defaultOptions, ...options };
 
-    const url = `${options.baseUrl}${options.uri}?${querystring.stringify(options.qs)}`;
+    let url = `${options.baseUrl}${options.uri}`;
+
+    const querystrings = querystring.stringify(options.qs);
+    url += (querystrings.length > 0) ? `?${querystrings}` : '';
 
     const headers = {
         ...{
