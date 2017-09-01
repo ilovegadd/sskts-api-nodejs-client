@@ -17,7 +17,7 @@
     "build": "tsc",
     "build-tools": "tsc -p tsconfig.tools.json",
     "check": "npm run tslint && nsp check && npm run snyk",
-    "clean": "rimraf ./lib npm-debug.log* ./docs",
+    "clean": "rimraf ./lib npm-debug.log* ./doc",
     "example": "http-server ./example",
     "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",
     "mocha": "mocha",
@@ -71,7 +71,7 @@
     "snyk": "^1.40.2",
     "tslint": "^5.7.0",
     "tslint-microsoft-contrib": "^5.0.1",
-    "typescript": "^2.5.1"
+    "typescript": "^2.5.2"
   },
   "dependencies": {
     "@motionpicture/sskts-factory": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/factory.git#feature/SSKTS-566",
