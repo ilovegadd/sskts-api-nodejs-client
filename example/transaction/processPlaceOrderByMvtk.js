@@ -148,28 +148,30 @@ async function main() {
     // 本当はここでムビチケ着券処理
     const mvtkResult = {
         price: 1400,
-        kgygishCd: 'SSK000',
-        yykDvcTyp: '00',
-        trkshFlg: '0',
-        kgygishSstmZskyykNo: '118124',
-        kgygishUsrZskyykNo: '124',
-        jeiDt: '2017/03/02 10:00:00',
-        kijYmd: '2017/03/02',
-        stCd: theaterCode.slice(-2),
-        screnCd: screenCode,
-        knyknrNoInfo: [
-            {
-                knyknrNo: '4450899842',
-                pinCd: '7648',
-                knshInfo: [
-                    { knshTyp: '01', miNum: 1 }
-                ]
-            }
-        ],
-        zskInfo: seatReservationAuthorization.result.listTmpReserve.map((tmpReserve) => {
-            return { zskCd: tmpReserve.seatNum };
-        }),
-        skhnCd: `${titleCode}${titleBranchNum}`
+        seatSyncInfoIn: {
+            kgygishCd: 'SSK000',
+            yykDvcTyp: '00',
+            trkshFlg: '0',
+            kgygishSstmZskyykNo: '118124',
+            kgygishUsrZskyykNo: '124',
+            jeiDt: '2017/03/02 10:00:00',
+            kijYmd: '2017/03/02',
+            stCd: theaterCode.slice(-2),
+            screnCd: screenCode,
+            knyknrNoInfo: [
+                {
+                    knyknrNo: '4450899842',
+                    pinCd: '7648',
+                    knshInfo: [
+                        { knshTyp: '01', miNum: 1 }
+                    ]
+                }
+            ],
+            zskInfo: seatReservationAuthorization.result.updTmpReserveSeatResult.listTmpReserve.map((tmpReserve) => {
+                return { zskCd: tmpReserve.seatNum };
+            }),
+            skhnCd: `${titleCode}${titleBranchNum}`
+        }
     };
 
     // ムビチケオーソリ追加(着券した体で) 値はほぼ適当です

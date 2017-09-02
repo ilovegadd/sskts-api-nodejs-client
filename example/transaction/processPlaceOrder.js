@@ -191,17 +191,16 @@ async function main() {
     });
     debug('seatReservationAuthorization:', seatReservationAuthorization);
 
-    const amount = seatReservationAuthorization.price;
-
+    const amount = seatReservationAuthorization.result.price;
     let orderId = util.format(
         '%s%s%s%s',
         moment().format('YYYYMMDD'),
         theaterCode,
         // tslint:disable-next-line:no-magic-numbers
-        `00000000${seatReservationAuthorization.result.tmpReserveNum}`.slice(-8),
+        `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
         '01'
     );
-    debug('creating a credit card authorization...');
+    debug('creating a credit card authorization...', orderId);
     let creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,
@@ -226,10 +225,10 @@ async function main() {
         moment().format('YYYYMMDD'),
         theaterCode,
         // tslint:disable-next-line:no-magic-numbers
-        `00000000${seatReservationAuthorization.result.tmpReserveNum}`.slice(-8),
+        `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
         '02'
     );
-    debug('recreating a credit card authorization...');
+    debug('recreating a credit card authorization...', orderId);
     creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
         transactionId: transaction.id,
         orderId: orderId,

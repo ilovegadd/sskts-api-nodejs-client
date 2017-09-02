@@ -71,7 +71,7 @@ export class PlaceOrderTransactionService extends Service {
          * 座席販売情報
          */
         offers: factory.offer.ISeatReservationOffer[];
-    }): Promise<factory.authorization.seatReservation.IAuthorization> {
+    }): Promise<factory.action.authorize.seatReservation.IAction> {
         return await apiFetch({
             baseUrl: this.options.endpoint,
             uri: `/transactions/placeOrder/${params.transactionId}/seatReservationAuthorization`,
@@ -180,7 +180,7 @@ export class PlaceOrderTransactionService extends Service {
         /**
          * ムビチケ情報
          */
-        mvtk: factory.authorization.mvtk.IResult;
+        mvtk: factory.action.authorize.mvtk.IObject;
     }): Promise<IAuthorization> {
         return await apiFetch({
             baseUrl: this.options.endpoint,

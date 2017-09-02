@@ -215,13 +215,13 @@ async function main() {
     });
     debug('a credit card created', creditCard);
 
-    const amount = seatReservationAuthorization.price;
+    const amount = seatReservationAuthorization.result.price;
     const orderId = util.format(
         '%s%s%s%s',
         moment().format('YYYYMMDD'),
         theaterCode,
         // tslint:disable-next-line:no-magic-numbers
-        `00000000${seatReservationAuthorization.result.tmpReserveNum}`.slice(-8),
+        `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
         '01'
     );
     debug('creating a credit card authorization...');
