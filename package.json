@@ -15,17 +15,18 @@
   },
   "scripts": {
     "build": "tsc",
-    "build-tools": "tsc -p tsconfig.tools.json",
+    "build-specs": "tsc -p tsconfig.specs.json",
     "check": "npm run tslint && nsp check && npm run snyk",
-    "clean": "rimraf ./lib npm-debug.log* ./doc",
+    "clean": "rimraf ./lib npm-debug.log* ./test/**/*.js ./doc",
     "example": "http-server ./example",
-    "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",
+    "doc": "node_modules/.bin/jsdoc -c jsdoc.json",
     "mocha": "mocha",
-    "nyc": "nyc mocha",
+    "coverage": "nyc mocha",
     "snyk": "snyk auth && snyk test --ignore-policy",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "pretest": "npm run build && npm run build-specs",
+    "test": "npm run check && npm run coverage",
     "tslint": "tslint --type-check --project tsconfig.json -c tslint.json src/**/*.ts",
-    "preversion": "npm run clean && npm run build && npm test && npm run jsdoc",
+    "preversion": "npm run clean && npm run build && npm test && npm run doc",
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
@@ -74,6 +75,7 @@
     "typescript": "^2.5.2"
   },
   "dependencies": {
+    "@motionpicture/sasaki-api-service": "git+https://m-p.backlog.jp/git/SSKTS/api-client-service.git#feature/SSKTS-580",
     "@motionpicture/sskts-factory": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/factory.git#feature/SSKTS-566",
     "debug": "^3.0.1",
     "http-status": "^1.0.1",

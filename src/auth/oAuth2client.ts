@@ -8,7 +8,7 @@ import * as httpStatus from 'http-status';
 import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
-import { DefaultTransporter } from '../transporters';
+import { transporters } from '@motionpicture/sasaki-api-service';
 import { AuthClient } from './authClient';
 import ICredentials from './credentials';
 
@@ -345,7 +345,7 @@ export default class OAuth2client extends AuthClient {
      */
     // tslint:disable-next-line:prefer-function-over-method
     protected async makeFetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
-        const transporter = new DefaultTransporter(expectedStatusCodes);
+        const transporter = new transporters.DefaultTransporter(expectedStatusCodes);
 
         return await transporter.fetch(url, options);
     }
