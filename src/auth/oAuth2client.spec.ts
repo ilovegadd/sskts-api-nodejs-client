@@ -4,46 +4,26 @@
  * @ignore
  */
 
-import { OK } from 'http-status';
+import { BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status';
 import * as nock from 'nock';
 import * as assert from 'power-assert';
 import * as qs from 'querystring';
 import * as url from 'url';
 import * as sasaki from '../../';
 
-// function testNoTokens(urlshortener, oauth2client, cb) {
-//     urlshortener.url.get({
-//         shortUrl: '123',
-//         auth: oauth2client
-//     }, (err, result) => {
-//         assert.equal(err.message, 'No access or refresh token is set.');
-//         assert.equal(result, null);
-//         cb();
-//     });
-// }
-
 const DOMAIN = 'DOMAIN';
 const CLIENT_ID = 'CLIENT_ID';
 const CLIENT_SECRET = 'CLIENT_SECRET';
 const REDIRECT_URI = 'REDIRECT_URI';
+const LOGOUT_URI = 'LOGOUT_URI';
 // const ACCESS_TYPE = 'offline';
 const STATE = 'state';
+const CODE_VERIFIER = 'codeVerifier';
 // const SCOPE = 'scopex';
 const SCOPES = ['scopex', 'scopey'];
 
-describe('OAuth2 client', () => {
-    // let remoteDrive;
-
-    before(() => {
-        nock.cleanAll();
-    });
-
-    beforeEach(() => {
-        nock.cleanAll();
-        nock.disableNetConnect();
-    });
-
-    it('有効な認可ページURLを生成する', () => {
+describe('generateAuthUrl()', () => {
+    it('有効な認可ページURLが生成されるはず', () => {
         const opts = {
             scopes: SCOPES,
             responseType: 'code',
@@ -66,7 +46,142 @@ describe('OAuth2 client', () => {
         assert.equal(query.redirect_uri, REDIRECT_URI);
     });
 
-    it('should return error in callback on refreshAccessToken', async () => {
+    it('検証コードがセットされれば、有効な認可ページURLにcode_challenge_methodとcode_challengeパラメータがセットされるはず', () => {
+        const opts = {
+            scopes: SCOPES,
+            responseType: 'code',
+            state: STATE,
+            codeVerifier: CODE_VERIFIER
+        };
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        const generated = auth.generateAuthUrl(opts);
+        const parsed = url.parse(generated);
+        const query = qs.parse(parsed.query);
+
+        assert.equal(typeof query.code_challenge_method, 'string');
+        assert.equal(typeof query.code_challenge, 'string');
+    });
+});
+
+describe('generateLogoutUrl()', () => {
+    it('有効なログアウトページURLが生成されるはず', () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI,
+            logoutUri: LOGOUT_URI
+        });
+
+        const generated = auth.generateLogoutUrl();
+        console.error(generated);
+        const parsed = url.parse(generated);
+        const query = qs.parse(parsed.query);
+
+        assert.equal(query.client_id, CLIENT_ID);
+        assert.equal(query.logout_uri, LOGOUT_URI);
+    });
+});
+
+describe('getToken()', () => {
+    let scope: nock.Scope;
+
+    before(() => {
+        nock.cleanAll();
+    });
+
+    beforeEach(() => {
+        nock.cleanAll();
+        nock.disableNetConnect();
+    });
+
+    afterEach(() => {
+        nock.cleanAll();
+    });
+
+    it('認可サーバーが正常であれば、認可コードとアクセストークンを交換できるはず', async () => {
+        scope = nock(`https://${DOMAIN}`)
+            .post('/token')
+            .reply(OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
+
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        const credentials = await auth.getToken('', '');
+        assert.equal(typeof credentials.access_token, 'string');
+        assert.equal(typeof credentials.refresh_token, 'string');
+        assert.equal(typeof credentials.expiry_date, 'number');
+        assert.equal(credentials.token_type, 'Bearer');
+
+        assert.equal(true, scope.isDone());
+    });
+
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
+        it(`認可サーバーが次のステータスコードを返却されば、トークンを取得できないはず  ${statusCode}`, async () => {
+            scope = nock(`https://${DOMAIN}`)
+                .post('/token')
+                .reply(statusCode, {});
+
+            const auth = new sasaki.auth.OAuth2({
+                domain: DOMAIN,
+                clientId: CLIENT_ID,
+                clientSecret: CLIENT_SECRET,
+                redirectUri: REDIRECT_URI
+            });
+
+            const getTokenError = await auth.getToken('', '')
+                .catch((error) => {
+                    return error;
+                });
+            assert(getTokenError instanceof Error);
+
+            assert.equal(true, scope.isDone());
+        });
+    });
+});
+
+describe('setCredentials()', () => {
+    it('認証情報を正しくセットできる', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        auth.setCredentials({
+            refresh_token: 'refresh_token_placeholder',
+            access_token: 'access_token',
+            token_type: 'Bearer'
+        });
+
+        const accessToken = await auth.getAccessToken();
+        assert.equal(accessToken, 'access_token');
+    });
+});
+
+describe('refreshAccessToken()', () => {
+    before(() => {
+        nock.cleanAll();
+    });
+
+    beforeEach(() => {
+        nock.cleanAll();
+        nock.disableNetConnect();
+    });
+
+    it('リフレッシュトークンが設定されていなければ、アクセストークンをリフレッシュできないはず', async () => {
         const auth = new sasaki.auth.OAuth2({
             domain: DOMAIN,
             clientId: CLIENT_ID,
@@ -81,22 +196,35 @@ describe('OAuth2 client', () => {
         assert(refreshAccessTokenError instanceof Error);
     });
 
-    it('should return err if no access or refresh token is set', async () => {
-        const auth = new sasaki.auth.OAuth2({
-            domain: DOMAIN,
-            clientId: CLIENT_ID,
-            clientSecret: CLIENT_SECRET,
-            redirectUri: REDIRECT_URI
-        });
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
+        it(`認可サーバーが次のステータスコードを返却されば、アクセストークンをリフレッシュできないはず  ${statusCode}`, async () => {
+            const scope = nock(`https://${DOMAIN}`)
+                .post('/token')
+                .reply(statusCode, {});
 
-        const transferError = await auth.getAccessToken()
-            .catch((error) => {
-                return error;
+            const auth = new sasaki.auth.OAuth2({
+                domain: DOMAIN,
+                clientId: CLIENT_ID,
+                clientSecret: CLIENT_SECRET,
+                redirectUri: REDIRECT_URI
             });
-        assert(transferError instanceof Error);
+
+            auth.credentials = {
+                refresh_token: 'refresh-token-placeholder'
+            };
+
+            const refreshAccessTokenError = await auth.refreshAccessToken()
+                .catch((error) => {
+                    return error;
+                });
+            assert(refreshAccessTokenError instanceof Error);
+
+            assert.equal(true, scope.isDone());
+        });
     });
 
-    // it('should not error if only refresh token is set', () => {
+    // it('リフレッシュトークンがあればアクセストークンを取得できるはず', async () => {
     //     const auth = new sasaki.auth.OAuth2({
     //         domain: DOMAIN,
     //         clientId: CLIENT_ID,
@@ -105,11 +233,8 @@ describe('OAuth2 client', () => {
     //     });
 
     //     auth.credentials = { refresh_token: 'refresh_token' };
-    //     assert.doesNotThrow(async () => {
-    //         await auth.getAccessToken();
-    //         // const options = { auth: oauth2client, shortUrl: '...' };
-    //         // localUrlshortener.url.get(options, utils.noop);
-    //     });
+    //     const accessToken = await auth.getAccessToken();
+    //     assert.equal(typeof accessToken, 'string');
     // });
 
     // it('should set access token type to Bearer if none is set', (done) => {
@@ -273,6 +398,37 @@ describe('OAuth2 client', () => {
     });
 });
 
+describe('getAccessToken()', () => {
+    before(() => {
+        nock.cleanAll();
+    });
+
+    beforeEach(() => {
+        nock.cleanAll();
+        nock.disableNetConnect();
+    });
+
+    it('リフレッシュトークンもアクセストークンもなければ、アクセストークンを取得できないはず', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        const transferError = await auth.getAccessToken()
+            .catch((error) => {
+                return error;
+            });
+        assert(transferError instanceof Error);
+    });
+
+    after(() => {
+        nock.cleanAll();
+        nock.enableNetConnect();
+    });
+});
+
 describe('fetch()', () => {
     let scope: nock.Scope;
     const API_ENDPOINT = 'https://example.com';
@@ -299,84 +455,97 @@ describe('fetch()', () => {
 
         auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
-        auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
             assert.equal('abc123', auth.credentials.access_token);
         });
     });
 
-    // it('should refresh if access token is expired', (done) => {
-    //     const auth = new GoogleAuth();
-    //     const oauth2client =
-    //         new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+    it('アクセストークンの期限が切れていればリフレッシュされるはず', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
 
-    //     oauth2client.credentials = {
-    //         access_token: 'initial-access-token',
-    //         refresh_token: 'refresh-token-placeholder',
-    //         expiry_date: (new Date()).getTime() - 1000
-    //     };
+        auth.credentials = {
+            access_token: 'initial-access-token',
+            refresh_token: 'refresh-token-placeholder',
+            // tslint:disable-next-line:no-magic-numbers
+            expiry_date: (new Date()).getTime() - 1000
+        };
 
-    //     oauth2client.request({ uri: 'http://example.com' }, () => {
-    //         assert.equal('abc123', oauth2client.credentials.access_token);
-    //         done();
-    //     });
-    // });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
+            assert.equal('abc123', auth.credentials.access_token);
+        });
+    });
 
-    // it('should not refresh if not expired', (done) => {
-    //     const auth = new GoogleAuth();
-    //     const oauth2client =
-    //         new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+    it('アクセストークンの期限が切れていなければリフレッシュされないはず', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
 
-    //     oauth2client.credentials = {
-    //         access_token: 'initial-access-token',
-    //         refresh_token: 'refresh-token-placeholder',
-    //         expiry_date: (new Date()).getTime() + 1000
-    //     };
+        auth.credentials = {
+            access_token: 'initial-access-token',
+            refresh_token: 'refresh-token-placeholder',
+            // tslint:disable-next-line:no-magic-numbers
+            expiry_date: (new Date()).getTime() + 1000
+        };
 
-    //     oauth2client.request({ uri: 'http://example.com' }, () => {
-    //         assert.equal(
-    //             'initial-access-token', oauth2client.credentials.access_token);
-    //         assert.equal(false, scope.isDone());
-    //         done();
-    //     });
-    // });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
+            assert.equal('initial-access-token', auth.credentials.access_token);
+        });
+    });
 
-    // it('should assume access token is not expired', (done) => {
-    //     const auth = new GoogleAuth();
-    //     const oauth2client =
-    //         new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+    it('アクセストークンの期限が設定されていなければ、期限は切れていないとみなすはず', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
 
-    //     oauth2client.credentials = {
-    //         access_token: 'initial-access-token',
-    //         refresh_token: 'refresh-token-placeholder'
-    //     };
+        auth.credentials = {
+            access_token: 'initial-access-token',
+            refresh_token: 'refresh-token-placeholder'
+        };
 
-    //     oauth2client.request({ uri: 'http://example.com' }, () => {
-    //         assert.equal(
-    //             'initial-access-token', oauth2client.credentials.access_token);
-    //         assert.equal(false, scope.isDone());
-    //         done();
-    //     });
-    // });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
+            assert.equal('initial-access-token', auth.credentials.access_token);
+            assert.equal(false, scope.isDone());
+        });
+    });
 
-    // [401, 403].forEach((statusCode) => {
-    //     it('should refresh token if the server returns ' + statusCode, (done) => {
-    //         nock('http://example.com').get('/access').reply(statusCode, {
-    //             error: { code: statusCode, message: 'Invalid Credentials' }
-    //         });
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    [UNAUTHORIZED, FORBIDDEN].forEach((statusCode) => {
+        it(`リソースサーバーが次のステータスコードを返却されば、アクセストークンはリフレッシュされるはず  ${statusCode}`, async () => {
+            nock(API_ENDPOINT)
+                .get('/access')
+                // tslint:disable-next-line:no-magic-numbers
+                .times(2)
+                .reply(statusCode, { error: { code: statusCode, message: 'Invalid Credentials' } });
 
-    //         const auth = new GoogleAuth();
-    //         const oauth2client =
-    //             new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+            const auth = new sasaki.auth.OAuth2({
+                domain: DOMAIN,
+                clientId: CLIENT_ID,
+                clientSecret: CLIENT_SECRET,
+                redirectUri: REDIRECT_URI
+            });
 
-    //         oauth2client.credentials = {
-    //             access_token: 'initial-access-token',
-    //             refresh_token: 'refresh-token-placeholder'
-    //         };
+            auth.credentials = {
+                access_token: 'initial-access-token',
+                refresh_token: 'refresh-token-placeholder'
+            };
 
-    //         oauth2client.request({ uri: 'http://example.com/access' }, () => {
-    //             assert.equal('abc123', oauth2client.credentials.access_token);
-    //             done();
-    //         });
-    //     });
-    // });
+            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, [OK]).catch((err) => {
+                return err;
+            });
+
+            assert.equal('abc123', auth.credentials.access_token);
+            assert.equal(true, scope.isDone());
+        });
+    });
 });

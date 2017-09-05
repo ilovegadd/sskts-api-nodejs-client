@@ -4,7 +4,7 @@
 
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
-import * as httpStatus from 'http-status';
+import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
 import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
@@ -129,7 +129,6 @@ export default class OAuth2client extends AuthClient {
         };
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
-            credentials: 'include',
             body: querystring.stringify(form),
             method: 'POST',
             headers: {
@@ -145,8 +144,8 @@ export default class OAuth2client extends AuthClient {
             options
         ).then(async (response) => {
             debug('response:', response.status);
-            if (response.status !== httpStatus.OK) {
-                if (response.status === httpStatus.BAD_REQUEST) {
+            if (response.status !== OK) {
+                if (response.status === BAD_REQUEST) {
                     const body = await response.json();
                     throw new Error(body.error);
                 } else {
@@ -275,36 +274,49 @@ export default class OAuth2client extends AuthClient {
      */
     public async fetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
         // Callbacks will close over this to ensure that we only retry once
-        // let retry = true;
-
-        // Hook the callback routine to call the _postRequest method.
-        // const postRequestCb =
-        //     (err: Error, body: any, resp: request.RequestResponse) => {
-        //         const statusCode = resp && resp.statusCode;
-        //         // Automatically retry 401 and 403 responses
-        //         // if err is set and is unrelated to response
-        //         // then getting credentials failed, and retrying won't help
-        //         if (retry && (statusCode === 401 || statusCode === 403) &&
-        //             (!err || (err as RequestError).code === statusCode)) {
-        //             /* It only makes sense to retry once, because the retry is intended
-        //              * to handle expiration-related failures. If refreshing the token
-        //              * does not fix the failure, then refreshing again probably won't
-        //              * help */
-        //             retry = false;
-        //             // Force token refresh
-        //             this.refreshAccessToken(() => {
-        //                 this.getRequestMetadata(unusedUri, authCb);
-        //             });
-        //         } else {
-        //             this.postRequest(err, body, resp, callback);
-        //         }
-        //     };
+        let retry = true;
 
         const accessToken = await this.getAccessToken();
         options.headers = (options.headers === undefined || options.headers === null) ? {} : options.headers;
         options.headers.Authorization = `Bearer ${accessToken}`;
 
-        return this.makeFetch(url, options, expectedStatusCodes);
+        let result: any;
+        let numberOfTry = 0;
+        // tslint:disable-next-line:no-magic-numbers
+        while (numberOfTry >= 0) {
+            try {
+                numberOfTry += 1;
+                if (numberOfTry > 1) {
+                    retry = false;
+                }
+
+                result = await this.makeFetch(url, options, expectedStatusCodes);
+
+                break;
+            } catch (error) {
+                console.error(error);
+                if (error instanceof Error) {
+                    const statusCode = (<transporters.RequestError>error).code;
+
+                    if (retry && (statusCode === UNAUTHORIZED || statusCode === FORBIDDEN)) {
+                        /* It only makes sense to retry once, because the retry is intended
+                         * to handle expiration-related failures. If refreshing the token
+                         * does not fix the failure, then refreshing again probably won't
+                         * help */
+
+                        // Force token refresh
+                        await this.refreshAccessToken();
+
+                        continue;
+                    }
+                }
+
+                // retry = false;
+                throw error;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -571,7 +583,6 @@ export default class OAuth2client extends AuthClient {
         };
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
-            credentials: 'include',
             body: querystring.stringify(form),
             method: 'POST',
             headers: {
@@ -587,8 +598,8 @@ export default class OAuth2client extends AuthClient {
             options
         ).then(async (response) => {
             debug('response:', response.status);
-            if (response.status !== httpStatus.OK) {
-                if (response.status === httpStatus.BAD_REQUEST) {
+            if (response.status !== OK) {
+                if (response.status === BAD_REQUEST) {
                     const body = await response.json();
                     throw new Error(body.error);
                 } else {
