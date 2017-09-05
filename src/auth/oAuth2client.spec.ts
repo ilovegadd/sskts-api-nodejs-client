@@ -4,10 +4,12 @@
  * @ignore
  */
 
-// import { OK } from 'http-status';
+import { OK } from 'http-status';
 import * as nock from 'nock';
 import * as assert from 'power-assert';
-import OAuth2client from './oAuth2client';
+import * as qs from 'querystring';
+import * as url from 'url';
+import * as sasaki from '../../';
 
 // function testNoTokens(urlshortener, oauth2client, cb) {
 //     urlshortener.url.get({
@@ -19,6 +21,15 @@ import OAuth2client from './oAuth2client';
 //         cb();
 //     });
 // }
+
+const DOMAIN = 'DOMAIN';
+const CLIENT_ID = 'CLIENT_ID';
+const CLIENT_SECRET = 'CLIENT_SECRET';
+const REDIRECT_URI = 'REDIRECT_URI';
+// const ACCESS_TYPE = 'offline';
+const STATE = 'state';
+// const SCOPE = 'scopex';
+const SCOPES = ['scopex', 'scopey'];
 
 describe('OAuth2 client', () => {
     // let remoteDrive;
@@ -32,13 +43,46 @@ describe('OAuth2 client', () => {
         nock.disableNetConnect();
     });
 
-    const DOMAIN = 'DOMAIN';
-    const CLIENT_ID = 'CLIENT_ID';
-    const CLIENT_SECRET = 'CLIENT_SECRET';
-    const REDIRECT_URI = 'REDIRECT_URI';
+    it('有効な認可ページURLを生成する', () => {
+        const opts = {
+            scopes: SCOPES,
+            responseType: 'code',
+            state: STATE
+        };
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        const generated = auth.generateAuthUrl(opts);
+        const parsed = url.parse(generated);
+        const query = qs.parse(parsed.query);
+
+        assert.equal(query.response_type, opts.responseType);
+        assert.equal(query.scope, SCOPES.join(' '));
+        assert.equal(query.client_id, CLIENT_ID);
+        assert.equal(query.redirect_uri, REDIRECT_URI);
+    });
+
+    it('should return error in callback on refreshAccessToken', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        const refreshAccessTokenError = await auth.refreshAccessToken()
+            .catch((error) => {
+                return error;
+            });
+        assert(refreshAccessTokenError instanceof Error);
+    });
 
     it('should return err if no access or refresh token is set', async () => {
-        const auth = new OAuth2client({
+        const auth = new sasaki.auth.OAuth2({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -227,4 +271,112 @@ describe('OAuth2 client', () => {
         nock.cleanAll();
         nock.enableNetConnect();
     });
+});
+
+describe('fetch()', () => {
+    let scope: nock.Scope;
+    const API_ENDPOINT = 'https://example.com';
+
+    beforeEach(() => {
+        scope = nock(`https://${DOMAIN}`)
+            .post('/token')
+            .reply(OK, { access_token: 'abc123', expires_in: 1 });
+
+        nock(API_ENDPOINT).get('/').reply(OK, { data: {} });
+    });
+
+    afterEach(() => {
+        nock.cleanAll();
+    });
+
+    it('アクセストークンがなければリフレッシュするはず', async () => {
+        const auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+
+        auth.credentials = { refresh_token: 'refresh-token-placeholder' };
+
+        auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
+            assert.equal('abc123', auth.credentials.access_token);
+        });
+    });
+
+    // it('should refresh if access token is expired', (done) => {
+    //     const auth = new GoogleAuth();
+    //     const oauth2client =
+    //         new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+    //     oauth2client.credentials = {
+    //         access_token: 'initial-access-token',
+    //         refresh_token: 'refresh-token-placeholder',
+    //         expiry_date: (new Date()).getTime() - 1000
+    //     };
+
+    //     oauth2client.request({ uri: 'http://example.com' }, () => {
+    //         assert.equal('abc123', oauth2client.credentials.access_token);
+    //         done();
+    //     });
+    // });
+
+    // it('should not refresh if not expired', (done) => {
+    //     const auth = new GoogleAuth();
+    //     const oauth2client =
+    //         new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+    //     oauth2client.credentials = {
+    //         access_token: 'initial-access-token',
+    //         refresh_token: 'refresh-token-placeholder',
+    //         expiry_date: (new Date()).getTime() + 1000
+    //     };
+
+    //     oauth2client.request({ uri: 'http://example.com' }, () => {
+    //         assert.equal(
+    //             'initial-access-token', oauth2client.credentials.access_token);
+    //         assert.equal(false, scope.isDone());
+    //         done();
+    //     });
+    // });
+
+    // it('should assume access token is not expired', (done) => {
+    //     const auth = new GoogleAuth();
+    //     const oauth2client =
+    //         new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+    //     oauth2client.credentials = {
+    //         access_token: 'initial-access-token',
+    //         refresh_token: 'refresh-token-placeholder'
+    //     };
+
+    //     oauth2client.request({ uri: 'http://example.com' }, () => {
+    //         assert.equal(
+    //             'initial-access-token', oauth2client.credentials.access_token);
+    //         assert.equal(false, scope.isDone());
+    //         done();
+    //     });
+    // });
+
+    // [401, 403].forEach((statusCode) => {
+    //     it('should refresh token if the server returns ' + statusCode, (done) => {
+    //         nock('http://example.com').get('/access').reply(statusCode, {
+    //             error: { code: statusCode, message: 'Invalid Credentials' }
+    //         });
+
+    //         const auth = new GoogleAuth();
+    //         const oauth2client =
+    //             new auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+    //         oauth2client.credentials = {
+    //             access_token: 'initial-access-token',
+    //             refresh_token: 'refresh-token-placeholder'
+    //         };
+
+    //         oauth2client.request({ uri: 'http://example.com/access' }, () => {
+    //             assert.equal('abc123', oauth2client.credentials.access_token);
+    //             done();
+    //         });
+    //     });
+    // });
 });
