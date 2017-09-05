@@ -1,5 +1,5 @@
 /**
- * OAuthクライアント
+ * OAuth2クライアント
  */
 
 import * as crypto from 'crypto';
@@ -8,8 +8,7 @@ import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
 import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
-import { transporters } from '@motionpicture/sasaki-api-abstract';
-import { AuthClient } from './authClient';
+import { Auth, transporters } from '@motionpicture/sasaki-api-abstract';
 import ICredentials from './credentials';
 
 const debug = createDebug('sasaki-api:auth:oAuth2client');
@@ -38,7 +37,7 @@ export interface IOptions {
 /**
  * OAuth2 client
  */
-export default class OAuth2client extends AuthClient {
+export default class OAuth2client implements Auth {
     /**
      * The base URL for auth endpoints.
      */
@@ -63,7 +62,6 @@ export default class OAuth2client extends AuthClient {
     public options: IOptions;
 
     constructor(options: IOptions) {
-        super();
         this.options = options;
         this.credentials = {};
     }

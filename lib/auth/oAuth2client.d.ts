@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { AuthClient } from './authClient';
+import { Auth } from '@motionpicture/sasaki-api-abstract';
 import ICredentials from './credentials';
 export interface IGenerateAuthUrlOpts {
     scopes: string[];
@@ -23,7 +23,7 @@ export interface IOptions {
 /**
  * OAuth2 client
  */
-export default class OAuth2client extends AuthClient {
+export default class OAuth2client implements Auth {
     /**
      * The base URL for auth endpoints.
      */
