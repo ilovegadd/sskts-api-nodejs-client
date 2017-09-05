@@ -8,7 +8,7 @@ import * as httpStatus from 'http-status';
 import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
-import { transporters } from '@motionpicture/sasaki-api-service';
+import { transporters } from '@motionpicture/sasaki-api-abstract';
 import { AuthClient } from './authClient';
 import ICredentials from './credentials';
 

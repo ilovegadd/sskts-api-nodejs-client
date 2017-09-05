@@ -6,8 +6,7 @@
  * @ignore
  */
 
-import * as service from '@motionpicture/sasaki-api-service';
-import * as factory from '@motionpicture/sskts-factory';
+import * as sasaki from '@motionpicture/sasaki-api-abstract';
 
 import ClientCredentialsClient from './auth/clientCredentialsClient';
 import OAuth2client from './auth/oAuth2client';
@@ -18,9 +17,9 @@ import OAuth2client from './auth/oAuth2client';
  * 全てのオブジェクトのインターフェースはここに含まれます。
  * @export
  */
-export import factory = factory;
+export import factory = sasaki.factory;
 
-export import service = service;
+export import service = sasaki.service;
 
 /**
  * each OAuth2 clients

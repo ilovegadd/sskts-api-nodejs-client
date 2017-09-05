@@ -7,7 +7,7 @@
 // import { OK } from 'http-status';
 import * as nock from 'nock';
 import * as assert from 'power-assert';
-import * as sasaki from '../../';
+import OAuth2client from './oAuth2client';
 
 // function testNoTokens(urlshortener, oauth2client, cb) {
 //     urlshortener.url.get({
@@ -38,7 +38,7 @@ describe('OAuth2 client', () => {
     const REDIRECT_URI = 'REDIRECT_URI';
 
     it('should return err if no access or refresh token is set', async () => {
-        const auth = new sasaki.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,

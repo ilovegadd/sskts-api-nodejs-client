@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build-specs": "tsc -p tsconfig.specs.json",
+    "build-spec": "tsc -p tsconfig.spec.json",
     "check": "npm run tslint && nsp check && npm run snyk",
     "clean": "rimraf ./lib npm-debug.log* ./test/**/*.js ./doc",
     "example": "http-server ./example",
@@ -23,7 +23,7 @@
     "mocha": "mocha",
     "coverage": "nyc mocha",
     "snyk": "snyk auth && snyk test --ignore-policy",
-    "pretest": "npm run build && npm run build-specs",
+    "pretest": "npm run build && npm run build-spec",
     "test": "npm run check && npm run coverage",
     "tslint": "tslint --type-check --project tsconfig.json -c tslint.json src/**/*.ts",
     "preversion": "npm run clean && npm run build && npm test && npm run doc",
@@ -75,8 +75,7 @@
     "typescript": "^2.5.2"
   },
   "dependencies": {
-    "@motionpicture/sasaki-api-service": "git+https://m-p.backlog.jp/git/SSKTS/api-client-service.git#feature/SSKTS-580",
-    "@motionpicture/sskts-factory": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/factory.git#feature/SSKTS-566",
+    "@motionpicture/sasaki-api-abstract": "git+https://m-p.backlog.jp/git/SSKTS/api-client-service.git#feature/SSKTS-580",
     "debug": "^3.0.1",
     "http-status": "^1.0.1",
     "isomorphic-fetch": "^2.2.1"

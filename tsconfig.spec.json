@@ -25,6 +25,7 @@
         "noResolve": false,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "outDir": "./test",
         "preserveConstEnums": false,
         "pretty": false,
         "removeComments": false,
@@ -37,6 +38,6 @@
         "watch": false
     },
     "include": [
-        "test"
+        "src/**/*.spec.ts"
     ]
 }
