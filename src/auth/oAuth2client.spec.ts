@@ -9,7 +9,7 @@ import * as nock from 'nock';
 import * as assert from 'power-assert';
 import * as qs from 'querystring';
 import * as url from 'url';
-import * as sasaki from '../../';
+import * as sasaki from '../index';
 
 const DOMAIN = 'DOMAIN';
 const CLIENT_ID = 'CLIENT_ID';
@@ -80,7 +80,6 @@ describe('generateLogoutUrl()', () => {
         });
 
         const generated = auth.generateLogoutUrl();
-        console.error(generated);
         const parsed = url.parse(generated);
         const query = qs.parse(parsed.query);
 

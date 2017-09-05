@@ -15,15 +15,14 @@
   },
   "scripts": {
     "build": "tsc",
-    "build-spec": "tsc -p tsconfig.spec.json",
     "check": "npm run tslint && nsp check && npm run snyk",
-    "clean": "rimraf ./lib npm-debug.log* ./test/**/*.js ./doc ./coverage",
+    "clean": "rimraf ./src/**/*.js ./src/**/*.d.ts ./lib npm-debug.log* ./test/**/*.js ./doc ./coverage",
     "example": "http-server ./example",
     "doc": "node_modules/.bin/jsdoc -c jsdoc.json",
-    "mocha": "mocha",
-    "coverage": "nyc mocha",
+    "mocha": "mocha src/**/*.spec.ts",
+    "coverage": "nyc mocha src/**/*.spec.ts",
     "snyk": "snyk auth && snyk test --ignore-policy",
-    "pretest": "npm run build && npm run build-spec",
+    "pretest": "npm run build",
     "test": "npm run check && npm run coverage",
     "tslint": "tslint --type-check --project tsconfig.json -c tslint.json src/**/*.ts --exclude **/*.spec.ts",
     "preversion": "npm run clean && npm run build && npm test && npm run doc",
@@ -70,6 +69,7 @@
     "power-assert": "^1.4.4",
     "rimraf": "^2.6.1",
     "snyk": "^1.40.2",
+    "ts-node": "^3.3.0",
     "tslint": "^5.7.0",
     "tslint-microsoft-contrib": "^5.0.1",
     "typescript": "^2.5.2"
@@ -79,15 +79,5 @@
     "debug": "^3.0.1",
     "http-status": "^1.0.1",
     "isomorphic-fetch": "^2.2.1"
-  },
-  "nyc": {
-    "check-coverage": true,
-    "include": [
-      "lib"
-    ],
-    "reporter": [
-      "lcov",
-      "text-summary"
-    ]
   }
 }

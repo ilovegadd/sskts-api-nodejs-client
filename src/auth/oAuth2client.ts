@@ -292,7 +292,6 @@ export default class OAuth2client implements Auth {
 
                 break;
             } catch (error) {
-                console.error(error);
                 if (error instanceof Error) {
                     const statusCode = (<transporters.RequestError>error).code;
 
