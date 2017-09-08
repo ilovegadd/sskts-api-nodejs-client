@@ -437,7 +437,7 @@ describe('fetch()', () => {
             .post('/token')
             .reply(OK, { access_token: 'abc123', expires_in: 1 });
 
-        nock(API_ENDPOINT).get('/').reply(OK, { data: {} });
+        nock(API_ENDPOINT).get('/').reply(OK, {});
     });
 
     afterEach(() => {
