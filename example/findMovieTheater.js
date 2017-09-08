@@ -6,6 +6,7 @@
 
 const debug = require('debug')('sasaki-api:samples');
 const sasaki = require('../lib/index');
+const nock = require('nock');
 
 async function main() {
     const auth = new sasaki.auth.ClientCredentials({
@@ -27,7 +28,7 @@ async function main() {
 
     // 劇場情報取得
     const movieTheater = await place.findMovieTheater({
-        branchCode: 'xxx'
+        branchCode: '118'
     });
     debug('movieTheater is', movieTheater);
 }
