@@ -25,6 +25,9 @@ export default class ClientCredentialsClient extends OAuth2client {
     public options: IOptions;
 
     constructor(options: IOptions) {
+        // tslint:disable-next-line:no-suspicious-comment
+        // TODO add minimum validation
+
         super(options);
         this.options = options;
 

@@ -62,6 +62,9 @@ export default class OAuth2client implements Auth {
     public options: IOptions;
 
     constructor(options: IOptions) {
+        // tslint:disable-next-line:no-suspicious-comment
+        // TODO add minimum validation
+
         this.options = options;
         this.credentials = {};
     }

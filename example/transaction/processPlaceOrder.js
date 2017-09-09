@@ -282,6 +282,8 @@ amount: ${order.price} yen
         }
     });
     debug('an email sent');
+
+    return order;
 }
 
 exports.main = main;

@@ -18,8 +18,13 @@ rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals
     setInterval(
         async () => {
             try {
-                await processPlaceOrder.main();
-                console.log('order created');
+                const order = await processPlaceOrder.main();
+                console.log(`
+=============================== Transaction result ===============================
+orderNumber  : ${order.orderNumber}
+orderDate    : ${order.orderDate.toString()}
+=============================== Transaction result ===============================`
+                );
             } catch (error) {
                 console.error(error);
             }
