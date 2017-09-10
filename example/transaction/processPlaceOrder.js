@@ -119,9 +119,10 @@ async function main() {
         throw new Error('no available seats');
     }
 
+    await wait(5000);
+
     // select a seat randomly
     const selectedSeatCode = freeSeatCodes[Math.floor(freeSeatCodes.length * Math.random())];
-
     // select a ticket randomly
     const selectedSalesTicket = salesTicketResult[Math.floor(salesTicketResult.length * Math.random())];
 
@@ -164,6 +165,8 @@ async function main() {
         authorizationId: seatReservationAuthorization.id
     });
 
+    await wait(1000);
+
     debug('recreating a seat reservation authorization...');
     seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
@@ -173,14 +176,14 @@ async function main() {
                 seatSection: sectionCode,
                 seatNumber: selectedSeatCode,
                 ticketInfo: {
-                    ticketCode: salesTicketResult[1].ticketCode,
-                    ticketName: salesTicketResult[1].ticketName,
-                    ticketNameEng: salesTicketResult[1].ticketNameEng,
-                    ticketNameKana: salesTicketResult[1].ticketNameKana,
-                    stdPrice: salesTicketResult[1].stdPrice,
-                    addPrice: salesTicketResult[1].addPrice,
+                    ticketCode: selectedSalesTicket.ticketCode,
+                    ticketName: selectedSalesTicket.ticketName,
+                    ticketNameEng: selectedSalesTicket.ticketNameEng,
+                    ticketNameKana: selectedSalesTicket.ticketNameKana,
+                    stdPrice: selectedSalesTicket.stdPrice,
+                    addPrice: selectedSalesTicket.addPrice,
                     disPrice: 0,
-                    salePrice: salesTicketResult[1].salePrice,
+                    salePrice: selectedSalesTicket.salePrice,
                     mvtkAppPrice: 0,
                     ticketCount: 1,
                     seatNum: selectedSeatCode,
@@ -197,56 +200,38 @@ async function main() {
     });
     debug('seatReservationAuthorization:', seatReservationAuthorization);
 
+    await wait(1000);
+
     const amount = seatReservationAuthorization.result.price;
-    let orderId = util.format(
-        '%s%s%s%s',
+    let orderIdPrefix = util.format(
+        '%s%s%s',
         moment().format('YYYYMMDD'),
         theaterCode,
         // tslint:disable-next-line:no-magic-numbers
-        `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
-        '01'
+        `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8)
     );
-    debug('creating a credit card authorization...', orderId);
-    let creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
-        transactionId: transaction.id,
-        orderId: orderId,
-        amount: amount,
-        method: GMO.utils.util.Method.Lump,
-        creditCard: {
-            cardNo: '4111111111111111',
-            expire: '2012',
-            securityCode: '123'
-        }
-    });
+    debug('creating a credit card authorization...', orderIdPrefix);
+    creditCardAuthorization = await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderIdPrefix, amount);
     debug('creditCardAuthorization:', creditCardAuthorization);
 
-    debug('canceling a credit card authorization...');
-    await placeOrderTransactions.cancelCreditCardAuthorization({
-        transactionId: transaction.id,
-        authorizationId: creditCardAuthorization.id
-    });
+    // debug('canceling a credit card authorization...');
+    // await placeOrderTransactions.cancelCreditCardAuthorization({
+    //     transactionId: transaction.id,
+    //     authorizationId: creditCardAuthorization.id
+    // });
 
-    orderId = util.format(
-        '%s%s%s%s',
-        moment().format('YYYYMMDD'),
-        theaterCode,
-        // tslint:disable-next-line:no-magic-numbers
-        `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
-        '02'
-    );
-    debug('recreating a credit card authorization...', orderId);
-    creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
-        transactionId: transaction.id,
-        orderId: orderId,
-        amount: amount,
-        method: GMO.utils.util.Method.Lump,
-        creditCard: {
-            cardNo: '4111111111111111',
-            expire: '2012',
-            securityCode: '123'
-        }
-    });
-    debug('creditCardAuthorization:', creditCardAuthorization);
+    // await wait(5000);
+
+    // orderId = util.format(
+    //     '%s%s%s%s',
+    //     moment().format('YYYYMMDD'),
+    //     theaterCode,
+    //     `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
+    //     '02'
+    // );
+    // debug('recreating a credit card authorization...', orderId);
+    // creditCardAuthorization = await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderId, amount);
+    // debug('creditCardAuthorization:', creditCardAuthorization);
 
     debug('registering a customer contact...');
     const contact = {
@@ -260,6 +245,8 @@ async function main() {
         contact: contact
     });
     debug('customer contact registered');
+
+    await wait(1000);
 
     debug('confirming a transaction...');
     const order = await placeOrderTransactions.confirm({
@@ -291,5 +278,45 @@ amount: ${order.price} yen
 
     return order;
 }
+
+const RETRY_INTERVAL_IN_MILLISECONDS = 5000;
+const MAX_NUMBER_OF_RETRY = 10;
+async function authorieCreditCardUntilSuccess(placeOrderTransactions, transactionId, orderIdPrefix, amount) {
+    let creditCardAuthorization = null;
+    let countTry = 0;
+
+    while (creditCardAuthorization === null) {
+        countTry += 1;
+
+        if (countTry > 1) {
+            await wait(RETRY_INTERVAL_IN_MILLISECONDS);
+        }
+
+        try {
+            creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
+                transactionId: transactionId,
+                // 試行毎にオーダーIDを変更
+                orderId: `${orderIdPrefix}${`00${countTry.toString()}`.slice(-2)}`,
+                amount: amount,
+                method: GMO.utils.util.Method.Lump,
+                creditCard: {
+                    cardNo: '4111111111111111',
+                    expire: '2012',
+                    securityCode: '123'
+                }
+            });
+        } catch (error) {
+            if (countTry >= MAX_NUMBER_OF_RETRY) {
+                throw error;
+            }
+        }
+    }
+
+    return creditCardAuthorization;
+}
+
+async function wait(waitInMilliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
+};
 
 exports.main = main;

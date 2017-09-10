@@ -47,8 +47,9 @@ price            : ${order.price.toString()} ${order.priceCurrency}
                     log = `
 =============================== Transaction result ===============================
 processNumber    : ${processNumber}
-error            : ${error.message}
-code             : ${error.code}
+error.message    : ${error.message}
+error.name       : ${error.name}
+error.code       : ${error.code}
 =============================== Transaction result ===============================`
                         ;
                 }
