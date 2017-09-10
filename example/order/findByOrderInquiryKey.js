@@ -27,7 +27,7 @@ async function main() {
 
     const order = await orderService.findByOrderInquiryKey({
         telephone: '09012345678',
-        confirmationNumber: 3045,
+        confirmationNumber: 18100,
         theaterCode: '118'
     });
     debug('order is', order);

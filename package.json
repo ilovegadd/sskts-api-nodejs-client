@@ -49,6 +49,7 @@
   "devDependencies": {
     "@motionpicture/coa-service": "^4.0.1",
     "@motionpicture/gmo-service": "^4.0.0",
+    "@motionpicture/sskts-domain": "git+https://tetsu:M0P!Xmopix@m-p.backlog.jp/git/SSKTS/domain.git#feature/SSKTS-533",
     "@types/debug": "0.0.30",
     "@types/form-data": "^2.2.0",
     "@types/http-status": "^0.2.30",

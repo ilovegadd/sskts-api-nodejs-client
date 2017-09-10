@@ -119,6 +119,12 @@ async function main() {
         throw new Error('no available seats');
     }
 
+    // select a seat randomly
+    const selectedSeatCode = freeSeatCodes[Math.floor(freeSeatCodes.length * Math.random())];
+
+    // select a ticket randomly
+    const selectedSalesTicket = salesTicketResult[Math.floor(salesTicketResult.length * Math.random())];
+
     debug('creating a seat reservation authorization...');
     let seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
         transactionId: transaction.id,
@@ -126,19 +132,19 @@ async function main() {
         offers: [
             {
                 seatSection: sectionCode,
-                seatNumber: freeSeatCodes[0],
+                seatNumber: selectedSeatCode,
                 ticketInfo: {
-                    ticketCode: salesTicketResult[0].ticketCode,
-                    ticketName: salesTicketResult[0].ticketName,
-                    ticketNameEng: salesTicketResult[0].ticketNameEng,
-                    ticketNameKana: salesTicketResult[0].ticketNameKana,
-                    stdPrice: salesTicketResult[0].stdPrice,
-                    addPrice: salesTicketResult[0].addPrice,
+                    ticketCode: selectedSalesTicket.ticketCode,
+                    ticketName: selectedSalesTicket.ticketName,
+                    ticketNameEng: selectedSalesTicket.ticketNameEng,
+                    ticketNameKana: selectedSalesTicket.ticketNameKana,
+                    stdPrice: selectedSalesTicket.stdPrice,
+                    addPrice: selectedSalesTicket.addPrice,
                     disPrice: 0,
-                    salePrice: salesTicketResult[0].salePrice,
+                    salePrice: selectedSalesTicket.salePrice,
                     mvtkAppPrice: 0,
                     ticketCount: 1,
-                    seatNum: freeSeatCodes[0],
+                    seatNum: selectedSeatCode,
                     addGlasses: 0,
                     kbnEisyahousiki: '00',
                     mvtkNum: '',
@@ -165,7 +171,7 @@ async function main() {
         offers: [
             {
                 seatSection: sectionCode,
-                seatNumber: freeSeatCodes[0],
+                seatNumber: selectedSeatCode,
                 ticketInfo: {
                     ticketCode: salesTicketResult[1].ticketCode,
                     ticketName: salesTicketResult[1].ticketName,
@@ -177,7 +183,7 @@ async function main() {
                     salePrice: salesTicketResult[1].salePrice,
                     mvtkAppPrice: 0,
                     ticketCount: 1,
-                    seatNum: freeSeatCodes[0],
+                    seatNum: selectedSeatCode,
                     addGlasses: 0,
                     kbnEisyahousiki: '00',
                     mvtkNum: '',
@@ -287,11 +293,3 @@ amount: ${order.price} yen
 }
 
 exports.main = main;
-
-main().then(async () => {
-    await makeInquiry.main();
-
-    debug('main processed.');
-}).catch((err) => {
-    console.error(err);
-});
