@@ -44,10 +44,12 @@ async function main() {
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
-    const availableEvent = individualScreeningEvents.find((event) => event.offer.availability > 0);
-    if (availableEvent === undefined) {
+    const availableEvents = individualScreeningEvents.filter((event) => event.offer.availability > 0);
+    if (availableEvents.length === 0) {
         throw new Error('no available events');
     }
+
+    const availableEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
 
     // retrieve an event detail
     const individualScreeningEvent = await events.findIndividualScreeningEvent({

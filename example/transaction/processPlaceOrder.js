@@ -55,10 +55,12 @@ async function main() {
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
-    const availableEvent = individualScreeningEvents.find((event) => event.offer.availability > 0);
-    if (availableEvent === undefined) {
+    const availableEvents = individualScreeningEvents.filter((event) => event.offer.availability > 0);
+    if (availableEvents.length === 0) {
         throw new Error('no available events');
     }
+
+    const availableEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
 
     // retrieve an event detail
     const individualScreeningEvent = await events.findIndividualScreeningEvent({
@@ -115,7 +117,7 @@ async function main() {
     const freeSeatCodes = getStateReserveSeatResult.listSeat[0].listFreeSeat.map((freeSeat) => {
         return freeSeat.seatNum;
     });
-    if (getStateReserveSeatResult.cntReserveFree === 0) {
+    if (getStateReserveSeatResult.cntReserveFree <= 0) {
         throw new Error('no available seats');
     }
 
@@ -211,8 +213,10 @@ async function main() {
         `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8)
     );
     debug('creating a credit card authorization...', orderIdPrefix);
-    creditCardAuthorization = await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderIdPrefix, amount);
-    debug('creditCardAuthorization:', creditCardAuthorization);
+    let { creditCardAuthorization, numberOfTryAuthorizeCreditCard } = await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderIdPrefix, amount);
+    debug('creditCardAuthorization:', creditCardAuthorization, numberOfTryAuthorizeCreditCard);
+
+    // await wait(5000);
 
     // debug('canceling a credit card authorization...');
     // await placeOrderTransactions.cancelCreditCardAuthorization({
@@ -222,16 +226,12 @@ async function main() {
 
     // await wait(5000);
 
-    // orderId = util.format(
-    //     '%s%s%s%s',
-    //     moment().format('YYYYMMDD'),
-    //     theaterCode,
-    //     `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8),
-    //     '02'
-    // );
     // debug('recreating a credit card authorization...', orderId);
-    // creditCardAuthorization = await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderId, amount);
-    // debug('creditCardAuthorization:', creditCardAuthorization);
+    // await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderIdPrefix, amount).then((result) => {
+    //     creditCardAuthorization = result.creditCardAuthorization;
+    //     numberOfTryAuthorizeCreditCard = result.numberOfTryAuthorizeCreditCard
+    // });
+    // debug('creditCardAuthorization:', creditCardAuthorization, numberOfTryAuthorizeCreditCard);
 
     debug('registering a customer contact...');
     const contact = {
@@ -276,19 +276,19 @@ amount: ${order.price} yen
     });
     debug('an email sent');
 
-    return order;
+    return { order, numberOfTryAuthorizeCreditCard };
 }
 
 const RETRY_INTERVAL_IN_MILLISECONDS = 5000;
 const MAX_NUMBER_OF_RETRY = 10;
 async function authorieCreditCardUntilSuccess(placeOrderTransactions, transactionId, orderIdPrefix, amount) {
     let creditCardAuthorization = null;
-    let countTry = 0;
+    let numberOfTryAuthorizeCreditCard = 0;
 
     while (creditCardAuthorization === null) {
-        countTry += 1;
+        numberOfTryAuthorizeCreditCard += 1;
 
-        if (countTry > 1) {
+        if (numberOfTryAuthorizeCreditCard > 1) {
             await wait(RETRY_INTERVAL_IN_MILLISECONDS);
         }
 
@@ -296,7 +296,7 @@ async function authorieCreditCardUntilSuccess(placeOrderTransactions, transactio
             creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
                 transactionId: transactionId,
                 // 試行毎にオーダーIDを変更
-                orderId: `${orderIdPrefix}${`00${countTry.toString()}`.slice(-2)}`,
+                orderId: `${orderIdPrefix}${`00${numberOfTryAuthorizeCreditCard.toString()}`.slice(-2)}`,
                 amount: amount,
                 method: GMO.utils.util.Method.Lump,
                 creditCard: {
@@ -306,13 +306,20 @@ async function authorieCreditCardUntilSuccess(placeOrderTransactions, transactio
                 }
             });
         } catch (error) {
-            if (countTry >= MAX_NUMBER_OF_RETRY) {
+            if (numberOfTryAuthorizeCreditCard >= MAX_NUMBER_OF_RETRY) {
                 throw error;
             }
         }
     }
 
-    return creditCardAuthorization;
+    return {
+        creditCardAuthorization,
+        numberOfTryAuthorizeCreditCard
+    };
+    // return {
+    //     creditCardAuthorization: creditCardAuthorization,
+    //     countTry: countTry
+    // };
 }
 
 async function wait(waitInMilliseconds) {
