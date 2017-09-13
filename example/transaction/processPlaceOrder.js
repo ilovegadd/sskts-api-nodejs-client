@@ -19,9 +19,9 @@ async function main() {
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
         scopes: [
-            'https://sskts-api-development.azurewebsites.net/transactions',
-            'https://sskts-api-development.azurewebsites.net/events.read-only',
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
+            `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/transactions`,
+            `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/events.read-only`,
+            `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/organizations.read-only`
         ],
         state: 'teststate'
     });
@@ -246,7 +246,7 @@ async function main() {
     });
     debug('customer contact registered');
 
-    await wait(1000);
+    await wait(3000);
 
     debug('confirming a transaction...');
     const order = await placeOrderTransactions.confirm({
@@ -270,13 +270,13 @@ amount: ${order.price} yen
         emailNotification: {
             from: 'noreply@example.com',
             to: contact.email,
-            subject: 'order created',
+            subject: `Your order created [${individualScreeningEvent.superEvent.workPerformed.name}]`,
             content: content
         }
     });
     debug('an email sent');
 
-    return { order, numberOfTryAuthorizeCreditCard };
+    return { transaction, order, numberOfTryAuthorizeCreditCard };
 }
 
 const RETRY_INTERVAL_IN_MILLISECONDS = 5000;
@@ -316,10 +316,6 @@ async function authorieCreditCardUntilSuccess(placeOrderTransactions, transactio
         creditCardAuthorization,
         numberOfTryAuthorizeCreditCard
     };
-    // return {
-    //     creditCardAuthorization: creditCardAuthorization,
-    //     countTry: countTry
-    // };
 }
 
 async function wait(waitInMilliseconds) {
