@@ -14,6 +14,7 @@ import OAuth2client from './auth/oAuth2client';
  */
 export import factory = sasaki.factory;
 export import service = sasaki.service;
+export import transporters = sasaki.transporters;
 /**
  * each OAuth2 clients
  */

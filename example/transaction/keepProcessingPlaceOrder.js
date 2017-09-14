@@ -20,7 +20,8 @@ let results = [];
 let numberOfProcesses = 0;
 let configurations = {
     numberOfTrials: 10,
-    intervals: 1000
+    intervals: 1000,
+    apiEndpoint: process.env.SSKTS_API_ENDPOINT
 }
 
 rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals) => {
@@ -136,6 +137,7 @@ configurations are below.
 ==============================================================
 intervals: ${configurations.intervals}
 number of trials: ${configurations.numberOfTrials.toString()}
+api endpoint: ${configurations.apiEndpoint}
 ==============================================================
 
 Please check the csv report here.

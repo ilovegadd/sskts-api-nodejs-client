@@ -270,7 +270,7 @@ amount: ${order.price} yen
         emailNotification: {
             from: 'noreply@example.com',
             to: contact.email,
-            subject: `Your order created [${individualScreeningEvent.superEvent.workPerformed.name}]`,
+            subject: `${individualScreeningEvent.superEvent.location.name.ja} Your order created [${individualScreeningEvent.superEvent.workPerformed.name}]`,
             content: content
         }
     });
