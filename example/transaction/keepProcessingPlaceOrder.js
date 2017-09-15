@@ -125,14 +125,8 @@ async function sendReport() {
     const url = await sskts.service.util.uploadFile('sskts-report-loadtest-placeOrderTransactions.csv', csv)();
     console.log('csv url:', url);
 
-    const notification = sskts.factory.notification.email.create({
-        id: 'id',
-        data: {
-            from: 'noreply@example.com',
-            to: 'hello@motionpicture.jp',
-            subject: 'Completion of sskts loadtest',
-            content: `sskts loadtest completed.
-
+    const text = `sskts loadtest completed.
+    
 configurations are below.
 ==============================================================
 intervals: ${configurations.intervals}
@@ -142,8 +136,21 @@ api endpoint: ${configurations.apiEndpoint}
 
 Please check the csv report here.
 ${url}
-    `
-        }
+`;
+
+    const emailMessage = sskts.factory.creativeWork.message.email.create({
+        identifier: 'identifier',
+        sender: {
+            name: 'sskts-report',
+            email: 'noreply@example.com'
+        },
+        toRecipient: {
+            name: 'motionpicture developers',
+            email: 'hello@motionpicture.jp'
+        },
+        about: 'Completion of sskts loadtest',
+        text: text
     });
-    await sskts.service.notification.sendEmail(notification)();
+
+    await sskts.service.notification.sendEmail(emailMessage)();
 }

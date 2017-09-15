@@ -268,11 +268,17 @@ amount: ${order.price} yen
     debug('sending an email notification...', content);
     await placeOrderTransactions.sendEmailNotification({
         transactionId: transaction.id,
-        emailNotification: {
-            from: 'noreply@example.com',
-            to: contacts.email,
-            subject: 'order created',
-            content: content
+        emailMessageAttributes: {
+            sender: {
+                name: transaction.seller.name,
+                email: 'noreply@example.com'
+            },
+            toRecipient: {
+                name: `${contacts.familyName} ${contacts.givenName}`,
+                email: contacts.email
+            },
+            about: `${individualScreeningEvent.superEvent.location.name.ja} Your order created [${individualScreeningEvent.superEvent.workPerformed.name}]`,
+            text: content
         }
     });
     debug('an email sent');
