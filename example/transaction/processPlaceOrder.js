@@ -10,7 +10,7 @@ const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const util = require('util');
 
-const sasaki = require('../../lib/index');
+const sasaki = require('../../');
 const makeInquiry = require('../makeInquiryOfOrder');
 
 const auth = new sasaki.auth.ClientCredentials({
@@ -236,8 +236,9 @@ async function main(theaterCode) {
     await placeOrderTransactions.setCustomerContact({
         transactionId: transaction.id,
         contact: contact
+    }).then((result) => {
+        debug('customer contact registered.', result);
     });
-    debug('customer contact registered');
 
     await wait(3000);
 

@@ -77,7 +77,7 @@
     "typescript": "^2.5.2"
   },
   "dependencies": {
-    "@motionpicture/sskts-api-abstract-client": "^1.0.0-alpha.0",
+    "@motionpicture/sskts-api-abstract-client": "^1.0.0-alpha.2",
     "debug": "^3.0.1",
     "http-status": "^1.0.1",
     "isomorphic-fetch": "^2.2.1"
