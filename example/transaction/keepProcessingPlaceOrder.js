@@ -22,7 +22,8 @@ let configurations = {
     numberOfTrials: 10,
     intervals: 1000,
     apiEndpoint: process.env.SSKTS_API_ENDPOINT
-}
+};
+const theaterCodes = ['112', '118'];
 
 rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals) => {
     configurations.intervals = intervals;
@@ -43,8 +44,10 @@ rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals
                 let result;
                 const now = new Date();
 
+                const theaterCode = theaterCodes[Math.floor(theaterCodes.length * Math.random())];
+
                 try {
-                    const { transaction, order, numberOfTryAuthorizeCreditCard } = await processPlaceOrder.main();
+                    const { transaction, order, numberOfTryAuthorizeCreditCard } = await processPlaceOrder.main(theaterCode);
                     result = {
                         processNumber: processNumber,
                         transactionId: transaction.id,
@@ -54,8 +57,8 @@ rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals
                         errorCode: '',
                         orderNumber: order.orderNumber,
                         orderDate: order.orderDate.toString(),
-                        paymentMethod: order.paymentMethods[0].paymentMethod,
-                        paymentMethodId: order.paymentMethods[0].paymentMethodId,
+                        paymentMethod: order.paymentMethods.map((paymentMethod) => paymentMethod.name).join(','),
+                        paymentMethodId: order.paymentMethods.map((paymentMethod) => paymentMethod.paymentMethodId).join(','),
                         price: `${order.price.toString()} ${order.priceCurrency}`,
                         numberOfTryAuthorizeCreditCard: numberOfTryAuthorizeCreditCard.toString()
                     };
@@ -95,9 +98,11 @@ numberOfTryAuthorizeCreditCard   : ${result.numberOfTryAuthorizeCreditCard}
                 logs.push(log);
                 results.push(result);
 
-                // 全プロセスが終了したらレポートを送信
+                // 全プロセスが終了したら
+                // 取引に対するタスク状態確認
+                // レポートを送信
                 if (results.length === numberOfProcesses) {
-                    await sendReport();
+                    await onAllProcessed();
                 }
             },
             configurations.intervals
@@ -105,7 +110,7 @@ numberOfTryAuthorizeCreditCard   : ${result.numberOfTryAuthorizeCreditCard}
     });
 });
 
-async function sendReport() {
+async function onAllProcessed() {
     console.log('sending a report...');
 
     // sort result
@@ -118,37 +123,45 @@ async function sendReport() {
         data: results,
         fields: fields,
         fieldNames: fieldNames,
-        del: ','
+        del: ',',
+        newLine: '\n',
+        preserveNewLinesInValues: true
     });
 
     // upload csv
-    const url = await sskts.service.util.uploadFile('sskts-report-loadtest-placeOrderTransactions.csv', csv)();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 1);
+    const url = await sskts.service.util.uploadFile({
+        fileName: 'sskts-report-loadtest-placeOrderTransactions.csv',
+        text: csv,
+        expiryDate: expiryDate
+    })();
     console.log('csv url:', url);
 
-    const text = `sskts loadtest completed.
+    const text = `SSKTS placeOrder transaction loadtest has been completed.
     
-configurations are below.
+Configurations are below.
 ==============================================================
 intervals: ${configurations.intervals}
 number of trials: ${configurations.numberOfTrials.toString()}
 api endpoint: ${configurations.apiEndpoint}
 ==============================================================
 
-Please check the csv report here.
+Please check out the csv report here.
 ${url}
 `;
 
     const emailMessage = sskts.factory.creativeWork.message.email.create({
         identifier: 'identifier',
         sender: {
-            name: 'sskts-report',
+            name: 'SSKTS Report',
             email: 'noreply@example.com'
         },
         toRecipient: {
             name: 'motionpicture developers',
             email: 'hello@motionpicture.jp'
         },
-        about: 'Completion of sskts loadtest',
+        about: 'Completion of SSKTS placeOrder transaction loadtest',
         text: text
     });
 

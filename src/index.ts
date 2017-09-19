@@ -4,7 +4,7 @@
  * @ignore
  */
 
-import * as sasaki from '@motionpicture/sasaki-api-abstract';
+import * as sasaki from '@motionpicture/sskts-api-abstract-client';
 
 import ClientCredentialsClient from './auth/clientCredentialsClient';
 import OAuth2client from './auth/oAuth2client';

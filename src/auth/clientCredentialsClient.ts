@@ -6,7 +6,7 @@ import * as querystring from 'querystring';
 import ICredentials from './credentials';
 import OAuth2client from './oAuth2client';
 
-const debug = createDebug('sasaki-api:auth:clientCredentialsClient');
+const debug = createDebug('sskts-api-nodejs-client:auth:clientCredentialsClient');
 
 export interface IOptions {
     domain: string;

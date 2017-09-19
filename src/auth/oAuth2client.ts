@@ -8,10 +8,10 @@ import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
 import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
-import { Auth, transporters } from '@motionpicture/sasaki-api-abstract';
+import { Auth, transporters } from '@motionpicture/sskts-api-abstract-client';
 import ICredentials from './credentials';
 
-const debug = createDebug('sasaki-api:auth:oAuth2client');
+const debug = createDebug('sskts-api-nodejs-client:auth:oAuth2client');
 
 export interface IGenerateAuthUrlOpts {
     scopes: string[];

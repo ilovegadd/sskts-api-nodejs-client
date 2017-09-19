@@ -6,7 +6,7 @@
 
 const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
-const debug = require('debug')('sasaki-api:samples');
+const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const open = require('open');
 const readline = require('readline');

@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Auth } from '@motionpicture/sasaki-api-abstract';
+import { Auth } from '@motionpicture/sskts-api-abstract-client';
 import ICredentials from './credentials';
 export interface IGenerateAuthUrlOpts {
     scopes: string[];

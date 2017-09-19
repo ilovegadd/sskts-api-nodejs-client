@@ -6,11 +6,11 @@
 
 const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
-const debug = require('debug')('sasaki-api:samples');
+const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const sasaki = require('../../lib/index');
 
-async function main() {
+async function main(theaterCode) {
     const auth = new sasaki.auth.ClientCredentials({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID,
@@ -40,7 +40,7 @@ async function main() {
 
     // search screening events
     const individualScreeningEvents = await events.searchIndividualScreeningEvent({
-        theater: '118',
+        theater: theaterCode,
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
@@ -67,7 +67,6 @@ async function main() {
         throw new Error('movie theater shop not open');
     }
 
-    const theaterCode = individualScreeningEvent.coaInfo.theaterCode;
     const dateJouei = individualScreeningEvent.coaInfo.dateJouei;
     const titleCode = individualScreeningEvent.coaInfo.titleCode;
     const titleBranchNum = individualScreeningEvent.coaInfo.titleBranchNum;
@@ -218,7 +217,7 @@ async function main() {
     debug('your order is', order);
 }
 
-main().then(() => {
+main('112').then(() => {
     debug('main processed.');
 }).catch((err) => {
     console.error(err.message);

@@ -6,52 +6,44 @@
 
 const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
-const debug = require('debug')('sasaki-api:samples');
+const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const util = require('util');
 
 const sasaki = require('../../lib/index');
 const makeInquiry = require('../makeInquiryOfOrder');
 
-async function main() {
-    const auth = new sasaki.auth.ClientCredentials({
-        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
-        clientId: process.env.TEST_CLIENT_ID,
-        clientSecret: process.env.TEST_CLIENT_SECRET,
-        scopes: [
-            `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/transactions`,
-            `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/events.read-only`,
-            `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/organizations.read-only`
-        ],
-        state: 'teststate'
-    });
-    // const credentials = await auth.refreshAccessToken();
-    // debug('credentials:', credentials);
+const auth = new sasaki.auth.ClientCredentials({
+    domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
+    clientId: process.env.TEST_CLIENT_ID,
+    clientSecret: process.env.TEST_CLIENT_SECRET,
+    scopes: [
+        `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/transactions`,
+        `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/events.read-only`,
+        `${process.env.TEST_RESOURCE_SERVER_IDENTIFIER}/organizations.read-only`
+    ],
+    state: 'teststate'
+});
 
-    // auth.setCredentials({
-    //     expiry_date: 1503110099,
-    //     access_token: 'eyJraWQiOiJ0U3dFVmJTa0IzZzlVY01YajBpOWpISGRXRk9FamsxQUNKOHZrZ3VhV0lzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJhOTZhNzZhZi04YmZhLTQwMmUtYmEzMC1kYmYxNDk0NmU0M2QiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIHBob25lIG9wZW5pZCBodHRwczpcL1wvc3NrdHMtYXBpLWRldmVsb3BtZW50LmF6dXJld2Vic2l0ZXMubmV0XC9ldmVudHMucmVhZC1vbmx5IHByb2ZpbGUgaHR0cHM6XC9cL3Nza3RzLWFwaS1kZXZlbG9wbWVudC5henVyZXdlYnNpdGVzLm5ldFwvb3JnYW5pemF0aW9ucy5yZWFkLW9ubHkgaHR0cHM6XC9cL3Nza3RzLWFwaS1kZXZlbG9wbWVudC5henVyZXdlYnNpdGVzLm5ldFwvdHJhbnNhY3Rpb25zIGVtYWlsIiwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb21cL2FwLW5vcnRoZWFzdC0xX3pUaGkwajFmZSIsImV4cCI6MTUwMzEwOTk1MywiaWF0IjoxNTAzMTA2MzUzLCJ2ZXJzaW9uIjoyLCJqdGkiOiI0MWRiMGNkNi1jNDU4LTRkMDUtYTExYS1hYzM3N2IzN2NkZGQiLCJjbGllbnRfaWQiOiI2ZmlndW4xMmdjZHRsajllNTNwMnUzb3F2bCIsInVzZXJuYW1lIjoiaWxvdmVnYWRkQGdtYWlsLmNvbSJ9.TD_4abZc80dnOZoFZPea8kvIIoSMVNTRepEUdsZoGtv8889Ux445rz3XI8dp24DRfUQsY2RQWOT-t4A-Ceamh0Qj1vR-IAoQSwGFh0oU64zQeb-TRTvQ2iM4aLwuhpn1CJP9L7-fAPoc7wt97g9mNUQZkH-6-gzDkV32Cptlp5TnvZiHt6okDVjH7SqWHHSEsS3QLFilIEDamtJFdLHztdeV1Un8kt3371MCfHnbHS6-Iy6Z0D4g5un1C6Yj-ylNimfFrjRpJwylHPecoVnDK013vVY1RHwQPL0wDUJKpwt3ZuRkzQ2IQ621Jb6FwQxvhuyGFiGHEQ4_rg1KSlR7uw',
-    //     token_type: 'Bearer'
-    // });
+const events = sasaki.service.event({
+    endpoint: process.env.SSKTS_API_ENDPOINT,
+    auth: auth
+});
 
-    const events = sasaki.service.event({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
-        auth: auth
-    });
+const organizations = sasaki.service.organization({
+    endpoint: process.env.SSKTS_API_ENDPOINT,
+    auth: auth
+});
 
-    const organizations = sasaki.service.organization({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
-        auth: auth
-    });
+const placeOrderTransactions = sasaki.service.transaction.placeOrder({
+    endpoint: process.env.SSKTS_API_ENDPOINT,
+    auth: auth
+});
 
-    const placeOrderTransactions = sasaki.service.transaction.placeOrder({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
-        auth: auth
-    });
-
+async function main(theaterCode) {
     // search screening events
     const individualScreeningEvents = await events.searchIndividualScreeningEvent({
-        theater: '118',
+        theater: theaterCode,
         day: moment().add(1, 'day').format('YYYYMMDD')
     });
 
@@ -59,6 +51,8 @@ async function main() {
     if (availableEvents.length === 0) {
         throw new Error('no available events');
     }
+
+    await wait(5000);
 
     const availableEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
 
@@ -78,7 +72,6 @@ async function main() {
         throw new Error('movie theater shop not open');
     }
 
-    const theaterCode = individualScreeningEvent.coaInfo.theaterCode;
     const dateJouei = individualScreeningEvent.coaInfo.dateJouei;
     const titleCode = individualScreeningEvent.coaInfo.titleCode;
     const titleBranchNum = individualScreeningEvent.coaInfo.titleBranchNum;
@@ -202,7 +195,7 @@ async function main() {
     });
     debug('seatReservationAuthorization:', seatReservationAuthorization);
 
-    await wait(1000);
+    await wait(5000);
 
     const amount = seatReservationAuthorization.result.price;
     let orderIdPrefix = util.format(
@@ -213,7 +206,7 @@ async function main() {
         `00000000${seatReservationAuthorization.result.updTmpReserveSeatResult.tmpReserveNum}`.slice(-8)
     );
     debug('creating a credit card authorization...', orderIdPrefix);
-    let { creditCardAuthorization, numberOfTryAuthorizeCreditCard } = await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderIdPrefix, amount);
+    let { creditCardAuthorization, numberOfTryAuthorizeCreditCard } = await authorieCreditCardUntilSuccess(transaction.id, orderIdPrefix, amount);
     debug('creditCardAuthorization:', creditCardAuthorization, numberOfTryAuthorizeCreditCard);
 
     // await wait(5000);
@@ -227,7 +220,7 @@ async function main() {
     // await wait(5000);
 
     // debug('recreating a credit card authorization...', orderId);
-    // await authorieCreditCardUntilSuccess(placeOrderTransactions, transaction.id, orderIdPrefix, amount).then((result) => {
+    // await authorieCreditCardUntilSuccess(transaction.id, orderIdPrefix, amount).then((result) => {
     //     creditCardAuthorization = result.creditCardAuthorization;
     //     numberOfTryAuthorizeCreditCard = result.numberOfTryAuthorizeCreditCard
     // });
@@ -287,7 +280,7 @@ amount: ${order.price} yen
 
 const RETRY_INTERVAL_IN_MILLISECONDS = 5000;
 const MAX_NUMBER_OF_RETRY = 10;
-async function authorieCreditCardUntilSuccess(placeOrderTransactions, transactionId, orderIdPrefix, amount) {
+async function authorieCreditCardUntilSuccess(transactionId, orderIdPrefix, amount) {
     let creditCardAuthorization = null;
     let numberOfTryAuthorizeCreditCard = 0;
 

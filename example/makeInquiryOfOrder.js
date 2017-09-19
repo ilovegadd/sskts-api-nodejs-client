@@ -4,7 +4,7 @@
  * @ignore
  */
 
-const debug = require('debug')('sasaki-api:samples');
+const debug = require('debug')('sskts-api-nodejs-client:samples');
 const readline = require('readline');
 const sasaki = require('../lib/index');
 
