@@ -1,12 +1,15 @@
 node_modules/
-iisnode/
 npm-debug.log*
 .vscode/
 .env*
-docs/
+doc/
 **/*.log
 coverage/
 .nyc_output/
+**/*.js
+**/*.js.map
+**/*.d.ts
+!example/**/*.js
 
 !.gitignore
 !.gitkeep
