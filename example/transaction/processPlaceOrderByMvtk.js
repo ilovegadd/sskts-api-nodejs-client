@@ -186,7 +186,7 @@ async function main(theaterCode) {
     // ムビチケ取消
     await placeOrderTransactions.cancelMvtkAuthorization({
         transactionId: transaction.id,
-        authorizationId: mvtkAuthorization.id
+        actionId: mvtkAuthorization.id
     });
 
     // 再度ムビチケ追加

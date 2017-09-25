@@ -157,7 +157,7 @@ async function main(theaterCode) {
     debug('canceling a seat reservation authorization...');
     await placeOrderTransactions.cancelSeatReservationAuthorization({
         transactionId: transaction.id,
-        authorizationId: seatReservationAuthorization.id
+        actionId: seatReservationAuthorization.id
     });
 
     await wait(1000);
