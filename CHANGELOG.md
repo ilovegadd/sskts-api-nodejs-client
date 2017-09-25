@@ -5,7 +5,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 ### Added
-- クライアント認証クライアントを追加。
 
 ### Changed
 
@@ -16,3 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+
+## v1.0.0 - 2017-09-25
+### Added
+- v1.0.0をリリース。
