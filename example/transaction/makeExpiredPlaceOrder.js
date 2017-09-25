@@ -1,6 +1,5 @@
 /**
- * a sample processing placeOrder transaction By mvtk
- *
+ * 期限切れ取引を生成する
  * @ignore
  */
 
@@ -8,7 +7,7 @@ const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
 const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
-const sasaki = require('../../lib/index');
+const sasaki = require('../../');
 
 async function main(theaterCode) {
     const auth = new sasaki.auth.ClientCredentials({
@@ -76,7 +75,7 @@ async function main(theaterCode) {
     // start a transaction
     debug('starting a transaction...');
     const transaction = await placeOrderTransactions.start({
-        expires: moment().add(10, 'minutes').toDate(),
+        expires: moment().add(30, 'seconds').toDate(),
         sellerId: movieTheaterOrganization.id
     });
 
@@ -146,79 +145,11 @@ async function main(theaterCode) {
     });
     debug('seatReservationAuthorization is', seatReservationAuthorization);
 
-    // 本当はここでムビチケ着券処理
-    const mvtkResult = {
-        price: 1400,
-        seatInfoSyncIn: {
-            kgygishCd: 'SSK000',
-            yykDvcTyp: '00',
-            trkshFlg: '0',
-            kgygishSstmZskyykNo: '118124',
-            kgygishUsrZskyykNo: '124',
-            jeiDt: '2017/03/02 10:00:00',
-            kijYmd: '2017/03/02',
-            stCd: theaterCode.slice(-2),
-            screnCd: screenCode,
-            knyknrNoInfo: [
-                {
-                    knyknrNo: '4450899842',
-                    pinCd: '7648',
-                    knshInfo: [
-                        { knshTyp: '01', miNum: 1 }
-                    ]
-                }
-            ],
-            zskInfo: seatReservationAuthorization.result.updTmpReserveSeatResult.listTmpReserve.map((tmpReserve) => {
-                return { zskCd: tmpReserve.seatNum };
-            }),
-            skhnCd: `${titleCode}${`0${titleBranchNum}`.slice(-2)}`
-        }
-    };
-
-    // ムビチケオーソリ追加(着券した体で) 値はほぼ適当です
-    debug('adding authorizations mvtk...');
-    let mvtkAuthorization = await placeOrderTransactions.createMvtkAuthorization({
-        transactionId: transaction.id,
-        mvtk: mvtkResult
-    });
-    debug('addMvtkAuthorization is', mvtkAuthorization);
-
-    // ムビチケ取消
-    await placeOrderTransactions.cancelMvtkAuthorization({
-        transactionId: transaction.id,
-        authorizationId: mvtkAuthorization.id
-    });
-
-    // 再度ムビチケ追加
-    debug('adding authorizations mvtk...', theaterCode.slice(-2));
-    mvtkAuthorization = await placeOrderTransactions.createMvtkAuthorization({
-        transactionId: transaction.id,
-        mvtk: mvtkResult
-    });
-    debug('addMvtkAuthorization is', mvtkAuthorization);
-    debug('registering a customer contact...');
-    const contact = {
-        givenName: 'John',
-        familyName: 'Smith',
-        telephone: '09012345678',
-        email: process.env.SSKTS_DEVELOPER_EMAIL
-    };
-    await placeOrderTransactions.setCustomerContact({
-        transactionId: transaction.id,
-        contact: contact
-    });
-    debug('customer contact registered');
-
-    // 取引成立
-    debug('confirming transaction...');
-    const order = await placeOrderTransactions.confirm({
-        transactionId: transaction.id
-    });
-    debug('your order is', order);
+    return transaction;
 }
 
-main('112').then(() => {
-    debug('main processed.');
+main('112').then((transaction) => {
+    debug('main processed. transaction:', transaction);
 }).catch((err) => {
     console.error(err.message);
 });
