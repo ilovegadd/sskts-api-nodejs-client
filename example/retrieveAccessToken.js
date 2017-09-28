@@ -9,12 +9,12 @@ const sasaki = require('../lib/index');
 async function main() {
     const scopes = [
         'phone', 'openid', 'email', 'aws.cognito.signin.user.admin', 'profile',
-        'https://sskts-api-development.azurewebsites.net/transactions',
-        'https://sskts-api-development.azurewebsites.net/events.read-only',
-        'https://sskts-api-development.azurewebsites.net/organizations.read-only',
-        'https://sskts-api-development.azurewebsites.net/people.contacts',
-        'https://sskts-api-development.azurewebsites.net/people.creditCards',
-        'https://sskts-api-development.azurewebsites.net/people.ownershipInfos.read-only'
+        process.env.TEST_RESOURCE_IDENTIFIER + '/transactions',
+        process.env.TEST_RESOURCE_IDENTIFIER + '/events.read-only',
+        process.env.TEST_RESOURCE_IDENTIFIER + '/organizations.read-only',
+        process.env.TEST_RESOURCE_IDENTIFIER + '/people.contacts',
+        process.env.TEST_RESOURCE_IDENTIFIER + '/people.creditCards',
+        process.env.TEST_RESOURCE_IDENTIFIER + '/people.ownershipInfos.read-only'
     ];
 
     const auth = new sasaki.auth.OAuth2({

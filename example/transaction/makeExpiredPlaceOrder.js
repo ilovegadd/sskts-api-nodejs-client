@@ -15,9 +15,9 @@ async function main(theaterCode) {
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
         scopes: [
-            'https://sskts-api-development.azurewebsites.net/transactions',
-            'https://sskts-api-development.azurewebsites.net/events.read-only',
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
+            process.env.TEST_RESOURCE_IDENTIFIER + '/transactions',
+            process.env.TEST_RESOURCE_IDENTIFIER + '/events.read-only',
+            process.env.TEST_RESOURCE_IDENTIFIER + '/organizations.read-only'
         ],
         state: 'teststate'
     });

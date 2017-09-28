@@ -13,7 +13,7 @@ async function main() {
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
         scopes: [
-            'https://sskts-api-development.azurewebsites.net/organizations.read-only'
+            process.env.TEST_RESOURCE_IDENTIFIER + '/organizations.read-only'
         ],
         state: 'teststate'
     });

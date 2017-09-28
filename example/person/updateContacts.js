@@ -17,7 +17,7 @@ const sasaki = require('../../lib/index');
 async function main() {
     const scopes = [
         'phone', 'openid', 'email', 'aws.cognito.signin.user.admin', 'profile',
-        'https://sskts-api-development.azurewebsites.net/people.contacts'
+        process.env.TEST_RESOURCE_IDENTIFIER + '/people.contacts'
     ];
 
     const auth = new sasaki.auth.OAuth2({

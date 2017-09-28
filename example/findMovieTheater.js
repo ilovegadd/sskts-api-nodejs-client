@@ -14,7 +14,7 @@ async function main() {
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
         scopes: [
-            'https://sskts-api-development.azurewebsites.net/places.read-only'
+            process.env.TEST_RESOURCE_IDENTIFIER + '/places.read-only'
         ],
         state: 'teststate'
     });
