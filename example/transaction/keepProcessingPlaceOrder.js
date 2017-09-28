@@ -1,12 +1,12 @@
 /**
  * a sample keeping processing placeOrder transaction
- *
  * @ignore
  */
 
 const readline = require('readline');
 const sskts = require('@motionpicture/sskts-domain');
 const json2csv = require('json2csv');
+const request = require('request');
 
 const processPlaceOrder = require('./processPlaceOrder');
 
@@ -53,6 +53,7 @@ rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals
                         transactionId: transaction.id,
                         startDate: now.toISOString(),
                         errorMessage: '',
+                        errorStack: '',
                         errorName: '',
                         errorCode: '',
                         orderNumber: order.orderNumber,
@@ -68,6 +69,7 @@ rl.question('set intervals in milliseconds (example: 1000):\n', async (intervals
                         transactionId: '',
                         startDate: now.toISOString(),
                         errorMessage: error.message,
+                        errorStack: error.stack,
                         errorName: error.name,
                         errorCode: error.code,
                         orderNumber: '',
@@ -85,6 +87,7 @@ processNumber                    : ${result.processNumber.toString()}
 transactionId                    : ${result.transactionId}
 startDate                        : ${result.startDate}
 errorMessage                     : ${result.errorMessage}
+errorStack                       : ${result.errorStack}
 errorName                        : ${result.errorName}
 errorCode                        : ${result.errorCode}
 orderNumber                      : ${result.orderNumber}
@@ -166,4 +169,28 @@ ${url}
     });
 
     await sskts.service.notification.sendEmail(emailMessage)();
+
+    // backlogへ通知
+    request.get(
+        {
+            url: `https://m-p.backlog.jp/api/v2/projects/SSKTS/users?apiKey=${process.env.BACKLOG_API_KEY}`,
+            json: true
+        },
+        (error, response, body) => {
+            const users = body;
+
+            request.post(
+                {
+                    url: `https://m-p.backlog.jp/api/v2/issues/SSKTS-621/comments?apiKey=${process.env.BACKLOG_API_KEY}`,
+                    form: {
+                        content: text,
+                        notifiedUserId: users.map((user) => user.id)
+                    }
+                },
+                (error, response, body) => {
+                    console.log('posted to backlog.', error);
+                }
+            );
+        }
+    );
 }
