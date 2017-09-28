@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "check": "npm run tslint && nsp check",
+    "check": "npm run tslint && nsp check && snyk test",
     "clean": "rimraf ./lib npm-debug.log* ./test/**/*.js ./doc ./coverage ./.nyc_output",
     "example": "http-server ./example",
     "doc": "jsdoc -c jsdoc.json",
