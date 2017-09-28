@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 ### Changed
+- exampleを調整。
 
 ### Deprecated
 
@@ -15,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+- update dependencies.
 
 
 ## v1.1.0 - 2017-09-25
