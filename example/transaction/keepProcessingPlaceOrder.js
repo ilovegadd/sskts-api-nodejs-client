@@ -141,17 +141,15 @@ async function onAllProcessed() {
     })();
     console.log('csv url:', url);
 
-    const text = `SSKTS placeOrder transaction loadtest has been completed.
-    
-Configurations are below.
-==============================================================
-intervals: ${configurations.intervals}
-number of trials: ${configurations.numberOfTrials.toString()}
-api endpoint: ${configurations.apiEndpoint}
-==============================================================
-
-Please check out the csv report here.
-${url}
+    const text = `## Completion of SSKTS placeOrder transaction loadtest
+### Configurations
+key  | value
+------------- | -------------
+intervals  | ${configurations.intervals}
+number of trials  | ${configurations.numberOfTrials.toString()}
+api endpoint  | ${configurations.apiEndpoint}
+### Reports
+- Please check out the csv report [here](${url}).
 `;
 
     const emailMessage = sskts.factory.creativeWork.message.email.create({
