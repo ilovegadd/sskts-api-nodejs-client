@@ -51,6 +51,7 @@
   "devDependencies": {
     "@motionpicture/coa-service": "^4.0.4",
     "@motionpicture/gmo-service": "^4.0.2",
+    "@motionpicture/mvtk-service": "^2.0.2",
     "@motionpicture/sskts-domain": "^23.0.0-alpha.10",
     "@types/debug": "0.0.30",
     "@types/form-data": "^2.2.0",
