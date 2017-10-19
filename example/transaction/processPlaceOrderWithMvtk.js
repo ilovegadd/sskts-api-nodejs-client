@@ -1,14 +1,21 @@
 /**
- * a sample processing placeOrder transaction By mvtk
- *
+ * ムビチケで購入するサンプル
  * @ignore
  */
 
 const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
+const MVTK = require('@motionpicture/mvtk-service');
 const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
-const sasaki = require('../../lib/index');
+const sasaki = require('../../');
+
+// ムビチケサービス初期化
+MVTK.initialize(
+    process.env.TEST_MVTK_ENDPOINT_SERVICE_01,
+    process.env.TEST_MVTK_ENDPOINT_SERVICE_02,
+    process.env.TEST_MVTK_ENDPOINT_RESERVE_SERVICE
+);
 
 async function main(theaterCode) {
     const auth = new sasaki.auth.ClientCredentials({
@@ -38,22 +45,9 @@ async function main(theaterCode) {
         auth: auth
     });
 
-    // search screening events
-    const individualScreeningEvents = await events.searchIndividualScreeningEvent({
-        theater: theaterCode,
-        day: moment().add(1, 'day').format('YYYYMMDD')
-    });
-
-    const availableEvents = individualScreeningEvents.filter((event) => event.offer.availability > 0);
-    if (availableEvents.length === 0) {
-        throw new Error('no available events');
-    }
-
-    const availableEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
-
-    // retrieve an event detail
+    // ムビチケ使用可能なイベント詳細を取得
     const individualScreeningEvent = await events.findIndividualScreeningEvent({
-        identifier: availableEvent.identifier
+        identifier: '11816221020171012301540'
     });
     if (individualScreeningEvent === null) {
         throw new Error('specified screening event not found');
@@ -110,6 +104,51 @@ async function main(theaterCode) {
         throw new Error('no available seats.');
     }
 
+    // const purchaseNumberAuthIn = {
+    //     kgygishCd: 'SSK000', //興行会社コード
+    //     jhshbtsCd: MVTK.PurchaseNumberAuthUtilities.INFORMATION_TYPE_CODE_VALID, //情報種別コード
+    //     knyknrNoInfoIn: [{
+    //         KNYKNR_NO: '3409717149', //購入管理番号
+    //         PIN_CD: '3896' // PINコード
+    //     }],
+    //     skhnCd: `${titleCode}${`00${titleBranchNum}`.slice(-2)}`, // 作品コード
+    //     stCd: `00${theaterCode}`.slice(-2), // サイトコード
+    //     jeiYmd: moment(dateJouei, 'YYYYMMDD').format('YYYY/MM/DD') //上映年月日
+    // };
+    // const mvtkNumberAuthService = MVTK.createPurchaseNumberAuthService();
+    // const purchaseNumberAuthResults = await mvtkNumberAuthService.purchaseNumberAuth(purchaseNumberAuthIn);
+    // debug('purchaseNumberAuthResults:', purchaseNumberAuthResults);
+
+    // ムビチケ購入管理番号認証結果がこんなだったとして...
+    const purchaseNumberAuthResult = {
+        knyknrNo: '3409717149',
+        dnshKmTyp: '01',
+        znkkkytsknGkjknTyp: '01',
+        ykknmiNum: '10',
+        ykknInfo: [{
+            ykknshTyp: '01',
+            eishhshkTyp: '01',
+            ykknKnshbtsmiNum: '10',
+            knshknhmbiUnip: '1400',
+            kijUnip: '1200'
+        }],
+        mkknInfo: []
+    }
+
+    // ムビチケをCOA券種に変換
+    const mvtkTicket = await COA.services.master.mvtkTicketcode({
+        theaterCode: theaterCode,
+        kbnDenshiken: purchaseNumberAuthResult.dnshKmTyp,
+        kbnMaeuriken: purchaseNumberAuthResult.znkkkytsknGkjknTyp,
+        kbnKensyu: purchaseNumberAuthResult.ykknInfo[0].ykknshTyp,
+        salesPrice: parseInt(purchaseNumberAuthResult.ykknInfo[0].knshknhmbiUnip, 10),
+        appPrice: parseInt(purchaseNumberAuthResult.ykknInfo[0].kijUnip, 10),
+        kbnEisyahousiki: purchaseNumberAuthResult.ykknInfo[0].eishhshkTyp,
+        titleCode: titleCode,
+        titleBranchNum: titleBranchNum
+    });
+    debug('mvtkTicket:', mvtkTicket);
+
     // COAオーソリ追加
     debug('authorizing seat reservation...');
     const totalPrice = salesTicketResult[0].salePrice;
@@ -122,24 +161,24 @@ async function main(theaterCode) {
                 seatSection: sectionCode,
                 seatNumber: freeSeatCodes[0],
                 ticketInfo: {
-                    ticketCode: salesTicketResult[0].ticketCode,
-                    ticketName: salesTicketResult[0].ticketName,
-                    ticketNameEng: salesTicketResult[0].ticketNameEng,
-                    ticketNameKana: salesTicketResult[0].ticketNameKana,
+                    ticketCode: mvtkTicket.ticketCode,
+                    ticketName: mvtkTicket.ticketName,
+                    ticketNameEng: mvtkTicket.ticketNameEng,
+                    ticketNameKana: mvtkTicket.ticketNameKana,
                     stdPrice: 0,
-                    addPrice: 0,
+                    addPrice: mvtkTicket.addPrice,
                     disPrice: 0,
-                    salePrice: 0,
-                    mvtkAppPrice: 1200,
+                    salePrice: mvtkTicket.addPrice,
+                    mvtkAppPrice: parseInt(purchaseNumberAuthResult.ykknInfo[0].kijUnip, 10),
                     ticketCount: 1,
                     seatNum: freeSeatCodes[0],
-                    addGlasses: 0,
-                    kbnEisyahousiki: '00',
-                    mvtkNum: '4450899842',
-                    mvtkKbnDenshiken: '00',
-                    mvtkKbnMaeuriken: '00',
-                    mvtkKbnKensyu: '00',
-                    mvtkSalesPrice: 1400
+                    addGlasses: mvtkTicket.addPriceGlasses,
+                    kbnEisyahousiki: purchaseNumberAuthResult.ykknInfo[0].eishhshkTyp,
+                    mvtkNum: purchaseNumberAuthResult.knyknrNo,
+                    mvtkKbnDenshiken: purchaseNumberAuthResult.dnshKmTyp,
+                    mvtkKbnMaeuriken: purchaseNumberAuthResult.znkkkytsknGkjknTyp,
+                    mvtkKbnKensyu: purchaseNumberAuthResult.ykknInfo[0].ykknshTyp,
+                    mvtkSalesPrice: parseInt(purchaseNumberAuthResult.ykknInfo[0].knshknhmbiUnip, 10)
                 }
             }
         ]
@@ -147,6 +186,8 @@ async function main(theaterCode) {
     debug('seatReservationAuthorization is', seatReservationAuthorization);
 
     // 本当はここでムビチケ着券処理
+
+    // ムビチケ着券結果がこんなだったとして...
     const mvtkResult = {
         price: 1400,
         seatInfoSyncIn: {
@@ -161,10 +202,10 @@ async function main(theaterCode) {
             screnCd: screenCode,
             knyknrNoInfo: [
                 {
-                    knyknrNo: '4450899842',
+                    knyknrNo: purchaseNumberAuthResult.knyknrNo,
                     pinCd: '7648',
                     knshInfo: [
-                        { knshTyp: '01', miNum: 1 }
+                        { knshTyp: purchaseNumberAuthResult.ykknInfo[0].ykknshTyp, miNum: 1 }
                     ]
                 }
             ],
@@ -217,7 +258,7 @@ async function main(theaterCode) {
     debug('your order is', order);
 }
 
-main('112').then(() => {
+main('118').then(() => {
     debug('main processed.');
 }).catch((err) => {
     console.error(err.message);
