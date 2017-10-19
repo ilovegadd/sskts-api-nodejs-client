@@ -119,7 +119,7 @@ async function main(theaterCode) {
     // select a seat randomly
     const selectedSeatCode = freeSeatCodes[Math.floor(freeSeatCodes.length * Math.random())];
     // select a ticket randomly
-    const selectedSalesTicket = salesTicketResult[Math.floor(salesTicketResult.length * Math.random())];
+    let selectedSalesTicket = salesTicketResult[Math.floor(salesTicketResult.length * Math.random())];
 
     debug('creating a seat reservation authorization...');
     let seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
@@ -196,6 +196,42 @@ async function main(theaterCode) {
     debug('seatReservationAuthorization:', seatReservationAuthorization);
 
     await wait(5000);
+
+    debug('券種を変更します...');
+    // select a ticket randomly
+    selectedSalesTicket = salesTicketResult[Math.floor(salesTicketResult.length * Math.random())];
+    seatReservationAuthorization = await placeOrderTransactions.changeSeatReservationOffers({
+        transactionId: transaction.id,
+        actionId: seatReservationAuthorization.id,
+        eventIdentifier: individualScreeningEvent.identifier,
+        offers: [
+            {
+                seatSection: sectionCode,
+                seatNumber: selectedSeatCode,
+                ticketInfo: {
+                    ticketCode: selectedSalesTicket.ticketCode,
+                    ticketName: selectedSalesTicket.ticketName,
+                    ticketNameEng: selectedSalesTicket.ticketNameEng,
+                    ticketNameKana: selectedSalesTicket.ticketNameKana,
+                    stdPrice: selectedSalesTicket.stdPrice,
+                    addPrice: selectedSalesTicket.addPrice,
+                    disPrice: 0,
+                    salePrice: selectedSalesTicket.salePrice,
+                    mvtkAppPrice: 0,
+                    ticketCount: 1,
+                    seatNum: selectedSeatCode,
+                    addGlasses: 0,
+                    kbnEisyahousiki: '00',
+                    mvtkNum: '',
+                    mvtkKbnDenshiken: '00',
+                    mvtkKbnMaeuriken: '00',
+                    mvtkKbnKensyu: '00',
+                    mvtkSalesPrice: 0
+                }
+            }
+        ]
+    });
+    debug('seatReservationAuthorization:', seatReservationAuthorization);
 
     const amount = seatReservationAuthorization.result.price;
     let orderIdPrefix = util.format(

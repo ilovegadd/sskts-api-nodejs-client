@@ -17,12 +17,12 @@
   },
   "scripts": {
     "build": "tsc",
-    "check": "npm run tslint && nsp check && snyk test",
+    "check": "npm run tslint && nsp check",
     "clean": "rimraf ./lib npm-debug.log* ./test/**/*.js ./doc ./coverage ./.nyc_output",
     "example": "http-server ./example",
     "doc": "jsdoc -c jsdoc.json",
-    "mocha": "mocha src/**/*.spec.ts",
-    "coverage": "nyc mocha src/**/*.spec.ts | coveralls",
+    "mocha": "mocha",
+    "coverage": "nyc mocha \"src/**/*.spec.ts\" | coveralls",
     "snyk": "snyk wizard",
     "test": "npm run check && npm run coverage",
     "tslint": "tslint --type-check --project tsconfig.json -c tslint.json --exclude \"**/*.spec.ts\" src/**/*.ts",
@@ -33,7 +33,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ilovegadd/sskts-api-nodejs-client.git"
+    "url": "https://github.com/motionpicture/sskts-api-nodejs-client.git"
   },
   "keywords": [
     "sskts"
@@ -49,10 +49,10 @@
   ],
   "license": "ISC",
   "devDependencies": {
-    "@motionpicture/coa-service": "^4.0.4",
+    "@motionpicture/coa-service": "^4.0.7",
     "@motionpicture/gmo-service": "^4.0.2",
     "@motionpicture/mvtk-service": "^2.0.2",
-    "@motionpicture/sskts-domain": "^23.0.0-alpha.10",
+    "@motionpicture/sskts-domain": "^23.0.0-alpha.21",
     "@types/debug": "0.0.30",
     "@types/form-data": "^2.2.0",
     "@types/http-status": "^0.2.30",
@@ -61,8 +61,8 @@
     "@types/nock": "^8.2.1",
     "@types/open": "0.0.29",
     "@types/power-assert": "^1.4.29",
-    "@types/request": "^2.0.3",
-    "coveralls": "^2.13.2",
+    "@types/request": "^2.0.6",
+    "coveralls": "^2.13.3",
     "http-server": "^0.10.0",
     "ink-docstrap": "^1.3.0",
     "jsdoc": "^3.5.5",
@@ -74,14 +74,14 @@
     "power-assert": "^1.4.4",
     "request": "^2.83.0",
     "rimraf": "^2.6.2",
-    "snyk": "^1.41.1",
+    "snyk": "^1.44.0",
     "ts-node": "^3.3.0",
     "tslint": "^5.7.0",
     "tslint-microsoft-contrib": "^5.0.1",
     "typescript": "^2.5.3"
   },
   "dependencies": {
-    "@motionpicture/sskts-api-abstract-client": "^1.1.1",
+    "@motionpicture/sskts-api-abstract-client": "^1.2.0",
     "debug": "^3.1.0",
     "http-status": "^1.0.1",
     "isomorphic-fetch": "^2.2.1"
