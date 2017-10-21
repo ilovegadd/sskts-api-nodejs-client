@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ## Unreleased
 
 ### Changed
+- 座席予約の供給情報インターフェースを変更。
 
 ### Deprecated
 
