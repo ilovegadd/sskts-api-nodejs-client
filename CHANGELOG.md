@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Security
 
 
+## v2.0.0 - 2017-10-21
+### Changed
+- 座席予約の供給情報インターフェースを変更。
+
 ## v1.2.0 - 2017-10-19
 ### Added
 - 座席予約承認アクションに対して供給情報を更新するサービスを追加。

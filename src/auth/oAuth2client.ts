@@ -140,7 +140,7 @@ export default class OAuth2client implements Auth {
 
         debug('fetching...', options);
 
-        return await fetch(
+        return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options
         ).then(async (response) => {
@@ -178,7 +178,7 @@ export default class OAuth2client implements Auth {
             throw new Error('No refresh token is set.');
         }
 
-        return await this.refreshToken(this.credentials.refresh_token)
+        return this.refreshToken(this.credentials.refresh_token)
             .then((tokens) => {
                 tokens.refresh_token = this.credentials.refresh_token;
                 debug('setting credentials...', tokens);
@@ -359,7 +359,7 @@ export default class OAuth2client implements Auth {
     protected async makeFetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
         const transporter = new transporters.DefaultTransporter(expectedStatusCodes);
 
-        return await transporter.fetch(url, options);
+        return transporter.fetch(url, options);
     }
 
     /**
@@ -593,7 +593,7 @@ export default class OAuth2client implements Auth {
 
         debug('fetching...', options);
 
-        return await fetch(
+        return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options
         ).then(async (response) => {

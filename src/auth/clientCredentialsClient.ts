@@ -57,7 +57,7 @@ export default class ClientCredentialsClient extends OAuth2client {
 
         debug('fetching...', options);
 
-        return await fetch(
+        return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options
         ).then(async (response) => {
