@@ -1,6 +1,5 @@
 /**
  * 注文照会サンプル
- *
  * @ignore
  */
 
@@ -17,8 +16,6 @@ async function main() {
         ],
         state: 'teststate'
     });
-    // const credentials = await auth.refreshAccessToken();
-    // debug('credentials:', credentials);
 
     const orderService = sasaki.service.order({
         endpoint: process.env.SSKTS_API_ENDPOINT,
@@ -26,15 +23,15 @@ async function main() {
     });
 
     const order = await orderService.findByOrderInquiryKey({
-        telephone: '09012345678',
-        confirmationNumber: 18100,
-        theaterCode: '118'
+        telephone: '09000000000',
+        confirmationNumber: 466,
+        theaterCode: '112'
     });
-    debug('order is', order);
+    console.log('order is', order);
 }
 
 main().then(() => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
-    console.error(err.message);
+    console.error(err);
 });

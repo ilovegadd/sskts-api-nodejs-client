@@ -1,3 +1,4 @@
+// tslint:disable:no-implicit-dependencies
 
 /**
  * OAuth2 client test
@@ -122,7 +123,7 @@ describe('getToken()', () => {
         assert.equal(typeof credentials.expiry_date, 'number');
         assert.equal(credentials.token_type, 'Bearer');
 
-        assert.equal(true, scope.isDone());
+        assert(scope.isDone());
     });
 
     // tslint:disable-next-line:mocha-no-side-effect-code
@@ -145,7 +146,7 @@ describe('getToken()', () => {
                 });
             assert(getTokenError instanceof Error);
 
-            assert.equal(true, scope.isDone());
+            assert(scope.isDone());
         });
     });
 });
@@ -219,7 +220,7 @@ describe('refreshAccessToken()', () => {
                 });
             assert(refreshAccessTokenError instanceof Error);
 
-            assert.equal(true, scope.isDone());
+            assert(scope.isDone());
         });
     });
 
@@ -433,6 +434,7 @@ describe('fetch()', () => {
     const API_ENDPOINT = 'https://example.com';
 
     beforeEach(() => {
+        nock.cleanAll();
         scope = nock(`https://${DOMAIN}`)
             .post('/token')
             .reply(OK, { access_token: 'abc123', expires_in: 1 });
@@ -454,9 +456,8 @@ describe('fetch()', () => {
 
         auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
-            assert.equal('abc123', auth.credentials.access_token);
-        });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        assert.equal('abc123', auth.credentials.access_token);
     });
 
     it('アクセストークンの期限が切れていればリフレッシュされるはず', async () => {
@@ -474,9 +475,9 @@ describe('fetch()', () => {
             expiry_date: (new Date()).getTime() - 1000
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
-            assert.equal('abc123', auth.credentials.access_token);
-        });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        assert.equal('abc123', auth.credentials.access_token);
+
     });
 
     it('アクセストークンの期限が切れていなければリフレッシュされないはず', async () => {
@@ -494,9 +495,8 @@ describe('fetch()', () => {
             expiry_date: (new Date()).getTime() + 1000
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
-            assert.equal('initial-access-token', auth.credentials.access_token);
-        });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        assert.equal('initial-access-token', auth.credentials.access_token);
     });
 
     it('アクセストークンの期限が設定されていなければ、期限は切れていないとみなすはず', async () => {
@@ -512,10 +512,9 @@ describe('fetch()', () => {
             refresh_token: 'refresh-token-placeholder'
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]).then(() => {
-            assert.equal('initial-access-token', auth.credentials.access_token);
-            assert.equal(false, scope.isDone());
-        });
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        assert.equal('initial-access-token', auth.credentials.access_token);
+        assert(!scope.isDone());
     });
 
     // tslint:disable-next-line:mocha-no-side-effect-code
@@ -539,12 +538,29 @@ describe('fetch()', () => {
                 refresh_token: 'refresh-token-placeholder'
             };
 
-            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, [OK]).catch((err) => {
-                return err;
-            });
+            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, [OK]).catch((err) => err);
+            assert.equal(auth.credentials.access_token, 'abc123');
+            assert(scope.isDone());
+        });
+    });
 
+    // tslint:disable-next-line:mocha-no-side-effect-code
+    [{}, undefined, null].forEach((headers) => {
+        it(`オプションに指定されたヘッダーが${typeof headers}の場合、正常に動作するはず`, async () => {
+            const options = {
+                method: 'GET',
+                headers: headers
+            };
+            const auth = new sasaki.auth.OAuth2({
+                domain: DOMAIN,
+                clientId: CLIENT_ID,
+                clientSecret: CLIENT_SECRET,
+                redirectUri: REDIRECT_URI
+            });
+            auth.credentials = { refresh_token: 'refresh-token-placeholder' };
+
+            await auth.fetch(`${API_ENDPOINT}/`, options, [OK]);
             assert.equal('abc123', auth.credentials.access_token);
-            assert.equal(true, scope.isDone());
         });
     });
 });

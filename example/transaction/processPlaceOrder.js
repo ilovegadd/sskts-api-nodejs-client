@@ -41,10 +41,19 @@ const placeOrderTransactions = sasaki.service.transaction.placeOrder({
 });
 
 async function main(theaterCode) {
+    // search movie theater organizations
+    const movieTheaterOrganization = await organizations.findMovieTheaterByBranchCode({
+        branchCode: theaterCode
+    });
+    if (movieTheaterOrganization === null) {
+        throw new Error('movie theater shop not open');
+    }
+
     // search screening events
     const individualScreeningEvents = await events.searchIndividualScreeningEvent({
-        theater: theaterCode,
-        day: moment().add(1, 'day').format('YYYYMMDD')
+        superEventLocationIdentifiers: [movieTheaterOrganization.identifier],
+        startFrom: moment().toISOString(),
+        startThrough: moment().add(2, 'day').toISOString()
     });
 
     const availableEvents = individualScreeningEvents.filter((event) => event.offer.availability > 0);
@@ -64,14 +73,6 @@ async function main(theaterCode) {
         throw new Error('specified screening event not found');
     }
 
-    // search movie theater organizations
-    const movieTheaterOrganization = await organizations.findMovieTheaterByBranchCode({
-        branchCode: individualScreeningEvent.coaInfo.theaterCode
-    });
-    if (movieTheaterOrganization === null) {
-        throw new Error('movie theater shop not open');
-    }
-
     const dateJouei = individualScreeningEvent.coaInfo.dateJouei;
     const titleCode = individualScreeningEvent.coaInfo.titleCode;
     const titleBranchNum = individualScreeningEvent.coaInfo.titleBranchNum;
@@ -86,6 +87,7 @@ async function main(theaterCode) {
     });
 
     // search sales tickets from COA
+    // このサンプルは1座席購入なので、制限単位が1枚以上の券種に絞る
     const salesTicketResult = await COA.services.reserve.salesTicket({
         theaterCode: theaterCode,
         dateJouei: dateJouei,
@@ -93,7 +95,7 @@ async function main(theaterCode) {
         titleBranchNum: titleBranchNum,
         timeBegin: timeBegin,
         flgMember: COA.services.reserve.FlgMember.NonMember
-    });
+    }).then((results) => results.filter((result) => result.limitUnit === '001' && result.limitCount === 1));
     debug('salesTicketResult:', salesTicketResult);
 
     // search available seats from COA
@@ -106,18 +108,19 @@ async function main(theaterCode) {
         screenCode: screenCode
     });
     debug('getStateReserveSeatResult:', getStateReserveSeatResult);
+    if (getStateReserveSeatResult.cntReserveFree <= 0) {
+        throw new Error('no available seats');
+    }
     const sectionCode = getStateReserveSeatResult.listSeat[0].seatSection;
     const freeSeatCodes = getStateReserveSeatResult.listSeat[0].listFreeSeat.map((freeSeat) => {
         return freeSeat.seatNum;
     });
-    if (getStateReserveSeatResult.cntReserveFree <= 0) {
-        throw new Error('no available seats');
-    }
 
     await wait(5000);
 
     // select a seat randomly
     const selectedSeatCode = freeSeatCodes[Math.floor(freeSeatCodes.length * Math.random())];
+
     // select a ticket randomly
     let selectedSalesTicket = salesTicketResult[Math.floor(salesTicketResult.length * Math.random())];
 

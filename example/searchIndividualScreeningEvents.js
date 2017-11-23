@@ -1,10 +1,8 @@
 /**
  * 上映イベント検索サンプル
- *
  * @ignore
  */
 
-const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const sasaki = require('../lib/index');
 
@@ -18,8 +16,6 @@ async function main() {
         ],
         state: 'teststate'
     });
-    // const credentials = await auth.refreshAccessToken();
-    // debug('credentials:', credentials);
 
     const event = sasaki.service.event({
         endpoint: process.env.SSKTS_API_ENDPOINT,
@@ -28,13 +24,15 @@ async function main() {
 
     const individualScreeningEvents = await event.searchIndividualScreeningEvent({
         theater: '118',
-        day: moment().format('YYYYMMDD')
+        startFrom: moment().add(1, 'day').toISOString(),
+        startThrough: moment().add(2, 'day').toISOString()
     });
-    debug('number of individualScreeningEvents is', individualScreeningEvents.length);
+    // console.log('individualScreeningEvents are', individualScreeningEvents);
+    console.log('number of individualScreeningEvents is', individualScreeningEvents.length);
 }
 
 main().then(() => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
     console.error(err);
 });
