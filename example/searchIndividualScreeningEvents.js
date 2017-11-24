@@ -24,8 +24,8 @@ async function main() {
 
     const individualScreeningEvents = await event.searchIndividualScreeningEvent({
         theater: '118',
-        startFrom: moment().add(1, 'day').toISOString(),
-        startThrough: moment().add(2, 'day').toISOString()
+        startFrom: moment().add(1, 'day').toDate(),
+        startThrough: moment().add(2, 'day').toDate()
     });
     // console.log('individualScreeningEvents are', individualScreeningEvents);
     console.log('number of individualScreeningEvents is', individualScreeningEvents.length);

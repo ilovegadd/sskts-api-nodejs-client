@@ -1,6 +1,5 @@
 /**
  * a sample processing placeOrder transaction
- *
  * @ignore
  */
 
@@ -157,13 +156,13 @@ async function main(theaterCode) {
     });
     debug('seatReservationAuthorization:', seatReservationAuthorization);
 
+    await wait(5000);
+
     debug('canceling a seat reservation authorization...');
     await placeOrderTransactions.cancelSeatReservationAuthorization({
         transactionId: transaction.id,
         actionId: seatReservationAuthorization.id
     });
-
-    await wait(1000);
 
     debug('recreating a seat reservation authorization...');
     seatReservationAuthorization = await placeOrderTransactions.createSeatReservationAuthorization({
@@ -265,10 +264,12 @@ async function main(theaterCode) {
     // });
     // debug('creditCardAuthorization:', creditCardAuthorization, numberOfTryAuthorizeCreditCard);
 
+    await wait(5000);
+
     debug('registering a customer contact...');
     const contact = {
-        givenName: 'John',
-        familyName: 'Smith',
+        givenName: 'たろう',
+        familyName: 'てすと',
         telephone: '09012345678',
         email: process.env.SSKTS_DEVELOPER_EMAIL
     };
@@ -279,7 +280,7 @@ async function main(theaterCode) {
         debug('customer contact registered.', result);
     });
 
-    await wait(3000);
+    await wait(5000);
 
     debug('confirming a transaction...');
     const order = await placeOrderTransactions.confirm({
@@ -327,9 +328,7 @@ async function authorieCreditCardUntilSuccess(transactionId, orderIdPrefix, amou
     while (creditCardAuthorization === null) {
         numberOfTryAuthorizeCreditCard += 1;
 
-        if (numberOfTryAuthorizeCreditCard > 1) {
-            await wait(RETRY_INTERVAL_IN_MILLISECONDS);
-        }
+        await wait(RETRY_INTERVAL_IN_MILLISECONDS);
 
         try {
             creditCardAuthorization = await placeOrderTransactions.createCreditCardAuthorization({
