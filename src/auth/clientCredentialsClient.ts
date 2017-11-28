@@ -72,6 +72,8 @@ export default class ClientCredentialsClient extends OAuth2client {
                 }
             } else {
                 const tokens = await response.json();
+                // tslint:disable-next-line:no-single-line-block-comment
+                /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
                     // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));

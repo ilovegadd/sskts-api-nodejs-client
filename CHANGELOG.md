@@ -16,6 +16,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Security
 
 
+## v2.1.0 - 2017-11-28
+### Changed
+- イベント検索の検索条件にプロパティ追加。
+- 注文取引開始のパラメーターに許可証トークンを追加。
+
+### Fixed
+- 認証エラーでリトライした際にアクセストークンが再セットされないバグを修正。
+
+### Security
+- テスト網羅率100%化。
+
 ## v2.0.0 - 2017-10-21
 ### Changed
 - 座席予約の供給情報インターフェースを変更。
