@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 - イベント検索の検索条件にプロパティ追加。
+- 注文取引開始のパラメーターに許可証トークンを追加。
 
 ### Deprecated
 
