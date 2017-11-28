@@ -155,6 +155,8 @@ export default class OAuth2client implements Auth {
                 }
             } else {
                 const tokens = await response.json();
+                // tslint:disable-next-line:no-single-line-block-comment
+                /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
                     // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
@@ -277,9 +279,7 @@ export default class OAuth2client implements Auth {
         // Callbacks will close over this to ensure that we only retry once
         let retry = true;
 
-        const accessToken = await this.getAccessToken();
         options.headers = (options.headers === undefined || options.headers === null) ? {} : options.headers;
-        options.headers.Authorization = `Bearer ${accessToken}`;
 
         let result: any;
         let numberOfTry = 0;
@@ -291,10 +291,13 @@ export default class OAuth2client implements Auth {
                     retry = false;
                 }
 
+                options.headers.Authorization = `Bearer ${await this.getAccessToken()}`;
                 result = await this.makeFetch(url, options, expectedStatusCodes);
 
                 break;
             } catch (error) {
+                // tslint:disable-next-line:no-single-line-block-comment
+                /* istanbul ignore else */
                 if (error instanceof Error) {
                     const statusCode = (<transporters.RequestError>error).code;
 
@@ -311,7 +314,6 @@ export default class OAuth2client implements Auth {
                     }
                 }
 
-                // retry = false;
                 throw error;
             }
         }
@@ -608,6 +610,8 @@ export default class OAuth2client implements Auth {
                 }
             } else {
                 const tokens = await response.json();
+                // tslint:disable-next-line:no-single-line-block-comment
+                /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
                     // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
