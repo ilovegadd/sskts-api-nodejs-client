@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
+- 注文取引サービスのレスポンス型を修正。
 
 ### Security
 
