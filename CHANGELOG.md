@@ -12,10 +12,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
-- 注文取引サービスのレスポンス型を修正。
 
 ### Security
 
+
+## v2.1.1 - 2017-12-06
+### Fixed
+- 注文取引サービスのレスポンス型を修正。
 
 ## v2.1.0 - 2017-11-28
 ### Changed
