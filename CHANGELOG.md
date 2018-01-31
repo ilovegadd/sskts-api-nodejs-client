@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ## Unreleased
 
 ### Changed
+- Pecorino口座関連のエンドポイントを追加。
 
 ### Deprecated
 
