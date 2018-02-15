@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Security
 
 
+## v2.1.2 - 2018-02-15
+### Fixed
+- クライアントサイドではUser-Agentを手動でセットできないので、パッケージ情報をUser-Agentに付加する処理を、DefaultTransporterから取り除く対応。
+
 ## v2.1.1 - 2017-12-06
 ### Fixed
 - 注文取引サービスのレスポンス型を修正。
