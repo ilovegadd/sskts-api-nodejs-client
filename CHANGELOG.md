@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- 注文返品取引サービスを追加。
 
 ### Changed
 - Pecorino口座関連のエンドポイントを追加。
@@ -16,6 +18,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+
+## v2.1.2 - 2018-02-15
+### Fixed
+- クライアントサイドではUser-Agentを手動でセットできないので、パッケージ情報をUser-Agentに付加する処理を、DefaultTransporterから取り除く対応。
 
 ## v2.1.1 - 2017-12-06
 ### Fixed
