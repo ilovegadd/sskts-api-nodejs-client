@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 注文返品取引サービスを追加。
 
 ### Changed
+- Pecorino口座関連のエンドポイントを追加。
 
 ### Deprecated
 
