@@ -5,11 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 ### Added
-- Pecorino口座関連のエンドポイントを追加。
-- 注文返品取引サービスを追加。
 
 ### Changed
-- イベント検索条件から非推奨属性(day,theater)を削除。
 
 ### Deprecated
 
@@ -19,6 +16,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+
+## v3.0.0 - 2018-03-01
+### Added
+- Pecorino口座関連のエンドポイントを追加。
+- 注文返品取引サービスを追加。
+
+### Changed
+- イベント検索条件から非推奨属性(day,theater)を削除。
 
 ## v2.1.2 - 2018-02-15
 ### Fixed
