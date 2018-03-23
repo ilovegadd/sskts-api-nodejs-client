@@ -16,6 +16,12 @@ async function main() {
         state: 'teststate'
     });
 
+    const organizationService = new sasaki.service.Organization({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
+    const restaurants = await organizationService.searchRestaurants({});
+
     const transactionService = new sasaki.service.transaction.PlaceOrder({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
@@ -29,8 +35,9 @@ async function main() {
 
     const menuItemAuthorization = await transactionService.createMenuItemAuthorization({
         transactionId: transaction.id,
-        menuItemIdentifier: 'menuItemIdentifier',
-        offerIdentifier: 'offerIdentifier'
+        menuItemIdentifier: restaurants[0].hasMenu[0].hasMenuSection[0].hasMenuItem[0].identifier,
+        offerIdentifier: restaurants[0].hasMenu[0].hasMenuSection[0].hasMenuItem[0].offers[0].identifier,
+        acceptedQuantity: 2
     });
     debug('menu item authorized.', menuItemAuthorization);
 
