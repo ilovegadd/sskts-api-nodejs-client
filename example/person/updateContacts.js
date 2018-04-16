@@ -64,7 +64,7 @@ async function main() {
         });
     });
 
-    const people = sasaki.service.person({
+    const people = new sasaki.service.Person({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
@@ -88,6 +88,8 @@ async function main() {
                             email: email
                         }
                     });
+
+                    resolve();
                 } catch (error) {
                     reject(error);
                 }

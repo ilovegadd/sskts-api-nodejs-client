@@ -15,11 +15,6 @@ const util = require('util');
 const sasaki = require('../../lib/index');
 
 async function main() {
-    const scopes = [
-        'phone', 'openid', 'email', 'aws.cognito.signin.user.admin', 'profile',
-        process.env.TEST_RESOURCE_IDENTIFIER + '/people.creditCards'
-    ];
-
     const auth = new sasaki.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
@@ -32,7 +27,7 @@ async function main() {
     const codeVerifier = '12345';
 
     const authUrl = auth.generateAuthUrl({
-        scopes: scopes,
+        scopes: [],
         state: state,
         codeVerifier: codeVerifier
     });
@@ -64,7 +59,7 @@ async function main() {
         });
     });
 
-    const people = sasaki.service.person({
+    const people = new sasaki.service.Person({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
