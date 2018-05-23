@@ -18,8 +18,6 @@ export interface IOptions {
 
 /**
  * クライアント認証OAuthクライアント
- *
- * @class ClientCredentialsClient
  */
 export default class ClientCredentialsClient extends OAuth2client {
     public options: IOptions;

@@ -10,13 +10,11 @@
 [![NSP Status](https://nodesecurity.io/orgs/motionpicture/projects/fcfb260a-092f-4423-88ed-819bc62814d9/badge)](https://nodesecurity.io/orgs/motionpicture/projects/fcfb260a-092f-4423-88ed-819bc62814d9)
 [![npm](https://img.shields.io/npm/dm/@motionpicture/sskts-api-nodejs-client.svg)](https://nodei.co/npm/@motionpicture/sskts-api-nodejs-client/)
 
-
 ## Table of contents
 
 * [Usage](#usage)
 * [Jsdoc](#jsdoc)
 * [License](#license)
-
 
 ## Usage
 
@@ -27,9 +25,8 @@ npm install @motionpicture/sskts-api-nodejs-client
 ### Environment variables
 
 | Name    | Required | Value                     | Purpose |
-| ------- | -------- | ------------------------- | ------- |
+|---------|----------|---------------------------|---------|
 | `DEBUG` | false    | sskts-api-nodejs-client:* | Debug   |
-
 
 ## Jsdoc
 
