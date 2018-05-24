@@ -255,10 +255,7 @@ async function main(theaterCode) {
     console.log('取引を確定します...');
     const order = await placeOrderService.confirm({
         transactionId: transaction.id,
-        incentives: [{
-            amount: 1,
-            toAccountNumber: account.accountNumber
-        }]
+        sendEmailMessage: false
     });
     console.log('取引確定です。', order.orderNumber);
 }

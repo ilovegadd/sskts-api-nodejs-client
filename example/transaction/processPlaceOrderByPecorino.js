@@ -237,7 +237,7 @@ async function main(theaterCode) {
 
     // 口座承認アクション
     console.log('口座に対してオーソリを作成します...');
-    let pecorinoAuthorization = await placeOrderService.createPecorinoAuthorization({
+    let pecorinoAuthorization = await placeOrderService.createPecorinoPaymentAuthorization({
         transactionId: transaction.id,
         amount: selectedTicket.usePoint,
         fromAccountNumber: account.accountNumber
@@ -246,7 +246,7 @@ async function main(theaterCode) {
 
     await wait(5000);
     console.log('口座承認アクションを取り消します...');
-    await placeOrderService.cancelPecorinoAuthorization({
+    await placeOrderService.cancelPecorinoPaymentAuthorization({
         transactionId: transaction.id,
         actionId: pecorinoAuthorization.id
     });
@@ -255,7 +255,7 @@ async function main(theaterCode) {
     // 口座承認アクション
     await wait(5000);
     console.log('再度口座に対してオーソリを作成します...');
-    pecorinoAuthorization = await placeOrderService.createPecorinoAuthorization({
+    pecorinoAuthorization = await placeOrderService.createPecorinoPaymentAuthorization({
         transactionId: transaction.id,
         amount: selectedTicket.usePoint,
         fromAccountNumber: account.accountNumber
@@ -277,6 +277,15 @@ async function main(theaterCode) {
     // tslint:disable-next-line:no-magic-numbers
     await wait(5000);
 
+    console.log('ポイントインセンティブを付与します...');
+    const pecorinoAwardAuthorization = await placeOrderService.createPecorinoAwardAuthorization({
+        transactionId: transaction.id,
+        amount: 1,
+        toAccountNumber: account.accountNumber,
+        notes: 'おめでとうインセンティブだよ'
+    });
+    console.log('ポイントインセンティブ付与が承認されました。', pecorinoAwardAuthorization.id);
+
     // 取引を中止する場合はコチラ↓
     // console.log('取引を中止します...');
     // await placeOrderService.cancel({ transactionId: transaction.id });
@@ -285,10 +294,7 @@ async function main(theaterCode) {
     console.log('取引を確定します...');
     const order = await placeOrderService.confirm({
         transactionId: transaction.id,
-        incentives: [{
-            amount: 1,
-            toAccountNumber: account.accountNumber
-        }]
+        sendEmailMessage: false
     });
     console.log('取引確定です。', order.orderNumber);
 }

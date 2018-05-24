@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 汎用的な所有権検索エンドポイントを追加。
 - Pecorino口座オーソリ取消エンドポイントを追加。
 - 口座解約エンドポイントを追加。
+- Pecorinoインセンティブ承認エンドポイントを追加。
 
 ### Changed
 
