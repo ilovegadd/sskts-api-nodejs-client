@@ -74,6 +74,10 @@ async function main(theaterCode) {
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
+    const programMembershipService = new ssktsapi.service.ProgramMembership({
+        endpoint: process.env.SSKTS_API_ENDPOINT,
+        auth: auth
+    });
 
     console.log('連絡先を検索しています...');
     const contact = await personService.getContacts({ personId: 'me' });
@@ -121,18 +125,39 @@ async function main(theaterCode) {
     }
     console.log('注文後のインセンティブは', account.accountNumber, 'にポイントとして付与されます。');
 
-    /*****************************************************************
-     * 本当は、会員としてのサービス特典を受けるためには、さらに会員プログラムへの登録処理が必要
-     * インターフェースがまだできていないので、現時点では登録処理なしにこの取引を進めることができます。
-     * インターフェースができ次第、ここに処理を追加します。
-     *****************************************************************/
-
     // 販売劇場検索
     const seller = await organizationService.findMovieTheaterByBranchCode({
         branchCode: theaterCode
     });
     if (seller === null) {
         throw new Error('販売劇場が見つかりませんでした。');
+    }
+
+    /*****************************************************************
+     * 会員としてポイントサービス特典を受けるためには、さらに会員プログラムへの登録処理が必要
+     *****************************************************************/
+    console.log('所属会員プログラムを検索します...');
+    const programMembershipOwnershipInfos = await personService.searchOwnershipInfos({
+        ownedBy: 'me',
+        goodType: 'ProgramMembership'
+    });
+    console.log(programMembershipOwnershipInfos.length, '件の会員プログラムに所属しています。')
+    if (programMembershipOwnershipInfos.length === 0) {
+        // 会員プログラム検索
+        const programMemberships = await programMembershipService.search({});
+        console.log(programMemberships.length, '件の会員プログラムが見つかりました。');
+
+        console.log('会員プログラムに登録します...');
+        const registerProgramMembershipTask = await personService.registerProgramMembership({
+            personId: 'me',
+            programMembershipId: programMemberships[0].id,
+            offerIdentifier: programMemberships[0].offers[0].identifier,
+            sellerType: seller.typeOf,
+            // お気に入りの劇場で登録する
+            // 販売劇場と同一であることは必須ではないが、まあ結果ほとんどの場合同一だろう
+            sellerId: seller.id
+        });
+        console.log('会員プログラム登録タスクが作成されました。', registerProgramMembershipTask.id);
     }
 
     // イベント検索
