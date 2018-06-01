@@ -1,21 +1,12 @@
 /**
- * a sample retrieving an access token
+ * アクセストークン発行サンプル
  */
-
 const open = require('open');
 const readline = require('readline');
 const sasaki = require('../lib/index');
 
 async function main() {
-    const scopes = [
-        // 'phone', 'openid', 'email', 'aws.cognito.signin.user.admin', 'profile',
-        // process.env.TEST_RESOURCE_IDENTIFIER + '/transactions',
-        // process.env.TEST_RESOURCE_IDENTIFIER + '/events.read-only',
-        // process.env.TEST_RESOURCE_IDENTIFIER + '/organizations.read-only',
-        // process.env.TEST_RESOURCE_IDENTIFIER + '/people.contacts',
-        // process.env.TEST_RESOURCE_IDENTIFIER + '/people.creditCards',
-        // process.env.TEST_RESOURCE_IDENTIFIER + '/people.ownershipInfos.read-only'
-    ];
+    const scopes = [];
 
     const auth = new sasaki.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
@@ -43,8 +34,8 @@ async function main() {
             output: process.stdout
         });
 
-        rl.question('enter authorization code:\n', async (code) => {
-            rl.question('enter state:\n', async (givenState) => {
+        rl.question('認可コードを入力してください:\n', async (code) => {
+            rl.question('ステートを入力してください:\n', async (givenState) => {
                 if (givenState !== state) {
                     reject(new Error('state not matched'));
 
@@ -53,11 +44,7 @@ async function main() {
 
                 let credentials = await auth.getToken(code, codeVerifier);
                 console.log('credentials published', credentials);
-
                 auth.setCredentials(credentials);
-
-                credentials = await auth.refreshAccessToken();
-                console.log('credentials refreshed', credentials);
 
                 rl.close();
                 resolve();

@@ -70,9 +70,9 @@
     "lodash.difference": "^4.5.0",
     "mocha": "^5.2.0",
     "moment-timezone": "^0.5.17",
-    "nock": "^9.2.6",
+    "nock": "^9.3.0",
     "nsp": "^3.2.1",
-    "nyc": "^11.8.0",
+    "nyc": "^11.9.0",
     "open": "0.0.5",
     "power-assert": "^1.5.0",
     "rimraf": "^2.6.2",
@@ -80,10 +80,10 @@
     "ts-node": "^6.0.5",
     "tslint": "^5.10.0",
     "tslint-microsoft-contrib": "^5.0.3",
-    "typescript": "^2.8.3"
+    "typescript": "^2.9.1"
   },
   "dependencies": {
-    "@motionpicture/sskts-api-abstract-client": "^3.1.0-alpha.6",
+    "@motionpicture/sskts-api-abstract-client": "^3.1.0-alpha.7",
     "debug": "^3.1.0",
     "http-status": "^1.1.2",
     "isomorphic-fetch": "^2.2.1"
