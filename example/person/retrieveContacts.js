@@ -1,5 +1,5 @@
 /**
- * 連絡先更新サンプル
+ * 連絡先取得サンプル
  */
 const open = require('open');
 const readline = require('readline');
@@ -63,32 +63,6 @@ async function main() {
         personId: 'me'
     });
     console.log('contacts:', contacts);
-
-    await new Promise((resolve, reject) => {
-        rl.question('enter email:\n', async (email) => {
-            rl.question('enter phone number:\n', async (phoneNumber) => {
-                rl.question('enter given name:\n', async (givenName) => {
-                    rl.question('enter family name:\n', async (familyName) => {
-                        try {
-                            await people.updateContacts({
-                                personId: 'me',
-                                contacts: {
-                                    givenName: givenName,
-                                    familyName: familyName,
-                                    telephone: phoneNumber,
-                                    email: email
-                                }
-                            });
-
-                            resolve();
-                        } catch (error) {
-                            reject(error);
-                        }
-                    });
-                });
-            });
-        });
-    });
 
     rl.close();
 }
