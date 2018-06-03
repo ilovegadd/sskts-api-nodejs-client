@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 会員プログラム登録解除エンドポイントを追加。
 - 注文検索エンドポイントを追加。
 - Pecorino口座入金エンドポイントを追加。
+- OAuth2認証クライアントにid tokenの検証メソッドを追加。
 
 ### Changed
 

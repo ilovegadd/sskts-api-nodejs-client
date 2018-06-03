@@ -1,14 +1,13 @@
 // tslint:disable:no-implicit-dependencies
-
 /**
  * OAuth2 client test
  * @ignore
  */
-
 import { BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status';
 import * as nock from 'nock';
 import * as assert from 'power-assert';
 import * as qs from 'querystring';
+import * as sinon from 'sinon';
 import * as url from 'url';
 import * as sasaki from '../index';
 
@@ -22,6 +21,11 @@ const STATE = 'state';
 const CODE_VERIFIER = 'codeVerifier';
 // const SCOPE = 'scopex';
 const SCOPES = ['scopex', 'scopey'];
+let sandbox: sinon.SinonSandbox;
+
+before(() => {
+    sandbox = sinon.sandbox.create();
+});
 
 describe('generateAuthUrl()', () => {
     it('有効な認可ページURLが生成されるはず', () => {
@@ -562,5 +566,243 @@ describe('fetch()', () => {
             await auth.fetch(`${API_ENDPOINT}/`, options, [OK]);
             assert.equal('abc123', auth.credentials.access_token);
         });
+    });
+});
+
+describe('verifyIdToken()', () => {
+    let auth: sasaki.auth.OAuth2;
+    afterEach(() => {
+        sandbox.restore();
+    });
+    beforeEach(() => {
+        nock.cleanAll();
+        auth = new sasaki.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI
+        });
+    });
+
+    afterEach(() => {
+        nock.cleanAll();
+    });
+
+    it('id tokenが適切であればユーザーネームを取り出せるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            exp: 12345,
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        const result = auth.verifyIdToken({ audience: audience });
+        assert.equal(typeof result, 'object');
+        sandbox.verify();
+    });
+
+    it('id tokenの形式が期待通りでなければエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            exp: 12345,
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('id tokenのヘッダーが不適切な形式であればエラーとなるはず', () => {
+        const audience = 'audience';
+        // const envelope = {};
+        // const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            exp: 12345,
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `xxxx.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('id tokenのペイロードが不適切な形式であればエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        // const payload = {
+        //     iat: 12345,
+        //     exp: 12345,
+        //     aud: audience
+        // };
+        // const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.xxxx.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('ペイロードにexpがなければエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            // exp: 12345,
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('ペイロードにiatがなければエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            // iat: 12345,
+            exp: 12345,
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('ペイロードのexpが数字でなければエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 'xxxx',
+            exp: 12345,
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('ペイロードのiatが数字でなければエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            exp: 'xxxx',
+            aud: audience
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('オーディエンスを指定した場合、audと合致しなければエラーとなるはず', () => {
+        const audience = 'audience';
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            exp: 12345,
+            aud: 'xxxx'
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('オーディエンスを配列で指定した場合、audと合致しなければエラーとなるはず', () => {
+        const audience = ['audience'];
+        const envelope = {};
+        const envelopeStr = JSON.stringify(envelope);
+        const payload = {
+            iat: 12345,
+            exp: 12345,
+            aud: 'xxxx'
+        };
+        const payLoadStr = JSON.stringify(payload);
+        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        auth.credentials = { id_token: jwt };
+
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
+    });
+
+    it('認証情報にid_tokenがなければエラーとなるはず', () => {
+        const audience = 'audience';
+        auth.credentials = {};
+        assert.throws(
+            () => {
+                auth.verifyIdToken({ audience: audience });
+            },
+            Error
+        );
     });
 });

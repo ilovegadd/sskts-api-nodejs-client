@@ -54,6 +54,10 @@ async function main() {
 
     const logoutUrl = auth.generateLogoutUrl();
     console.log('logoutUrl:', logoutUrl);
+
+    const loginTicket = auth.verifyIdToken({});
+    console.log('username:', loginTicket.getUsername());
+
 }
 
 main().then(() => {
