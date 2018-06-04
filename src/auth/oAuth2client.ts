@@ -36,7 +36,7 @@ export interface IOptions {
 }
 
 export interface IVerifyIdTokenOptions {
-    audience: string | string[];
+    audience?: string | string[];
     maxExpiry?: number;
 }
 
@@ -326,6 +326,10 @@ export default class OAuth2client implements Auth {
         return result;
     }
 
+    /**
+     * IDトークンを検証する
+     * 結果にはIDトークンの付加情報が含まれます。
+     */
     public verifyIdToken(options: IVerifyIdTokenOptions): LoginTicket {
         if (this.credentials.id_token === undefined) {
             throw new Error('The verifyIdToken method requires an ID Token');
@@ -433,7 +437,7 @@ export default class OAuth2client implements Auth {
      * @param issuers The allowed issuers of the jwt (Optional).
      */
     // tslint:disable-next-line:prefer-function-over-method
-    private verifySignedJwt(jwt: string, requiredAudience: string | string[]) {
+    private verifySignedJwt(jwt: string, requiredAudience?: string | string[]) {
         // private verifySignedJwt(jwt: string, requiredAudience: string | string[], issuers?: string[]) {
         const segments = jwt.split('.');
         // tslint:disable-next-line:no-magic-numbers
