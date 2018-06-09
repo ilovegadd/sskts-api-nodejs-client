@@ -13,7 +13,6 @@
 ## Table of contents
 
 * [Usage](#usage)
-* [Jsdoc](#jsdoc)
 * [License](#license)
 
 ## Usage
@@ -27,10 +26,6 @@ npm install @motionpicture/sskts-api-nodejs-client
 | Name    | Required | Value                     | Purpose |
 |---------|----------|---------------------------|---------|
 | `DEBUG` | false    | sskts-api-nodejs-client:* | Debug   |
-
-## Jsdoc
-
-`npm run doc` outputs docs to ./docs.
 
 ## License
 
