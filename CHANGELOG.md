@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## v3.1.0 - 2018-06-09
+
+### Added
+
 - 会員プログラム検索エンドポイントを追加。
 - 汎用的な所有権検索エンドポイントを追加。
 - Pecorino口座オーソリ取消エンドポイントを追加。
@@ -23,14 +37,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Pecorino口座開設エンドポイントを調整。
 - 注文取引確定時の属性にメール送信有無とインセンティブ属性を追加。
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## v3.0.0 - 2018-03-01
 ### Added
