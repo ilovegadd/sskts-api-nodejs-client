@@ -1,14 +1,18 @@
 /**
- * アクセストークン発行サンプル
+ * 会員プログラムを検索するサンプル
+ * @ignore
  */
+const moment = require('moment');
 const open = require('open');
 const readline = require('readline');
-const sasaki = require('../lib/index');
+const ssktsapi = require('../lib/index');
+
+const API_ENDPOINT = process.env.SSKTS_API_ENDPOINT
 
 async function main() {
     const scopes = [];
 
-    const auth = new sasaki.auth.OAuth2({
+    const auth = new ssktsapi.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
@@ -34,8 +38,8 @@ async function main() {
             output: process.stdout
         });
 
-        rl.question('認可コードを入力してください:\n', async (code) => {
-            rl.question('ステートを入力してください:\n', async (givenState) => {
+        rl.question('enter authorization code:\n', async (code) => {
+            rl.question('enter state:\n', async (givenState) => {
                 if (givenState !== state) {
                     reject(new Error('state not matched'));
 
@@ -44,7 +48,11 @@ async function main() {
 
                 let credentials = await auth.getToken(code, codeVerifier);
                 console.log('credentials published', credentials);
+
                 auth.setCredentials(credentials);
+
+                credentials = await auth.refreshAccessToken();
+                console.log('credentials refreshed', credentials);
 
                 rl.close();
                 resolve();
@@ -55,13 +63,16 @@ async function main() {
     const logoutUrl = auth.generateLogoutUrl();
     console.log('logoutUrl:', logoutUrl);
 
-    const loginTicket = auth.verifyIdToken({});
-    console.log('username:', loginTicket.getUsername());
+    const programMembershipService = new ssktsapi.service.ProgramMembership({
+        endpoint: API_ENDPOINT,
+        auth: auth
+    });
 
+    // どんな会員プログラムがあるか検索する
+    const programMemberships = await programMembershipService.search({});
+    console.log(programMemberships.length, 'programMemberships found.');
 }
 
 main().then(() => {
-    console.log('main processed.');
-}).catch((err) => {
-    console.error(err);
-});
+    console.log('success!');
+}).catch(console.error);

@@ -1,24 +1,13 @@
 /**
- * a sample update person's contacts
- *
- * @ignore
+ * 連絡先更新サンプル
  */
-
-const COA = require('@motionpicture/coa-service');
-const GMO = require('@motionpicture/gmo-service');
-const debug = require('debug')('sskts-api-nodejs-client:samples');
-const moment = require('moment');
 const open = require('open');
 const readline = require('readline');
-const util = require('util');
 
 const sasaki = require('../../lib/index');
 
 async function main() {
-    const scopes = [
-        'phone', 'openid', 'email', 'aws.cognito.signin.user.admin', 'profile',
-        process.env.TEST_RESOURCE_IDENTIFIER + '/people.contacts'
-    ];
+    const scopes = [];
 
     const auth = new sasaki.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
@@ -64,7 +53,7 @@ async function main() {
         });
     });
 
-    const people = sasaki.service.person({
+    const people = new sasaki.service.Person({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
@@ -73,24 +62,30 @@ async function main() {
     const contacts = await people.getContacts({
         personId: 'me'
     });
-    debug('contacts:', contacts);
+    console.log('contacts:', contacts);
 
     await new Promise((resolve, reject) => {
         rl.question('enter email:\n', async (email) => {
             rl.question('enter phone number:\n', async (phoneNumber) => {
-                try {
-                    await people.updateContacts({
-                        personId: 'me',
-                        contacts: {
-                            givenName: 'John',
-                            familyName: 'Smith',
-                            telephone: phoneNumber,
-                            email: email
+                rl.question('enter given name:\n', async (givenName) => {
+                    rl.question('enter family name:\n', async (familyName) => {
+                        try {
+                            await people.updateContacts({
+                                personId: 'me',
+                                contacts: {
+                                    givenName: givenName,
+                                    familyName: familyName,
+                                    telephone: phoneNumber,
+                                    email: email
+                                }
+                            });
+
+                            resolve();
+                        } catch (error) {
+                            reject(error);
                         }
                     });
-                } catch (error) {
-                    reject(error);
-                }
+                });
             });
         });
     });
@@ -99,7 +94,7 @@ async function main() {
 }
 
 main().then(async () => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
     console.error(err);
 });

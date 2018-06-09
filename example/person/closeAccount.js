@@ -1,21 +1,17 @@
 /**
- * a sample handling credit cards
- * クレジットカードを扱うサンプル
- *
+ * 口座解約サンプル
  * @ignore
  */
-
-const COA = require('@motionpicture/coa-service');
-const GMO = require('@motionpicture/gmo-service');
 const moment = require('moment');
 const open = require('open');
 const readline = require('readline');
 const util = require('util');
-
-const sasaki = require('../../lib/index');
+const ssktsapi = require('../../lib/');
 
 async function main() {
-    const auth = new sasaki.auth.OAuth2({
+    const scopes = [];
+
+    const auth = new ssktsapi.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
@@ -27,7 +23,7 @@ async function main() {
     const codeVerifier = '12345';
 
     const authUrl = auth.generateAuthUrl({
-        scopes: [],
+        scopes: scopes,
         state: state,
         codeVerifier: codeVerifier
     });
@@ -35,12 +31,12 @@ async function main() {
 
     open(authUrl);
 
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
     await new Promise((resolve, reject) => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
         rl.question('enter authorization code:\n', async (code) => {
             rl.question('enter state:\n', async (givenState) => {
                 if (givenState !== state) {
@@ -54,51 +50,28 @@ async function main() {
 
                 auth.setCredentials(credentials);
 
+                rl.close();
                 resolve();
             });
         });
     });
 
-    const people = new sasaki.service.Person({
+    const logoutUrl = auth.generateLogoutUrl();
+    console.log('logoutUrl:', logoutUrl);
+
+    const personService = new ssktsapi.service.Person({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
-
-    // クレジットカード検索
-    let creditCards = await people.findCreditCards({
-        personId: 'me'
-    });
-    console.log(creditCards.length, 'creditCards found.');
-
-    // クレジットカード追加
-    const creditCard = await people.addCreditCard({
+    const accountNumber = '30218000518';
+    console.log('口座を解約します...', accountNumber);
+    await personService.closeAccount({
         personId: 'me',
-        creditCard: {
-            cardNo: '4111111111111111',
-            expire: '2012',
-            securityCode: '123'
-        }
+        accountNumber: accountNumber
     });
-    console.log('creditCard added.', creditCard.cardSeq);
-
-    // クレジットカード削除
-    await people.deleteCreditCard({
-        personId: 'me',
-        cardSeq: creditCard.cardSeq
-    });
-    console.log('creditCard deleted.');
-
-    // クレジットカード検索
-    creditCards = await people.findCreditCards({
-        personId: 'me'
-    });
-    console.log(creditCards.length, 'creditCards found.');
-
-    rl.close();
+    console.log('口座を解約しました。');
 }
 
-main().then(async () => {
+main().then(() => {
     console.log('main processed.');
-}).catch((err) => {
-    console.error(err);
-});
+}).catch(console.error);

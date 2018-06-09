@@ -1,21 +1,20 @@
 /**
- * a sample handling credit cards
- * クレジットカードを扱うサンプル
- *
+ * 会員プログラム登録タスク作成サンプル
  * @ignore
  */
 
 const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
+const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const open = require('open');
 const readline = require('readline');
 const util = require('util');
 
-const sasaki = require('../../lib/index');
+const ssktsapi = require('../../lib/index');
 
 async function main() {
-    const auth = new sasaki.auth.OAuth2({
+    const auth = new ssktsapi.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
@@ -50,55 +49,30 @@ async function main() {
                 }
 
                 let credentials = await auth.getToken(code, codeVerifier);
-                console.log('credentials published', credentials);
-
                 auth.setCredentials(credentials);
-
+                rl.close();
                 resolve();
             });
         });
     });
 
-    const people = new sasaki.service.Person({
+    const personService = new ssktsapi.service.Person({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
 
-    // クレジットカード検索
-    let creditCards = await people.findCreditCards({
-        personId: 'me'
-    });
-    console.log(creditCards.length, 'creditCards found.');
-
-    // クレジットカード追加
-    const creditCard = await people.addCreditCard({
+    const task = await personService.registerProgramMembership({
         personId: 'me',
-        creditCard: {
-            cardNo: '4111111111111111',
-            expire: '2012',
-            securityCode: '123'
-        }
+        programMembershipId: '5afff104d51e59232c7b481b',
+        offerIdentifier: 'AnnualPlan',
+        sellerType: 'MovieTheater',
+        sellerId: '59d20831e53ebc2b4e774466'
     });
-    console.log('creditCard added.', creditCard.cardSeq);
-
-    // クレジットカード削除
-    await people.deleteCreditCard({
-        personId: 'me',
-        cardSeq: creditCard.cardSeq
-    });
-    console.log('creditCard deleted.');
-
-    // クレジットカード検索
-    creditCards = await people.findCreditCards({
-        personId: 'me'
-    });
-    console.log(creditCards.length, 'creditCards found.');
-
-    rl.close();
+    console.log('会員プログラム登録タスクが作成されました。', task.id);
 }
 
 main().then(async () => {
-    console.log('main processed.');
+    debug('main processed.');
 }).catch((err) => {
     console.error(err);
 });

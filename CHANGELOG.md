@@ -1,9 +1,11 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+
 ### Added
 
 ### Changed
@@ -16,6 +18,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v3.1.0 - 2018-06-09
+
+### Added
+
+- 会員プログラム検索エンドポイントを追加。
+- 汎用的な所有権検索エンドポイントを追加。
+- Pecorino口座オーソリ取消エンドポイントを追加。
+- 口座解約エンドポイントを追加。
+- Pecorinoインセンティブ承認エンドポイントを追加。
+- 会員プログラム登録エンドポイントを追加。
+- 会員プログラム登録解除エンドポイントを追加。
+- 注文検索エンドポイントを追加。
+- Pecorino口座入金エンドポイントを追加。
+- OAuth2認証クライアントにid tokenの検証メソッドを追加。
+
+### Changed
+
+- Pecorino口座開設エンドポイントを調整。
+- 注文取引確定時の属性にメール送信有無とインセンティブ属性を追加。
 
 ## v3.0.0 - 2018-03-01
 ### Added
