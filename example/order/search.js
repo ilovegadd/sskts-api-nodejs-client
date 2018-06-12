@@ -26,9 +26,11 @@ async function main() {
     });
 
     const orders = await orderService.search({
-        // sellerId: '59d20831e53ebc2b4e774466',
-        // customerMembershipNumber: 'ilovegadd',
-        orderNumber: 'MO118-180531-000003',
+        sellerIds: ['59d20831e53ebc2b4e774466'],
+        // customerMembershipNumbers: ['yamazaki'],
+        orderStatuses: [ssktsapi.factory.orderStatus.OrderDelivered],
+        // orderNumber: 'MO118-180612-000063',
+        orderNumbers: ['MO118-180612-000063'],
         orderDateFrom: moment().add(-3, 'days').toDate(),
         orderDateThrough: moment().toDate()
     });
