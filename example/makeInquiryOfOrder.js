@@ -31,7 +31,7 @@ async function main() {
             rl.question('input confirmation number: ', (confirmationNumber) => {
                 rl.question('input telephone: ', async (telephone) => {
                     try {
-                        const orders = sasaki.service.order({
+                        const orders = new sasaki.service.Order({
                             endpoint: process.env.SSKTS_API_ENDPOINT,
                             auth: auth
                         });

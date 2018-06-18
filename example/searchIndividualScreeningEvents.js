@@ -21,7 +21,7 @@ async function main(theaterCode) {
         state: 'teststate'
     });
 
-    const event = sasaki.service.event({
+    const event = new sasaki.service.Event({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });

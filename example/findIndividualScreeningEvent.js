@@ -13,27 +13,25 @@ async function main() {
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
-        scopes: [
-            process.env.TEST_RESOURCE_IDENTIFIER + '/events.read-only'
-        ],
+        scopes: [],
         state: 'teststate'
     });
     // const credentials = await auth.refreshAccessToken();
     // debug('credentials:', credentials);
 
-    const event = sasaki.service.event({
+    const eventService = new sasaki.service.Event({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });
 
     // 上映イベント検索
-    const individualScreeningEvents = await event.searchIndividualScreeningEvent({
+    const individualScreeningEvents = await eventService.searchIndividualScreeningEvent({
         theater: '118',
         day: moment().format('YYYYMMDD')
     });
 
     // イベント情報取得
-    const individualScreeningEvent = await event.findIndividualScreeningEvent({
+    const individualScreeningEvent = await eventService.findIndividualScreeningEvent({
         identifier: individualScreeningEvents[0].identifier
     });
     if (individualScreeningEvent === null) {
