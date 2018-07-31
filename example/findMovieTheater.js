@@ -21,7 +21,7 @@ async function main() {
     // const credentials = await auth.refreshAccessToken();
     // debug('credentials:', credentials);
 
-    const place = sasaki.service.place({
+    const place = new sasaki.service.Place({
         endpoint: process.env.SSKTS_API_ENDPOINT,
         auth: auth
     });

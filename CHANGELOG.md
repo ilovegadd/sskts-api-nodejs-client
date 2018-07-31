@@ -18,6 +18,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v3.3.1 - 2018-07-31
+
+### Changed
+
+- サンプル調整。
+- ポイント口座に口座タイプを追加。
+
 ## v3.3.0 - 2018-06-13
 
 ### Changed
