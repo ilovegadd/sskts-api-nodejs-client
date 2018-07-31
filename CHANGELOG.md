@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Changed
 
 - サンプル調整。
+- ポイント口座に口座タイプを追加。
 
 ### Deprecated
 
