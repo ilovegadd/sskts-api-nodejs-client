@@ -177,11 +177,19 @@ async function main(theaterCode) {
     // Mocoinオーソリアクション
     console.log('Mocoinログイン中...');
     const mocoinAuthClient = await loginMocoin();
+    console.log('コイン口座確認中...');
+    const mocoinPersonService = new mocoinapi.service.Person({
+        auth: mocoinAuthClient,
+        endpoint: process.env.MOCOIN_API_ENDPOINT
+    });
+    let coinAccounts = await mocoinPersonService.searchCoinAccounts({ personId: 'me' });
+    coinAccounts = coinAccounts.filter((a) => a.status === mocoinapi.factory.pecorino.accountStatusType.Opened);
+    console.log(coinAccounts.length, 'のコイン口座が見つかりました。');
     console.log('Mocoin承認中...');
     await placeOrderService.createMocoinPaymentAuthorization({
         transactionId: transaction.id,
         amount: seatReservationAuthorization.result.price,
-        fromAccountNumber: '20110778400',
+        fromAccountNumber: coinAccounts[0].accountNumber,
         notes: 'シネマサンシャイン注文取引',
         token: await mocoinAuthClient.getAccessToken()
     });
