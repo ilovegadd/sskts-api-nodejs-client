@@ -74,7 +74,7 @@ async function main() {
     console.log('searching actions...account:', accounts[0].id);
     const actions = await personService.searchAccountMoneyTransferActions({
         personId: 'me',
-        accountId: accounts[0].id
+        accountNumber: accounts.filter((a) => a.status === ssktsapi.factory.pecorino.accountStatusType.Opened)[0].accountNumber
     });
     console.log('取引履歴は以下の通りです。');
     console.log(actions.map((a) => {
