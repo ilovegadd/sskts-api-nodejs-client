@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 注文検索条件を強化。
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v4.0.1 - 2018-10-06
+
+### Changed
+
+- 注文検索条件を強化。
 
 ## v4.0.0 - 2018-08-23
 
