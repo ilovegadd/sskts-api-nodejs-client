@@ -10,31 +10,79 @@ const ssktsapi = require('../../lib/index');
 const API_ENDPOINT = process.env.SSKTS_API_ENDPOINT
 
 async function main() {
+
     const scopes = [];
 
-    const auth = new ssktsapi.auth.ClientCredentials({
+    const auth = new ssktsapi.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
-        clientId: process.env.TEST_CLIENT_ID,
-        clientSecret: process.env.TEST_CLIENT_SECRET,
-        scopes: scopes,
-        state: '12345'
+        clientId: process.env.TEST_CLIENT_ID_OAUTH2,
+        clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
+        redirectUri: 'https://localhost/signIn',
+        logoutUri: 'https://localhost/signOut'
     });
+
+    const state = '12345';
+    const codeVerifier = '12345';
+
+    const authUrl = auth.generateAuthUrl({
+        scopes: scopes,
+        state: state,
+        codeVerifier: codeVerifier
+    });
+    console.log('authUrl:', authUrl);
+
+    open(authUrl);
+
+    await new Promise((resolve, reject) => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        rl.question('enter authorization code:\n', async (code) => {
+            rl.question('enter state:\n', async (givenState) => {
+                if (givenState !== state) {
+                    reject(new Error('state not matched'));
+
+                    return;
+                }
+
+                let credentials = await auth.getToken(code, codeVerifier);
+                console.log('credentials published', credentials);
+
+                auth.setCredentials(credentials);
+
+                rl.close();
+                resolve();
+            });
+        });
+    });
+
+    const logoutUrl = auth.generateLogoutUrl();
+    console.log('logoutUrl:', logoutUrl);
 
     const orderService = new ssktsapi.service.Order({
         endpoint: API_ENDPOINT,
         auth: auth
     });
 
-    const orders = await orderService.search({
-        sellerIds: ['59d20831e53ebc2b4e774466'],
-        // customerMembershipNumbers: ['yamazaki'],
+    const { totalCount, data } = await orderService.search({
+        seller: {
+            typeOf: ssktsapi.factory.organizationType.MovieTheater,
+            ids: ['59d20831e53ebc2b4e774466']
+        },
+        // customer: {
+        //     typeOf: ssktsapi.factory.personType.Person,
+        //     membershipNumbers: ['xxx']
+        // },
         orderStatuses: [ssktsapi.factory.orderStatus.OrderDelivered],
-        // orderNumber: 'MO118-180612-000063',
-        orderNumbers: ['MO118-180612-000063'],
-        orderDateFrom: moment().add(-3, 'days').toDate(),
-        orderDateThrough: moment().toDate()
+        // orderNumbers: ['MO118-181006-000192'],
+        orderDateFrom: moment().add(-10, 'days').toDate(),
+        orderDateThrough: moment().toDate(),
+        reservedEventIdentifiers: ['11899100120181006800935']
     });
-    console.log(orders.length, 'orders found.');
+    console.log(totalCount, 'orders found.');
+    console.log(data.length, 'orders returned.');
 }
 
 main().then(() => {

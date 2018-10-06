@@ -43,7 +43,7 @@ describe('generateAuthUrl()', () => {
 
         const generated = auth.generateAuthUrl(opts);
         const parsed = url.parse(generated);
-        const query = qs.parse(parsed.query);
+        const query = qs.parse(<string>parsed.query);
 
         assert.equal(query.response_type, opts.responseType);
         assert.equal(query.scope, SCOPES.join(' '));
@@ -67,7 +67,7 @@ describe('generateAuthUrl()', () => {
 
         const generated = auth.generateAuthUrl(opts);
         const parsed = url.parse(generated);
-        const query = qs.parse(parsed.query);
+        const query = qs.parse(<string>parsed.query);
 
         assert.equal(typeof query.code_challenge_method, 'string');
         assert.equal(typeof query.code_challenge, 'string');
@@ -86,7 +86,7 @@ describe('generateLogoutUrl()', () => {
 
         const generated = auth.generateLogoutUrl();
         const parsed = url.parse(generated);
-        const query = qs.parse(parsed.query);
+        const query = qs.parse(<string>parsed.query);
 
         assert.equal(query.client_id, CLIENT_ID);
         assert.equal(query.logout_uri, LOGOUT_URI);
