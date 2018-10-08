@@ -57,7 +57,7 @@ async function main() {
     });
 
     const personService = new ssktsapi.service.Person({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 

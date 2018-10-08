@@ -22,7 +22,7 @@ async function main() {
     // debug('credentials:', credentials);
 
     const place = new sasaki.service.Place({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 

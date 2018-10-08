@@ -7,7 +7,7 @@ const open = require('open');
 const readline = require('readline');
 const ssktsapi = require('../../lib/index');
 
-const API_ENDPOINT = process.env.SSKTS_API_ENDPOINT
+const API_ENDPOINT = process.env.API_ENDPOINT
 
 async function main() {
     const scopes = [];

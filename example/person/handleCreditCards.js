@@ -60,7 +60,7 @@ async function main() {
     });
 
     const people = new sasaki.service.Person({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 
