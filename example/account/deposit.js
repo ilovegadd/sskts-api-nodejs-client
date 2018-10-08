@@ -27,7 +27,7 @@ async function main() {
     });
 
     const accountService = new ssktsapi.service.Account({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 

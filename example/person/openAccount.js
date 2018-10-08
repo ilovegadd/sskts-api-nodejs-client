@@ -60,7 +60,7 @@ async function main() {
     console.log('logoutUrl:', logoutUrl);
 
     const personService = new ssktsapi.service.Person({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
     console.log('口座を開設します...');

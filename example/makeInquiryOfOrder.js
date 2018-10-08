@@ -32,7 +32,7 @@ async function main() {
                 rl.question('input telephone: ', async (telephone) => {
                     try {
                         const orders = new sasaki.service.Order({
-                            endpoint: process.env.SSKTS_API_ENDPOINT,
+                            endpoint: process.env.API_ENDPOINT,
                             auth: auth
                         });
 

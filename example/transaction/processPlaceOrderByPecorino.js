@@ -59,23 +59,23 @@ async function main(theaterCode) {
     console.log('logoutUrl:', logoutUrl);
 
     const eventService = new ssktsapi.service.Event({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
     const organizationService = new ssktsapi.service.Organization({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
     const placeOrderService = new ssktsapi.service.transaction.PlaceOrder({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
     const personService = new ssktsapi.service.Person({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
     const programMembershipService = new ssktsapi.service.ProgramMembership({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 

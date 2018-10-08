@@ -20,7 +20,7 @@ async function main() {
     // debug('credentials:', credentials);
 
     const eventService = new sasaki.service.Event({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 

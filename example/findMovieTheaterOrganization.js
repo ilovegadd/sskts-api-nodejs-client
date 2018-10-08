@@ -21,7 +21,7 @@ async function main() {
     // debug('credentials:', credentials);
 
     const organization = new sasaki.service.Organization({
-        endpoint: process.env.SSKTS_API_ENDPOINT,
+        endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 
