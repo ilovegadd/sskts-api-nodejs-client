@@ -1,6 +1,6 @@
 {
   "name": "@motionpicture/sskts-api-nodejs-client",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "SSKTS API Client Library for Node.js",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
