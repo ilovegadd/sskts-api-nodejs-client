@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Changed
 
 - 注文検索条件強化
+- update sskts-api-abstract-client
 
 ### Deprecated
 
