@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 - タスクサービスを追加
+- 取引検索インターフェースを追加
 
 ### Changed
 
