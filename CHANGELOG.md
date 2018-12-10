@@ -8,13 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- タスクサービスを追加
-- 取引検索インターフェースを追加
-
 ### Changed
-
-- 注文検索条件強化
-- update sskts-api-abstract-client
 
 ### Deprecated
 
@@ -23,6 +17,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v4.3.0 - 2018-12-10
+
+### Added
+
+- タスクサービスを追加
+- 取引検索インターフェースを追加
+
+### Changed
+
+- 注文検索条件強化
+- update sskts-api-abstract-client
 
 ## v4.2.0 - 2018-10-08
 
