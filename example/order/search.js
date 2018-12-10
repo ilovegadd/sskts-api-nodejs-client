@@ -79,7 +79,8 @@ async function main() {
         // orderNumbers: ['MO118-181006-000192'],
         orderDateFrom: moment().add(-10, 'days').toDate(),
         orderDateThrough: moment().toDate(),
-        reservedEventIdentifiers: ['11899100120181006800935']
+        paymentMethods: { typeOfs: [ssktsapi.factory.paymentMethodType.CreditCard] }
+        // reservedEventIdentifiers: ['11899100120181006800935']
     });
     console.log(totalCount, 'orders found.');
     console.log(data.length, 'orders returned.');

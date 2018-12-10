@@ -289,6 +289,6 @@ async function wait(waitInMilliseconds) {
     return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
 }
 
-main('118').then(() => {
+main('106').then(() => {
     console.log('success!');
 }).catch(console.error);
