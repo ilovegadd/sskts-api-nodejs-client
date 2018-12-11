@@ -1,6 +1,6 @@
 {
   "name": "@motionpicture/sskts-api-nodejs-client",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "SSKTS API Client Library for Node.js",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "check": "npm run tslint && nsp check",
+    "check": "npm run tslint",
     "clean": "rimraf ./lib \"npm-debug.log*\" ./doc ./coverage ./.nyc_output",
     "example": "http-server ./example",
     "doc": "jsdoc -c jsdoc.json",
@@ -85,7 +85,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@motionpicture/sskts-api-abstract-client": "^4.3.0",
+    "@motionpicture/sskts-api-abstract-client": "^4.4.0",
     "debug": "^3.1.0",
     "http-status": "^1.2.0",
     "isomorphic-fetch": "^2.2.1"
