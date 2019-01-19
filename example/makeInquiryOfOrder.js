@@ -1,10 +1,6 @@
 /**
  * a sample making inquiry of an order
- *
- * @ignore
  */
-
-const debug = require('debug')('sskts-api-nodejs-client:samples');
 const readline = require('readline');
 const sasaki = require('../lib/index');
 
@@ -25,7 +21,7 @@ async function main() {
     });
 
     // try to make inquiry in a few seconds
-    debug('making inquiry...');
+    console.log('making inquiry...');
     return new Promise((resolve, reject) => {
         rl.question('input theater code: ', (theaterCode) => {
             rl.question('input confirmation number: ', (confirmationNumber) => {
@@ -43,7 +39,7 @@ async function main() {
                         }
 
                         const orderByInquiry = await orders.findByOrderInquiryKey(key);
-                        debug('orderByInquiry:', orderByInquiry);
+                        console.log('orderByInquiry:', orderByInquiry);
 
                         rl.close();
                         resolve();

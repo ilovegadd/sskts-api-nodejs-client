@@ -59,10 +59,9 @@ async function main() {
     });
 
     // retrieve user's contacts
-    const contacts = await people.getContacts({
-        personId: 'me'
+    const profile = await people.getProfile({
     });
-    console.log('contacts:', contacts);
+    console.log('profile:', profile);
 
     await new Promise((resolve, reject) => {
         rl.question('enter email:\n', async (email) => {
@@ -70,14 +69,14 @@ async function main() {
                 rl.question('enter given name:\n', async (givenName) => {
                     rl.question('enter family name:\n', async (familyName) => {
                         try {
-                            await people.updateContacts({
-                                personId: 'me',
-                                contacts: {
-                                    givenName: givenName,
-                                    familyName: familyName,
-                                    telephone: phoneNumber,
-                                    email: email
-                                }
+                            await people.updateProfile({
+                                givenName: givenName,
+                                familyName: familyName,
+                                telephone: phoneNumber,
+                                email: email,
+                                additionalProperty: [
+                                    { name: 'custom:postalCode', value: '123-5678' }
+                                ]
                             });
 
                             resolve();

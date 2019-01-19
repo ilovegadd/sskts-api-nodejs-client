@@ -1,8 +1,6 @@
 /**
  * 会員検索サンプル
- * @ignore
  */
-const moment = require('moment');
 const open = require('open');
 const readline = require('readline');
 const ssktsapi = require('../../lib/index');
@@ -67,7 +65,7 @@ async function main() {
     });
 
     const { totalCount, data } = await personService.search({
-        username:'p'
+        username: 'p'
     });
     console.log(totalCount, 'people found.');
     console.log(data.length, 'people returned.');

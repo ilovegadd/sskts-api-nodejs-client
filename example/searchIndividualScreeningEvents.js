@@ -1,10 +1,7 @@
 /**
  * 上映イベント検索サンプル
- * @ignore
  */
-
 const moment = require('moment');
-const momentTimezone = require('moment-timezone');
 const sasaki = require('../lib/index');
 const COA = require('@motionpicture/coa-service');
 const difference = require('lodash.difference');

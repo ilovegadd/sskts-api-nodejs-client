@@ -1,6 +1,5 @@
 /**
  * 会員クレジットカード決済による注文プロセス
- * @ignore
  */
 const moment = require('moment');
 const open = require('open');
@@ -177,7 +176,7 @@ async function main(theaterCode) {
     }
     const individualScreeningEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
 
-    console.log('取引を開始します...');
+    console.log('取引を開始します...', seller);
     const transaction = await placeOrderService.start({
         expires: moment().add(30, 'minutes').toDate(),
         sellerId: seller.id
@@ -289,6 +288,6 @@ async function wait(waitInMilliseconds) {
     return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
 }
 
-main('106').then(() => {
+main('115').then(() => {
     console.log('success!');
 }).catch(console.error);

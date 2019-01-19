@@ -21,7 +21,7 @@ npm install @motionpicture/sskts-api-nodejs-client
 ### Environment variables
 
 | Name    | Required | Value                     | Purpose |
-|---------|----------|---------------------------|---------|
+| ------- | -------- | ------------------------- | ------- |
 | `DEBUG` | false    | sskts-api-nodejs-client:* | Debug   |
 
 ## License

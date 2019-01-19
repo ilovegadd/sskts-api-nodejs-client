@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 人物インターフェースを拡張
+- @cinerino/api-abstract-clientを可能な範囲で継承するように調整
+
 ### Deprecated
 
 ### Removed

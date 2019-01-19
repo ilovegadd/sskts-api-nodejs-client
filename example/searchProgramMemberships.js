@@ -1,6 +1,5 @@
 /**
  * 会員プログラムを検索するサンプル
- * @ignore
  */
 const moment = require('moment');
 const open = require('open');

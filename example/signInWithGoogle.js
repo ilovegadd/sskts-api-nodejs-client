@@ -1,10 +1,6 @@
 /**
  * Googleでサインインサンプル
- *
- * @ignore
  */
-
-const debug = require('debug')('sskts-api-nodejs-client:samples');
 const sskts = require('../lib/index');
 
 async function main() {
@@ -18,14 +14,14 @@ async function main() {
         ['people.profile']
     );
     const credentials = await auth.refreshAccessToken();
-    debug('credentials:', credentials);
+    console.log('credentials:', credentials);
 
     const accessToken = await auth.getAccessToken();
-    debug('accessToken is', accessToken);
+    console.log('accessToken is', accessToken);
 }
 
 main().then(() => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
     console.error(err);
 });
