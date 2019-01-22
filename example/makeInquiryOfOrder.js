@@ -14,9 +14,7 @@ async function main() {
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
-        scopes: [
-            process.env.TEST_RESOURCE_IDENTIFIER + '/orders.read-only'
-        ],
+        scopes: [],
         state: 'teststate'
     });
 
@@ -54,3 +52,10 @@ async function main() {
 }
 
 exports.main = main;
+
+main()
+    .then(() => {
+        console.log('main processed.');
+    }).catch((err) => {
+        console.error(err);
+    });
