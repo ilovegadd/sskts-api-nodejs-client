@@ -70,6 +70,6 @@
   },
   "dependencies": {
     "@cinerino/api-nodejs-client": "^1.1.0-alpha.39",
-    "@motionpicture/sskts-api-abstract-client": "^4.5.0-alpha.8"
+    "@motionpicture/sskts-api-abstract-client": "^5.0.0-alpha.0"
   }
 }

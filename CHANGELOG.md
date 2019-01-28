@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 - 上映イベントシリーズインターフェースを追加
+- transactionサービスのエイリアスとしてtxnを追加
 
 ### Changed
 
