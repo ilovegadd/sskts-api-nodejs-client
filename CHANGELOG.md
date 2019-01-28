@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 個々の上映イベントのイベントタイプを変更
 - 決済方法承認アクションインターフェースを強化
 - 注文番号で返品取引を開始できるように変更
+- install @motionpicture/sskts-api-abstract-client@5.0.0
 
 ### Deprecated
 
