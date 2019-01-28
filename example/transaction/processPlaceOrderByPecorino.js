@@ -1,6 +1,5 @@
 /**
  * 口座決済による注文プロセス
- * @ignore
  */
 const moment = require('moment');
 const open = require('open');
@@ -243,12 +242,12 @@ async function main(theaterCode) {
     const tickets = await COA.services.master.ticket({
         theaterCode: theaterCode
     });
-    const freeTickets = tickets.filter((t) => t.usePoint > 0 && t.flgMember === COA.services.master.FlgMember.Member);
+    const freeTickets = tickets.filter((t) => t.usePoint > 2 && t.flgMember === COA.services.master.FlgMember.Member);
     if (freeTickets.length === 0) {
         throw new Error('無料鑑賞券が見つかりませんでした。');
     }
+    console.log('無料鑑賞券が見つかりました。', freeTickets);
     const selectedTicket = freeTickets[0];
-    console.log('無料鑑賞券が見つかりました。', selectedTicket.ticketCode);
 
     await wait(5000);
     console.log('券種を変更します...');
@@ -306,6 +305,24 @@ async function main(theaterCode) {
         fromAccountNumber: account.accountNumber
     });
     console.log('口座承認アクションが作成されました。', pecorinoAuthorization.id);
+
+    // 差額があればクレジットカードで決済
+    if (seatReservationAuthorization.result.price > 0) {
+        console.log('クレジットカードに対してオーソリを作成します...');
+        let creditCardAuthorization = await placeOrderService.createCreditCardAuthorization({
+            transactionId: transaction.id,
+            amount: seatReservationAuthorization.result.price,
+            orderId: moment().unix(),
+            method: '1',
+            creditCard: {
+                cardNo: '4111111111111111',
+                // cardPass: '',
+                expire: '2812',
+                holderName: 'A A'
+            }
+        });
+        console.log('クレジットカードオーソリアクションが作成されました。', creditCardAuthorization.id);
+    }
 
     // 購入者情報入力時間
     // tslint:disable-next-line:no-magic-numbers

@@ -1,10 +1,6 @@
 /**
  * a sample making inquiry of an order
- *
- * @ignore
  */
-
-const debug = require('debug')('sskts-api-nodejs-client:samples');
 const readline = require('readline');
 const sasaki = require('../lib/index');
 
@@ -18,14 +14,12 @@ async function main() {
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
-        scopes: [
-            process.env.TEST_RESOURCE_IDENTIFIER + '/orders.read-only'
-        ],
+        scopes: [],
         state: 'teststate'
     });
 
     // try to make inquiry in a few seconds
-    debug('making inquiry...');
+    console.log('making inquiry...');
     return new Promise((resolve, reject) => {
         rl.question('input theater code: ', (theaterCode) => {
             rl.question('input confirmation number: ', (confirmationNumber) => {
@@ -43,7 +37,7 @@ async function main() {
                         }
 
                         const orderByInquiry = await orders.findByOrderInquiryKey(key);
-                        debug('orderByInquiry:', orderByInquiry);
+                        console.log('orderByInquiry:', orderByInquiry);
 
                         rl.close();
                         resolve();
@@ -58,3 +52,10 @@ async function main() {
 }
 
 exports.main = main;
+
+main()
+    .then(() => {
+        console.log('main processed.');
+    }).catch((err) => {
+        console.error(err);
+    });

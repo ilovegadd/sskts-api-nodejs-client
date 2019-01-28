@@ -1,4 +1,4 @@
-# SSKTS API Client Library for Node.js
+# Cinemasunshine API Client Library for Node.js
 
 [![npm (scoped)](https://img.shields.io/npm/v/@motionpicture/sskts-api-nodejs-client.svg)](https://www.npmjs.com/package/@motionpicture/sskts-api-nodejs-client)
 [![CircleCI](https://circleci.com/gh/motionpicture/sskts-api-nodejs-client.svg?style=shield)](https://circleci.com/gh/motionpicture/sskts-api-nodejs-client)
@@ -21,7 +21,7 @@ npm install @motionpicture/sskts-api-nodejs-client
 ### Environment variables
 
 | Name    | Required | Value                     | Purpose |
-|---------|----------|---------------------------|---------|
+| ------- | -------- | ------------------------- | ------- |
 | `DEBUG` | false    | sskts-api-nodejs-client:* | Debug   |
 
 ## License

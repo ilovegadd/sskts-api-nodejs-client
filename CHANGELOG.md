@@ -18,6 +18,23 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v5.0.0 - 2019-01-28
+
+### Added
+
+- 上映イベントシリーズインターフェースを追加
+- transactionサービスのエイリアスとしてtxnを追加
+
+### Changed
+
+- 人物インターフェースを拡張
+- @cinerino/api-abstract-clientを可能な範囲で継承するように調整
+- 予約インターフェースを価格属性を除いてChevreに統一
+- 個々の上映イベントのイベントタイプを変更
+- 決済方法承認アクションインターフェースを強化
+- 注文番号で返品取引を開始できるように変更
+- install @motionpicture/sskts-api-abstract-client@5.0.0
+
 ## v4.4.0 - 2018-12-11
 
 ### Changed

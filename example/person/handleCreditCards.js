@@ -1,10 +1,6 @@
 /**
- * a sample handling credit cards
  * クレジットカードを扱うサンプル
- *
- * @ignore
  */
-
 const COA = require('@motionpicture/coa-service');
 const GMO = require('@motionpicture/gmo-service');
 const moment = require('moment');

@@ -1,6 +1,5 @@
 /**
  * 口座検索サンプル
- * @ignore
  */
 const moment = require('moment');
 const open = require('open');

@@ -24,7 +24,7 @@
         "dateFormat": "ddd MMM Do YYYY",
         "outputSourceFiles": true,
         "outputSourcePath": true,
-        "systemName": "SSKTS API client library for Node.js",
+        "systemName": "Cinemasunshine API client library for Node.js",
         "footer": "",
         "navType": "vertical",
         "theme": "cosmo",

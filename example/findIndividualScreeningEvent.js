@@ -1,10 +1,6 @@
 /**
  * 上映イベント情報取得サンプル
- *
- * @ignore
  */
-
-const debug = require('debug')('sskts-api-nodejs-client:samples');
 const moment = require('moment');
 const sasaki = require('../lib/index');
 
@@ -17,7 +13,7 @@ async function main() {
         state: 'teststate'
     });
     // const credentials = await auth.refreshAccessToken();
-    // debug('credentials:', credentials);
+    // console.log('credentials:', credentials);
 
     const eventService = new sasaki.service.Event({
         endpoint: process.env.API_ENDPOINT,
@@ -35,14 +31,14 @@ async function main() {
         identifier: individualScreeningEvents[0].identifier
     });
     if (individualScreeningEvent === null) {
-        debug('event not found');
+        console.log('event not found');
     } else {
-        debug('individualScreeningEvent is', individualScreeningEvent);
+        console.log('individualScreeningEvent is', individualScreeningEvent);
     }
 }
 
 main().then(() => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
     console.error(err);
 });

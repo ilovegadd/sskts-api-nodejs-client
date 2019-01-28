@@ -1,15 +1,8 @@
 /**
  * 会員プログラム登録タスク作成サンプル
- * @ignore
  */
-
-const COA = require('@motionpicture/coa-service');
-const GMO = require('@motionpicture/gmo-service');
-const debug = require('debug')('sskts-api-nodejs-client:samples');
-const moment = require('moment');
 const open = require('open');
 const readline = require('readline');
-const util = require('util');
 
 const ssktsapi = require('../../lib/index');
 
@@ -72,7 +65,7 @@ async function main() {
 }
 
 main().then(async () => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
     console.error(err);
 });

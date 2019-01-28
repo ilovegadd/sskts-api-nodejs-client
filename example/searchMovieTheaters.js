@@ -1,10 +1,6 @@
 /**
  * 劇場検索サンプル
- *
- * @ignore
  */
-
-const debug = require('debug')('sskts-api-nodejs-client:samples');
 const sasaki = require('../lib/index');
 
 async function main() {
@@ -18,7 +14,7 @@ async function main() {
         state: 'teststate'
     });
     // const credentials = await auth.refreshAccessToken();
-    // debug('credentials:', credentials);
+    // console.log('credentials:', credentials);
 
     const organization = new sasaki.service.Organization({
         endpoint: process.env.API_ENDPOINT,
@@ -27,11 +23,11 @@ async function main() {
 
     const movieTheaters = await organization.searchMovieTheaters({
     });
-    debug('movieTheaters are', movieTheaters);
+    console.log('movieTheaters are', movieTheaters);
 }
 
 main().then(() => {
-    debug('main processed.');
+    console.log('main processed.');
 }).catch((err) => {
     console.error(err);
 });
