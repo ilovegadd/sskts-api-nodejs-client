@@ -27,12 +27,17 @@ async function main() {
 
     const transaction = await returnOrderService.start({
         expires: moment().add(30, 'minutes').toDate(),
-        transactionId: '5c4ac06e2325362aa40cc09e',
+        object: {
+            order: {
+                orderNumber: 'MO106-190102-000001'
+                // customer: { telephone: '\\+819012345678' }
+            }
+        }
     });
     console.log('transaction started', transaction.id);
 
     console.log('confirming transaction...');
-    await returnOrderService.confirm({ transactionId: transaction.id });
+    await returnOrderService.confirm(transaction);
     console.log('transaction confirmed');
 }
 

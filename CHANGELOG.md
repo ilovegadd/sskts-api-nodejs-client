@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 予約インターフェースを価格属性を除いてChevreに統一
 - 個々の上映イベントのイベントタイプを変更
 - 決済方法承認アクションインターフェースを強化
+- 注文番号で返品取引を開始できるように変更
 
 ### Deprecated
 
