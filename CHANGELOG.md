@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## v5.0.0 - 2019-01-28
+
+### Added
+
 - 上映イベントシリーズインターフェースを追加
 - transactionサービスのエイリアスとしてtxnを追加
 
@@ -20,14 +34,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - 決済方法承認アクションインターフェースを強化
 - 注文番号で返品取引を開始できるように変更
 - install @motionpicture/sskts-api-abstract-client@5.0.0
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## v4.4.0 - 2018-12-11
 
