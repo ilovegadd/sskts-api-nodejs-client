@@ -13,9 +13,9 @@ async function main() {
     const scopes = [];
 
     const auth = new ssktsapi.auth.OAuth2({
-        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
-        clientId: process.env.TEST_CLIENT_ID_OAUTH2,
-        clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
+        domain: process.env.TEST_ADMIN_AUTHORIZE_SERVER_DOMAIN,
+        clientId: process.env.TEST_ADMIN_CLIENT_ID,
+        clientSecret: process.env.TEST_ADMIN_CLIENT_SECRET,
         redirectUri: 'https://localhost/signIn',
         logoutUri: 'https://localhost/signOut'
     });
@@ -66,20 +66,18 @@ async function main() {
     });
 
     const { totalCount, data } = await orderService.search({
-        seller: {
-            typeOf: ssktsapi.factory.organizationType.MovieTheater,
-            ids: ['59d20831e53ebc2b4e774466']
-        },
-        // customer: {
-        //     typeOf: ssktsapi.factory.personType.Person,
-        //     membershipNumbers: ['xxx']
-        // },
-        orderStatuses: [ssktsapi.factory.orderStatus.OrderDelivered],
-        // orderNumbers: ['MO118-181006-000192'],
-        orderDateFrom: moment().add(-10, 'days').toDate(),
-        orderDateThrough: moment().toDate(),
-        paymentMethods: { typeOfs: [ssktsapi.factory.paymentMethodType.CreditCard] }
-        // reservedEventIdentifiers: ['11899100120181006800935']
+        confirmationNumbers: ['673392'],
+        acceptedOffers: {
+            itemOffered: {
+                reservationFor: {
+                    superEvent: {
+                        location: {
+                            branchCodes: ['118']
+                        }
+                    }
+                }
+            }
+        }
     });
     console.log(totalCount, 'orders found.');
     console.log(data.length, 'orders returned.');

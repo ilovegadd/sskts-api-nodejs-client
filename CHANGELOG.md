@@ -8,11 +8,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+- 販売者サービスを追加
+
 ### Changed
+
+- イベントサービスのインターフェースをCinerinoに統一
 
 ### Deprecated
 
 ### Removed
+
+- 組織サービスを廃止
+- 場所サービスを廃止
 
 ### Fixed
 
