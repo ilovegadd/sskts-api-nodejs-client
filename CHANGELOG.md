@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## v6.0.0 - 2019-02-20
+
+### Added
+
 - 販売者サービスを追加
 
 ### Changed
@@ -22,10 +36,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - 組織サービスを廃止
 - 場所サービスを廃止
-
-### Fixed
-
-### Security
 
 ## v5.0.0 - 2019-01-28
 
