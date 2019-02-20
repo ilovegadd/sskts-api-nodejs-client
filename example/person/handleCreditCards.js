@@ -8,10 +8,10 @@ const open = require('open');
 const readline = require('readline');
 const util = require('util');
 
-const sasaki = require('../../lib/index');
+const client = require('../../lib/index');
 
 async function main() {
-    const auth = new sasaki.auth.OAuth2({
+    const auth = new client.auth.OAuth2({
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID_OAUTH2,
         clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
@@ -55,39 +55,34 @@ async function main() {
         });
     });
 
-    const people = new sasaki.service.Person({
+    const ownershipInfoService = new client.service.person.OwnershipInfo({
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 
     // クレジットカード検索
-    let creditCards = await people.findCreditCards({
-        personId: 'me'
-    });
+    let creditCards = await ownershipInfoService.searchCreditCards({});
+    console.log(creditCards);
     console.log(creditCards.length, 'creditCards found.');
 
     // クレジットカード追加
-    const creditCard = await people.addCreditCard({
-        personId: 'me',
+    const creditCard = await ownershipInfoService.addCreditCard({
         creditCard: {
             cardNo: '4111111111111111',
-            expire: '2012',
+            expire: '2024',
             securityCode: '123'
         }
     });
     console.log('creditCard added.', creditCard.cardSeq);
 
     // クレジットカード削除
-    await people.deleteCreditCard({
-        personId: 'me',
+    await ownershipInfoService.deleteCreditCard({
         cardSeq: creditCard.cardSeq
     });
     console.log('creditCard deleted.');
 
     // クレジットカード検索
-    creditCards = await people.findCreditCards({
-        personId: 'me'
-    });
+    creditCards = await ownershipInfoService.searchCreditCards({});
     console.log(creditCards.length, 'creditCards found.');
 
     rl.close();

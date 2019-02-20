@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Deprecated
 
+- 会員サービスのクレジットカード、口座に関するエンドポイントを、会員所有権サービスへ移行推奨
+
 ### Removed
 
 - 組織サービスを廃止
