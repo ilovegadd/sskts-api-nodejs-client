@@ -1,5 +1,5 @@
 /**
- * 枝番号で劇場組織取得サンプル
+ * 販売者検索サンプル
  */
 const sasaki = require('../lib/index');
 
@@ -8,24 +8,20 @@ async function main() {
         domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.TEST_CLIENT_ID,
         clientSecret: process.env.TEST_CLIENT_SECRET,
-        scopes: [
-            process.env.TEST_RESOURCE_IDENTIFIER + '/organizations.read-only'
-        ],
+        scopes: [],
         state: 'teststate'
     });
     // const credentials = await auth.refreshAccessToken();
     // console.log('credentials:', credentials);
 
-    const organization = new sasaki.service.Organization({
+    const sellerService = new sasaki.service.Seller({
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
 
-    // 劇場情報取得
-    const movieTheater = await organization.findMovieTheaterByBranchCode({
-        branchCode: '118'
+    const sellers = await sellerService.search({
     });
-    console.log('movieTheater is', movieTheater);
+    console.log('sellers are', sellers);
 }
 
 main().then(() => {

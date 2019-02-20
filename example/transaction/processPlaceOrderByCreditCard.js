@@ -61,7 +61,7 @@ async function main(theaterCode) {
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
-    const organizationService = new ssktsapi.service.Organization({
+    const sellerService = new ssktsapi.service.Seller({
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
@@ -79,7 +79,7 @@ async function main(theaterCode) {
     });
 
     console.log('連絡先を検索しています...');
-    const contact = await personService.getContacts({ personId: 'me' });
+    const profile = await personService.getProfile({ personId: 'me' });
     console.log('連絡先が見つかりました。');
 
     // 取引に使用するクレジットカードを決定する
@@ -116,7 +116,7 @@ async function main(theaterCode) {
         console.log('契約中の口座がないので開設します...');
         account = await personService.openAccount({
             personId: 'me',
-            name: `${contact.familyName} ${contact.givenName}`
+            name: `${profile.familyName} ${profile.givenName}`
         });
         console.log('口座が開設されました。', account.accountNumber);
     } else {
@@ -124,12 +124,13 @@ async function main(theaterCode) {
     }
     console.log('注文後のインセンティブは', account.accountNumber, 'にポイントとして付与されます。');
 
-    // 販売劇場検索
-    const seller = await organizationService.findMovieTheaterByBranchCode({
-        branchCode: theaterCode
+    // 販売者検索
+    const searchSellersResult = await sellerService.search({
+        location: { branchCodes: [theaterCode] }
     });
+    const seller = searchSellersResult.data.shift();
     if (seller === null) {
-        throw new Error('販売劇場が見つかりませんでした。');
+        throw new Error('販売者が見つかりませんでした。');
     }
 
     /*****************************************************************
@@ -160,15 +161,18 @@ async function main(theaterCode) {
     }
 
     // イベント検索
-    const individualScreeningEvents = await eventService.searchIndividualScreeningEvent({
-        superEventLocationIdentifiers: [seller.identifier],
+    const searchEventsResult = await eventService.searchScreeningEvents({
+        superEvent: {
+            locationBranchCodes: [seller.location.branchCode]
+        },
         startFrom: moment().toDate(),
         // tslint:disable-next-line:no-magic-numbers
         startThrough: moment().add(2, 'days').toDate()
     });
-    console.log(individualScreeningEvents.length, '件のイベントが見つかりました。');
+    const screeningEvents = searchEventsResult.data;
+    console.log(screeningEvents.length, '件のイベントが見つかりました。');
 
-    const availableEvents = individualScreeningEvents.filter(
+    const availableEvents = screeningEvents.filter(
         (event) => (event.offer.availability !== 0)
     );
     if (availableEvents.length === 0) {
@@ -263,7 +267,7 @@ async function main(theaterCode) {
     console.log('購入者連絡先を登録します...');
     await placeOrderService.setCustomerContact({
         transactionId: transaction.id,
-        contact: contact
+        contact: profile
     });
     console.log('購入者連絡先を登録しました。');
 
@@ -288,6 +292,6 @@ async function wait(waitInMilliseconds) {
     return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
 }
 
-main('115').then(() => {
+main('118').then(() => {
     console.log('success!');
 }).catch(console.error);

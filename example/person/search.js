@@ -12,9 +12,9 @@ async function main() {
     const scopes = [];
 
     const auth = new ssktsapi.auth.OAuth2({
-        domain: process.env.TEST_AUTHORIZE_SERVER_DOMAIN,
-        clientId: process.env.TEST_CLIENT_ID_OAUTH2,
-        clientSecret: process.env.TEST_CLIENT_SECRET_OAUTH2,
+        domain: process.env.TEST_ADMIN_AUTHORIZE_SERVER_DOMAIN,
+        clientId: process.env.TEST_ADMIN_CLIENT_ID,
+        clientSecret: process.env.TEST_ADMIN_CLIENT_SECRET,
         redirectUri: 'https://localhost/signIn',
         logoutUri: 'https://localhost/signOut'
     });
@@ -69,6 +69,7 @@ async function main() {
     });
     console.log(totalCount, 'people found.');
     console.log(data.length, 'people returned.');
+    console.log(data);
 }
 
 main().then(() => {

@@ -1,6 +1,6 @@
 {
   "name": "@motionpicture/sskts-api-nodejs-client",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Cinemasunshine API Client Library for Node.js",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -60,16 +60,16 @@
     "jsdoc": "^3.5.5",
     "lodash.difference": "^4.5.0",
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0",
+    "nyc": "^13.2.0",
     "open": "0.0.5",
     "rimraf": "^2.6.3",
     "ts-node": "^7.0.1",
     "tslint": "^5.12.1",
     "tslint-microsoft-contrib": "^6.0.0",
-    "typescript": "^3.2.4"
+    "typescript": "^3.3.1"
   },
   "dependencies": {
-    "@cinerino/api-nodejs-client": "^1.1.0-alpha.39",
-    "@motionpicture/sskts-api-abstract-client": "^5.0.0"
+    "@cinerino/api-nodejs-client": "1.1.0-alpha.44",
+    "@motionpicture/sskts-api-abstract-client": "^6.0.1"
   }
 }

@@ -18,6 +18,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v6.0.0 - 2019-02-20
+
+### Added
+
+- 販売者サービスを追加
+
+### Changed
+
+- イベントサービスのインターフェースをCinerinoに統一
+
+### Deprecated
+
+- 会員サービスのクレジットカード、口座に関するエンドポイントを、会員所有権サービスへ移行推奨
+
+### Removed
+
+- 組織サービスを廃止
+- 場所サービスを廃止
+
 ## v5.0.0 - 2019-01-28
 
 ### Added
