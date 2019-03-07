@@ -65,14 +65,11 @@ async function main() {
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
-    const accounts = await personService.findAccounts({
-        personId: 'me'
-    });
+    const accounts = await personService.findAccounts({});
     console.log(accounts.length, 'accounts found.');
 
     console.log('searching actions...account:', accounts[0].id);
     const actions = await personService.searchAccountMoneyTransferActions({
-        personId: 'me',
         accountNumber: accounts.filter((a) => a.status === ssktsapi.factory.pecorino.accountStatusType.Opened)[0].accountNumber
     });
     console.log('取引履歴は以下の通りです。');

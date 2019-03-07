@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- factoryをCinerino化
+- Cinerino API移行の際の互換性維持のための調整
+
 ### Deprecated
 
 ### Removed
