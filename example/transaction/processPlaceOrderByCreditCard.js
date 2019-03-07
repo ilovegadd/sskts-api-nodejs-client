@@ -79,20 +79,17 @@ async function main(theaterCode) {
     });
 
     console.log('連絡先を検索しています...');
-    const profile = await personService.getProfile({ personId: 'me' });
+    const profile = await personService.getProfile({});
     console.log('連絡先が見つかりました。');
 
     // 取引に使用するクレジットカードを決定する
     let creditCard;
     console.log('クレジットカードを検索しています...');
-    let creditCards = await personService.findCreditCards({
-        personId: 'me'
-    });
+    let creditCards = await personService.findCreditCards({});
     creditCards = creditCards.filter((c) => c.deleteFlag === '0');
     if (creditCards.length === 0) {
         console.log('クレジットカードが見つからないので登録します...');
         creditCard = await personService.addCreditCard({
-            personId: 'me',
             creditCard: {
                 cardNo: '4111111111111111',
                 expire: '2012',
@@ -108,14 +105,11 @@ async function main(theaterCode) {
     // インセンティブ付与に使用する口座を決定する
     let account;
     console.log('口座を検索しています...');
-    let accounts = await personService.findAccounts({
-        personId: 'me'
-    });
+    let accounts = await personService.findAccounts({});
     accounts = accounts.filter((a) => a.status === ssktsapi.factory.pecorino.accountStatusType.Opened);
     if (accounts.length === 0) {
         console.log('契約中の口座がないので開設します...');
         account = await personService.openAccount({
-            personId: 'me',
             name: `${profile.familyName} ${profile.givenName}`
         });
         console.log('口座が開設されました。', account.accountNumber);
@@ -129,7 +123,7 @@ async function main(theaterCode) {
         location: { branchCodes: [theaterCode] }
     });
     const seller = searchSellersResult.data.shift();
-    if (seller === null) {
+    if (seller === undefined) {
         throw new Error('販売者が見つかりませんでした。');
     }
 
@@ -149,7 +143,6 @@ async function main(theaterCode) {
 
         console.log('会員プログラムに登録します...');
         const registerProgramMembershipTask = await personService.registerProgramMembership({
-            personId: 'me',
             programMembershipId: programMemberships[0].id,
             offerIdentifier: programMemberships[0].offers[0].identifier,
             sellerType: seller.typeOf,
@@ -275,6 +268,14 @@ async function main(theaterCode) {
     // tslint:disable-next-line:no-magic-numbers
     await wait(5000);
 
+    await placeOrderService.createPecorinoAwardAuthorization({
+        transactionId: transaction.id,
+        amount: 1,
+        toAccountNumber: account.accountNumber,
+        notes: 'おめでとうインセンティブだよ'
+    });
+    console.log('ポイントインセンティブが承認されました');
+
     // 取引を中止する場合はコチラ↓
     // console.log('取引を中止します...');
     // await placeOrderService.cancel({ transactionId: transaction.id });
@@ -292,6 +293,6 @@ async function wait(waitInMilliseconds) {
     return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
 }
 
-main('118').then(() => {
+main('112').then(() => {
     console.log('success!');
 }).catch(console.error);

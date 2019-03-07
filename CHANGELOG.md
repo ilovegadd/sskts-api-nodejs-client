@@ -18,6 +18,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v6.0.1 - 2019-03-07
+
+### Changed
+
+- factoryをCinerino化
+- Cinerino API移行の際の互換性維持のための調整
+
 ## v6.0.0 - 2019-02-20
 
 ### Added

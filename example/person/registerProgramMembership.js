@@ -55,7 +55,6 @@ async function main() {
     });
 
     const task = await personService.registerProgramMembership({
-        personId: 'me',
         programMembershipId: '5afff104d51e59232c7b481b',
         offerIdentifier: 'AnnualPlan',
         sellerType: 'MovieTheater',
