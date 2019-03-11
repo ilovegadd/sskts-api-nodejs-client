@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 注文取引サービスのいくつかのサービス、パラメータを、Cinerino移行に向けて非推奨化
+
 ### Deprecated
 
 ### Removed
