@@ -10,9 +10,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 注文取引中の決済承認エンドポイントを新決済サービスへ変更
+
 ### Deprecated
 
 ### Removed
+
+- Cinerino化に際して会員サービスの非推奨エンドポイントを削除
+- Cinerino化に際して注文取引サービスの非推奨エンドポイントを削除
 
 ### Fixed
 
