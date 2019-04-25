@@ -18,6 +18,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v7.0.0 - 2019-04-25
+
+### Changed
+
+- 注文取引中の決済承認エンドポイントを新決済サービスへ変更
+
+### Removed
+
+- Cinerino化に際して会員サービスの非推奨エンドポイントを削除
+- Cinerino化に際して注文取引サービスの非推奨エンドポイントを削除
+
 ## v6.1.0 - 2019-03-11
 
 ### Changed

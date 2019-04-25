@@ -73,6 +73,10 @@ async function main(theaterCode) {
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
+    const personOwnershipInfoService = new ssktsapi.service.person.OwnershipInfo({
+        endpoint: process.env.API_ENDPOINT,
+        auth: auth
+    });
     const programMembershipService = new ssktsapi.service.ProgramMembership({
         endpoint: process.env.API_ENDPOINT,
         auth: auth
@@ -85,11 +89,11 @@ async function main(theaterCode) {
     // 取引に使用するクレジットカードを決定する
     let creditCard;
     console.log('クレジットカードを検索しています...');
-    let creditCards = await personService.findCreditCards({});
+    let creditCards = await personOwnershipInfoService.searchCreditCards({});
     creditCards = creditCards.filter((c) => c.deleteFlag === '0');
     if (creditCards.length === 0) {
         console.log('クレジットカードが見つからないので登録します...');
-        creditCard = await personService.addCreditCard({
+        creditCard = await personOwnershipInfoService.addCreditCard({
             creditCard: {
                 cardNo: '4111111111111111',
                 expire: '2012',
@@ -105,16 +109,22 @@ async function main(theaterCode) {
     // インセンティブ付与に使用する口座を決定する
     let account;
     console.log('口座を検索しています...');
-    let accounts = await personService.findAccounts({});
-    accounts = accounts.filter((a) => a.status === ssktsapi.factory.pecorino.accountStatusType.Opened);
+    const searchAccountsResult = await personOwnershipInfoService.search({
+        typeOfGood: { typeOf: 'Account', accountType: ssktsapi.factory.accountType.Point }
+    });
+    const accounts = searchAccountsResult.data.filter(
+        (a) => a.typeOfGood.status === ssktsapi.factory.pecorino.accountStatusType.Opened
+    );
     if (accounts.length === 0) {
         console.log('契約中の口座がないので開設します...');
-        account = await personService.openAccount({
-            name: `${profile.familyName} ${profile.givenName}`
+        const accountOwnershipInfo = await personOwnershipInfoService.openAccount({
+            name: `${profile.familyName} ${profile.givenName}`,
+            accountType: ssktsapi.factory.accountType.Point
         });
-        console.log('口座が開設されました。', account.accountNumber);
+        account = accountOwnershipInfo.typeOfGood;
+        console.log('口座が開設されました。', accountOwnershipInfo.typeOfGood.accountNumber);
     } else {
-        account = accounts[0];
+        account = accounts[0].typeOfGood;
     }
     console.log('注文後のインセンティブは', account.accountNumber, 'にポイントとして付与されます。');
 
@@ -131,12 +141,11 @@ async function main(theaterCode) {
      * 会員としてポイントサービス特典を受けるためには、さらに会員プログラムへの登録処理が必要
      *****************************************************************/
     console.log('所属会員プログラムを検索します...');
-    const programMembershipOwnershipInfos = await personService.searchOwnershipInfos({
-        ownedBy: 'me',
-        goodType: 'ProgramMembership'
+    const programMembershipOwnershipInfos = await personOwnershipInfoService.search({
+        typeOfGood: { typeOf: 'ProgramMembership' }
     });
-    console.log(programMembershipOwnershipInfos.length, '件の会員プログラムに所属しています。')
-    if (programMembershipOwnershipInfos.length === 0) {
+    console.log(programMembershipOwnershipInfos.totalCount, '件の会員プログラムに所属しています。')
+    if (programMembershipOwnershipInfos.totalCount === 0) {
         // 会員プログラム検索
         const programMemberships = await programMembershipService.search({});
         console.log(programMemberships.length, '件の会員プログラムが見つかりました。');
@@ -171,12 +180,12 @@ async function main(theaterCode) {
     if (availableEvents.length === 0) {
         throw new Error('予約可能なイベントがありません。');
     }
-    const individualScreeningEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
+    const screeningEvent = availableEvents[Math.floor(availableEvents.length * Math.random())];
 
     console.log('取引を開始します...', seller);
     const transaction = await placeOrderService.start({
-        expires: moment().add(30, 'minutes').toDate(),
-        sellerId: seller.id
+        expires: moment().add(10, 'minutes').toDate(),
+        seller: seller
     });
     console.log('取引が開始されました。', transaction.id);
 
@@ -184,10 +193,10 @@ async function main(theaterCode) {
     // このサンプルは1座席購入なので、制限単位が1枚以上の券種に絞る
     const salesTicketResult = await COA.services.reserve.salesTicket({
         theaterCode: theaterCode,
-        dateJouei: individualScreeningEvent.coaInfo.dateJouei,
-        titleCode: individualScreeningEvent.coaInfo.titleCode,
-        titleBranchNum: individualScreeningEvent.coaInfo.titleBranchNum,
-        timeBegin: individualScreeningEvent.coaInfo.timeBegin,
+        dateJouei: screeningEvent.coaInfo.dateJouei,
+        titleCode: screeningEvent.coaInfo.titleCode,
+        titleBranchNum: screeningEvent.coaInfo.titleBranchNum,
+        timeBegin: screeningEvent.coaInfo.timeBegin,
         flgMember: COA.services.reserve.FlgMember.NonMember
     }).then((results) => results.filter((result) => result.limitUnit === '001' && result.limitCount === 1));
     console.log(salesTicketResult.length, '件の販売可能券種が見つかりました。');
@@ -195,11 +204,11 @@ async function main(theaterCode) {
     // 空席検索
     const getStateReserveSeatResult = await COA.services.reserve.stateReserveSeat({
         theaterCode: theaterCode,
-        dateJouei: individualScreeningEvent.coaInfo.dateJouei,
-        titleCode: individualScreeningEvent.coaInfo.titleCode,
-        titleBranchNum: individualScreeningEvent.coaInfo.titleBranchNum,
-        timeBegin: individualScreeningEvent.coaInfo.timeBegin,
-        screenCode: individualScreeningEvent.coaInfo.screenCode
+        dateJouei: screeningEvent.coaInfo.dateJouei,
+        titleCode: screeningEvent.coaInfo.titleCode,
+        titleBranchNum: screeningEvent.coaInfo.titleBranchNum,
+        timeBegin: screeningEvent.coaInfo.timeBegin,
+        screenCode: screeningEvent.coaInfo.screenCode
     });
     console.log(getStateReserveSeatResult.cntReserveFree, '件の空席が見つかりました。');
     const sectionCode = getStateReserveSeatResult.listSeat[0].seatSection;
@@ -215,41 +224,46 @@ async function main(theaterCode) {
     await wait(5000);
     console.log('座席を仮予約します...');
     let seatReservationAuthorization = await placeOrderService.createSeatReservationAuthorization({
-        transactionId: transaction.id,
-        eventIdentifier: individualScreeningEvent.identifier,
-        offers: [
-            {
-                seatSection: sectionCode,
-                seatNumber: selectedSeatCode,
-                ticketInfo: {
-                    ticketCode: selectedSalesTicket.ticketCode,
-                    mvtkAppPrice: 0,
-                    ticketCount: 1,
-                    addGlasses: selectedSalesTicket.addGlasses,
-                    kbnEisyahousiki: '00',
-                    mvtkNum: '',
-                    mvtkKbnDenshiken: '00',
-                    mvtkKbnMaeuriken: '00',
-                    mvtkKbnKensyu: '00',
-                    mvtkSalesPrice: 0
+        object: {
+            event: screeningEvent,
+            acceptedOffer: [
+                {
+                    seatSection: sectionCode,
+                    seatNumber: selectedSeatCode,
+                    ticketInfo: {
+                        ticketCode: selectedSalesTicket.ticketCode,
+                        mvtkAppPrice: 0,
+                        ticketCount: 1,
+                        addGlasses: selectedSalesTicket.addGlasses,
+                        kbnEisyahousiki: '00',
+                        mvtkNum: '',
+                        mvtkKbnDenshiken: '00',
+                        mvtkKbnMaeuriken: '00',
+                        mvtkKbnKensyu: '00',
+                        mvtkSalesPrice: 0
+                    }
                 }
-            }
-        ]
+            ]
+        },
+        purpose: transaction
     });
     console.log('座席を仮予約しました。:', seatReservationAuthorization.id);
 
     // クレジットカードオーソリアクション
     console.log('クレジットカードに対してオーソリを作成します...');
-    let creditCardAuthorization = await placeOrderService.createCreditCardAuthorization({
-        transactionId: transaction.id,
-        amount: seatReservationAuthorization.result.price,
-        orderId: moment().unix(),
-        method: '1',
-        creditCard: {
-            memberId: 'me',
-            cardSeq: creditCard.cardSeq
-            // cardPass: ''
-        }
+    let creditCardAuthorization = await placeOrderService.authorizeCreditCardPayment({
+        object: {
+            typeOf: ssktsapi.factory.paymentMethodType.CreditCard,
+            amount: seatReservationAuthorization.result.price,
+            // orderId: moment().unix(), // 未指定でもOK
+            method: '1',
+            creditCard: {
+                memberId: 'me',
+                cardSeq: creditCard.cardSeq
+                // cardPass: ''
+            }
+        },
+        purpose: transaction
     });
     console.log('クレジットカードオーソリアクションが作成されました。', creditCardAuthorization.id);
 
@@ -259,8 +273,10 @@ async function main(theaterCode) {
 
     console.log('購入者連絡先を登録します...');
     await placeOrderService.setCustomerContact({
-        transactionId: transaction.id,
-        contact: profile
+        id: transaction.id,
+        object: {
+            customerContact: profile
+        }
     });
     console.log('購入者連絡先を登録しました。');
 
@@ -269,10 +285,12 @@ async function main(theaterCode) {
     await wait(5000);
 
     await placeOrderService.createPecorinoAwardAuthorization({
-        transactionId: transaction.id,
-        amount: 1,
-        toAccountNumber: account.accountNumber,
-        notes: 'おめでとうインセンティブだよ'
+        object: {
+            amount: 1,
+            toAccountNumber: account.accountNumber,
+            notes: 'おめでとうインセンティブだよ'
+        },
+        purpose: transaction
     });
     console.log('ポイントインセンティブが承認されました');
 
@@ -283,8 +301,10 @@ async function main(theaterCode) {
 
     console.log('取引を確定します...');
     const order = await placeOrderService.confirm({
-        transactionId: transaction.id,
-        sendEmailMessage: false
+        id: transaction.id,
+        options: {
+            sendEmailMessage: false
+        }
     });
     console.log('取引確定です。', order.orderNumber);
 }
@@ -293,6 +313,6 @@ async function wait(waitInMilliseconds) {
     return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
 }
 
-main('112').then(() => {
+main('113').then(() => {
     console.log('success!');
 }).catch(console.error);
