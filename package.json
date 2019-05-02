@@ -20,7 +20,7 @@
     "check": "npm run tslint",
     "clean": "rimraf ./lib \"npm-debug.log*\" ./doc ./coverage ./.nyc_output",
     "example": "http-server ./example",
-    "doc": "jsdoc -c jsdoc.json",
+    "doc": "echo \"implementing...\" && exit 0",
     "mocha": "mocha",
     "nyc": "nyc mocha \"src/**/*.spec.ts\"",
     "coverage": "npm run nyc && nyc report --reporter=text-lcov | coveralls",
@@ -51,25 +51,24 @@
   "devDependencies": {
     "@motionpicture/coa-service": "^5.0.2",
     "@motionpicture/gmo-service": "^4.3.0",
-    "@types/lodash.difference": "^4.5.4",
-    "@types/mocha": "^5.2.5",
+    "@types/lodash.difference": "^4.5.6",
+    "@types/mocha": "^5.2.6",
     "@types/open": "0.0.29",
-    "coveralls": "^3.0.2",
+    "coveralls": "^3.0.3",
     "http-server": "^0.11.1",
     "ink-docstrap": "^1.3.2",
-    "jsdoc": "^3.5.5",
     "lodash.difference": "^4.5.0",
     "mocha": "^5.2.0",
-    "nyc": "^13.2.0",
+    "nyc": "^13.3.0",
     "open": "0.0.5",
     "rimraf": "^2.6.3",
     "ts-node": "^7.0.1",
-    "tslint": "^5.12.1",
-    "tslint-microsoft-contrib": "^6.0.0",
-    "typescript": "^3.3.1"
+    "tslint": "^5.16.0",
+    "tslint-microsoft-contrib": "^6.1.1",
+    "typescript": "^3.4.5"
   },
   "dependencies": {
     "@cinerino/api-nodejs-client": "2.0.0-alpha.2",
-    "@motionpicture/sskts-api-abstract-client": "^7.0.0"
+    "@motionpicture/sskts-api-abstract-client": "^8.0.0"
   }
 }
