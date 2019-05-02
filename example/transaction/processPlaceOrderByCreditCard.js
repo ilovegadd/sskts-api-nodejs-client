@@ -69,6 +69,10 @@ async function main(theaterCode) {
         endpoint: process.env.API_ENDPOINT,
         auth: auth
     });
+    const paymentService = new ssktsapi.service.Payment({
+        endpoint: process.env.API_ENDPOINT,
+        auth: auth
+    });
     const personService = new ssktsapi.service.Person({
         endpoint: process.env.API_ENDPOINT,
         auth: auth
@@ -251,7 +255,7 @@ async function main(theaterCode) {
 
     // クレジットカードオーソリアクション
     console.log('クレジットカードに対してオーソリを作成します...');
-    let creditCardAuthorization = await placeOrderService.authorizeCreditCardPayment({
+    let creditCardAuthorization = await paymentService.authorizeCreditCard({
         object: {
             typeOf: ssktsapi.factory.paymentMethodType.CreditCard,
             amount: seatReservationAuthorization.result.price,
@@ -271,28 +275,28 @@ async function main(theaterCode) {
     // tslint:disable-next-line:no-magic-numbers
     await wait(5000);
 
-    console.log('購入者連絡先を登録します...');
+    console.log('購入者プロフィールを登録します...');
     await placeOrderService.setCustomerContact({
         id: transaction.id,
         object: {
             customerContact: profile
         }
     });
-    console.log('購入者連絡先を登録しました。');
+    console.log('購入者プロフィールを登録しました。');
 
     // 購入情報確認時間
     // tslint:disable-next-line:no-magic-numbers
     await wait(5000);
 
-    await placeOrderService.createPecorinoAwardAuthorization({
-        object: {
-            amount: 1,
-            toAccountNumber: account.accountNumber,
-            notes: 'おめでとうインセンティブだよ'
-        },
-        purpose: transaction
-    });
-    console.log('ポイントインセンティブが承認されました');
+    // await placeOrderService.createPecorinoAwardAuthorization({
+    //     object: {
+    //         amount: 1,
+    //         toAccountNumber: account.accountNumber,
+    //         notes: 'おめでとうインセンティブだよ'
+    //     },
+    //     purpose: transaction
+    // });
+    // console.log('ポイントインセンティブが承認されました');
 
     // 取引を中止する場合はコチラ↓
     // console.log('取引を中止します...');
@@ -313,6 +317,6 @@ async function wait(waitInMilliseconds) {
     return new Promise((resolve) => setTimeout(resolve, waitInMilliseconds));
 }
 
-main('113').then(() => {
+main('118').then(() => {
     console.log('success!');
 }).catch(console.error);

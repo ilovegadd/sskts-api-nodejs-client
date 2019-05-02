@@ -18,6 +18,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.0.0 - 2019-05-02
+
+### Added
+
+- 決済サービスを追加
+
+### Changed
+
+- update @cinerino/api-abstract-client
+
+### Removed
+
+- 注文取引サービスの決済処理を部分的に決済サービスへ移行(口座、クレジットカード)
+- 注文取引確定後のEメール送信タスク作成サービスを削除
+
 ## v7.0.0 - 2019-04-25
 
 ### Changed
