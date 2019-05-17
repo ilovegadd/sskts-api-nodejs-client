@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 注文取引確定時のオプションを拡張
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v8.0.1 - 2019-05-17
+
+### Changed
+
+- 注文取引確定時のオプションを拡張
 
 ## v8.0.0 - 2019-05-02
 
