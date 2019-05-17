@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v8.0.1 - 2019-05-17
+
+### Changed
+
+- 注文取引確定時のオプションを拡張
+
 ## v8.0.0 - 2019-05-02
 
 ### Added
