@@ -29,7 +29,9 @@
     "preversion": "npm run clean && npm run build && npm test",
     "version": "git add -A",
     "postversion": "git push origin --tags",
-    "prepublishOnly": "npm run clean && npm run build && npm test && npm run doc"
+    "prepublishOnly": "npm run clean && npm run build && npm test && npm run doc",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -69,6 +71,8 @@
   },
   "dependencies": {
     "@cinerino/api-nodejs-client": "2.0.0-alpha.2",
-    "@motionpicture/sskts-api-abstract-client": "^8.0.1"
-  }
+    "@motionpicture/sskts-api-abstract-client": "^8.0.1",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
